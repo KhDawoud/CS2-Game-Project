@@ -1,0 +1,3 @@
+/Users/Admin/Desktop/Desktop - Khaled’s MacBook Air/CS2/QtWidgetTest2/build/CMakeFiles/TestApp.dir
+/Users/Admin/Desktop/Desktop - Khaled’s MacBook Air/CS2/QtWidgetTest2/build/CMakeFiles/edit_cache.dir
+/Users/Admin/Desktop/Desktop - Khaled’s MacBook Air/CS2/QtWidgetTest2/build/CMakeFiles/rebuild_cache.dir
