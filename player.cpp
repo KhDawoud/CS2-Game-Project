@@ -1,10 +1,11 @@
 #include "player.hpp"
 #include <QBrush>
+#include <QKeyEvent>
 
 Player::Player()
 {
     setRect(0, 0, 50, 50);
-    setBrush(Qt::blue);
+    setBrush(Qt::red);
 
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
@@ -14,18 +15,46 @@ void Player::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Left)
     {
-        moveBy(-10, 0);
+        if (event->modifiers() & Qt::ShiftModifier)
+        {
+            moveBy(-20, 0);
+        }
+        else
+        {
+            moveBy(-10, 0);
+        }
     }
     else if (event->key() == Qt::Key_Right)
     {
-        moveBy(10, 0);
+        if (event->modifiers() & Qt::ShiftModifier)
+        {
+            moveBy(20, 0);
+        }
+        else
+        {
+            moveBy(10, 0);
+        }
     }
     else if (event->key() == Qt::Key_Up)
     {
-        moveBy(0, -10);
+        if (event->modifiers() & Qt::ShiftModifier)
+        {
+            moveBy(0, -20);
+        }
+        else
+        {
+            moveBy(0, -10);
+        }
     }
     else if (event->key() == Qt::Key_Down)
     {
-        moveBy(0, 10);
+        if (event->modifiers() & Qt::ShiftModifier)
+        {
+            moveBy(0, 20);
+        }
+        else
+        {
+            moveBy(0, 10);
+        }
     }
 }
