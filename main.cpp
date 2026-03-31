@@ -5,17 +5,16 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QApplication a(argc, argv);
 
-    QGraphicsScene scene;
-    scene.setSceneRect(0, 0, 800, 600);
-
+    QGraphicsScene *scene = new QGraphicsScene();
     Player *player = new Player();
-    scene.addItem(player);
 
-    QGraphicsView view(&scene);
-    view.setFixedSize(800, 600);
-    view.show();
+    scene->addItem(player);
 
-    return app.exec();
+    QGraphicsView *view = new QGraphicsView(scene);
+    view->setFixedSize(800, 600);
+    view->show();
+
+    return a.exec();
 }
