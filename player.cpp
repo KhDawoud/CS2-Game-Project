@@ -57,12 +57,31 @@ void Player::setAnimationState(PlayerState newState)
 
 void Player::updateAnimation()
 {
+    // since I accept multiple inputs, they can cancel each other out
+    bool isMoving = false;
+    if (!activeKeys.isEmpty())
+    {
+        int dx = 0, dy = 0;
+        if (activeKeys.contains(Qt::Key_W) || activeKeys.contains(Qt::Key_Up))
+            dy -= 1;
+        if (activeKeys.contains(Qt::Key_S) || activeKeys.contains(Qt::Key_Down))
+            dy += 1;
+        if (activeKeys.contains(Qt::Key_A) || activeKeys.contains(Qt::Key_Left))
+            dx -= 1;
+        if (activeKeys.contains(Qt::Key_D) || activeKeys.contains(Qt::Key_Right))
+            dx += 1;
 
-    bool isWaitingToIdle = (currentState == PlayerState::Walking && activeKeys.isEmpty());
+        if (dx != 0 || dy != 0)
+        {
+            isMoving = true;
+        }
+    }
+
+    bool isWaitingToIdle = (currentState == PlayerState::Walking && !isMoving);
 
     int currentFrameWidth = 0;
     int currentFrameHeight = 0;
-    QPixmap *sheetToDraw = nullptr; // A pointer to easily swap which image we use
+    QPixmap *sheetToDraw = nullptr;
 
     if (currentState == PlayerState::Idle || isWaitingToIdle)
     {
@@ -85,7 +104,6 @@ void Player::updateAnimation()
     }
     else
     {
-        // so switching directions correctly updates the max frames
         if (currentFrame >= maxFrames)
         {
             currentFrame = 0;
@@ -103,7 +121,30 @@ void Player::movePlayer()
     {
         if (currentState == PlayerState::Walking && !idleTimer->isActive())
         {
-            idleTimer->start(1000); // we only idle after 0.5 seconds of doing nothing
+            idleTimer->start(500);
+        }
+        return;
+    }
+
+    // allow multi-directional input
+    float dx = 0;
+    float dy = 0;
+
+    if (activeKeys.contains(Qt::Key_W) || activeKeys.contains(Qt::Key_Up))
+        dy -= 1;
+    if (activeKeys.contains(Qt::Key_S) || activeKeys.contains(Qt::Key_Down))
+        dy += 1;
+    if (activeKeys.contains(Qt::Key_A) || activeKeys.contains(Qt::Key_Left))
+        dx -= 1;
+    if (activeKeys.contains(Qt::Key_D) || activeKeys.contains(Qt::Key_Right))
+        dx += 1;
+
+    // check for cancellation
+    if (dx == 0 && dy == 0)
+    {
+        if (currentState == PlayerState::Walking && !idleTimer->isActive())
+        {
+            idleTimer->start(500);
         }
         return;
     }
@@ -111,37 +152,26 @@ void Player::movePlayer()
     idleTimer->stop();
     setAnimationState(PlayerState::Walking);
 
-    // so keys dont overlap whatever is pressed is added to a list and only
-    // most recent input is considered
-
-    Qt::Key newestKey = activeKeys.last();
-    int speed = 4;
-
-    switch (newestKey)
+    // since spritesheet only has 4 directions, im js taking x direction for diagonal movement
+    if (dx != 0)
     {
-    case Qt::Key_Right:
-    case Qt::Key_D:
-        currentDirection = Direction::Right;
-        setPos(x() + speed, y());
-        break;
-    case Qt::Key_Left:
-    case Qt::Key_A:
-        currentDirection = Direction::Left;
-        setPos(x() - speed, y());
-        break;
-    case Qt::Key_Up:
-    case Qt::Key_W:
-        currentDirection = Direction::Up;
-        setPos(x(), y() - speed);
-        break;
-    case Qt::Key_Down:
-    case Qt::Key_S:
-        currentDirection = Direction::Down;
-        setPos(x(), y() + speed);
-        break;
-    default:
-        break;
+        currentDirection = (dx > 0) ? Direction::Right : Direction::Left;
     }
+    else if (dy != 0)
+    {
+        currentDirection = (dy > 0) ? Direction::Down : Direction::Up;
+    }
+
+    float baseSpeed = 4.0f;
+    float actualSpeed = baseSpeed;
+
+    if (dx != 0 && dy != 0)
+    {
+        // normalise so diagonal speed same as normal speed
+        actualSpeed = baseSpeed * 0.7071f;
+    }
+
+    setPos(x() + (dx * actualSpeed), y() + (dy * actualSpeed));
 }
 
 void Player::keyPressEvent(QKeyEvent *event)
