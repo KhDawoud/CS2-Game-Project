@@ -29,6 +29,7 @@ public slots:
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
+
     void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
@@ -56,5 +57,4 @@ private:
 
     QList<Qt::Key> activeKeys;
 
-    void setAnimationState(PlayerState newState);
-};
+    void setAnimationState(PlayerState newState);};
