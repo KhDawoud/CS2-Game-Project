@@ -57,4 +57,5 @@ private:
 
     QList<Qt::Key> activeKeys;
 
-    void setAnimationState(PlayerState newState);};
+    void setAnimationState(PlayerState newState);
+};

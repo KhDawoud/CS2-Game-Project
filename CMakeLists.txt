@@ -8,5 +8,4 @@ set(CMAKE_AUTOUIC ON)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 add_executable(TestApp main.cpp player.cpp)
-add_excutable(TestApp Enemy.cpp)
 target_link_libraries(TestApp PRIVATE Qt6::Widgets)
