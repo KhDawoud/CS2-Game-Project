@@ -5,7 +5,8 @@
 enum class PlayerState
 {
     Idle,
-    Walking
+    Walking,
+    Attacking
 };
 
 enum class Direction
@@ -40,12 +41,16 @@ private:
 
     QPixmap walkSheet;
     QPixmap idleSheet;
+    QPixmap attackSheet;
 
     int walkFrameWidth;
     int walkFrameHeight;
 
     int idleFrameWidth;
     int idleFrameHeight;
+
+    int attackFrameWidth;
+    int attackFrameHeight;
 
     int maxFrames;
 
