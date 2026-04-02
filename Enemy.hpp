@@ -17,6 +17,20 @@ struct Direction {
     float x, y;
     Direction(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
 };
+  struct AnimData {
+    QPixmap sheet;
+    int frameCount;
+    int speedMs;
+};
+
+enum class EnemyState { 
+    Idle, 
+    Walking, 
+    Attacking, 
+    Hurt, 
+    Dead 
+};
+
 
 class BaseEnemy : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
@@ -31,10 +45,16 @@ protected:
     int defense;
     int width, height;
 
+ 
+    AnimData idleData;
+    AnimData walkData;
+    AnimData attackData;
+
+    void setEnemyState(EnemyState newState);
     int currentFrame = 0;
     int currentRow = 0;
     QPixmap spriteSheet;
-
+    EnemyState currentState = EnemyState::Idle;
 public:
     BaseEnemy(int hp, int atk, int def, float spd = 1.0f);
 
