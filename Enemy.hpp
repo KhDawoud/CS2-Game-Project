@@ -65,7 +65,7 @@ public:
 
     void moveEnemy();
     virtual void updateAnimation();
-
+void detectandmove(player);
 public slots:
     void update();
 };
