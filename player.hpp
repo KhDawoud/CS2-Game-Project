@@ -1,21 +1,12 @@
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
 #include <QGraphicsPixmapItem>
 #include <QObject>
 #include <QTimer>
 
-enum class PlayerState
-{
-    Idle,
-    Walking,
-    Attacking
-};
+enum class PlayerState { Idle, Walking, Attacking };
 
-enum class Direction
-{
-    Right = 2,
-    Up = 3,
-    Left = 1,
-    Down = 0
-};
+enum class Direction { Right = 2, Up = 3, Left = 1, Down = 0 };
 
 class Player : public QObject, public QGraphicsPixmapItem
 {
@@ -31,6 +22,10 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
     void keyReleaseEvent(QKeyEvent *event) override;
+
+signals:
+    void positionChanged(QGraphicsItem* playerPtr); // The announcement
+
 
 private:
     QTimer *animTimer;
@@ -59,3 +54,4 @@ private:
 
     void setAnimationState(PlayerState newState);
 };
+#endif // PLAYER_HPP
