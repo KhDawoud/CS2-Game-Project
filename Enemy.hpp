@@ -1,43 +1,39 @@
-
-
-#indef ENEMY_HPP
+#ifndef ENEMY_HPP
 #define ENEMY_HPP
 
+#include "player.hpp"
 #include <QGraphicsPixmapItem>
 #include <QObject>
-#include <QTimer>
 #include <QPixmap>
+#include <QTimer>
 
-struct Position {
+
+struct Position
+{
     float x, y;
-    Position(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
+    Position(float x = 0.0f, float y = 0.0f): x(x), y(y){}
 };
 
-struct Direction {
+struct EnemyDirection{
     float x, y;
-    Direction(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
+    EnemyDirection(float x = 0.0f, float y = 0.0f): x(x), y(y){}
 };
-  struct AnimData {
+struct AnimData
+{
     QPixmap sheet;
     int frameCount;
     int speedMs;
 };
 
-enum class EnemyState { 
-    Idle, 
-    Walking, 
-    Attacking, 
-    Hurt, 
-    Dead 
-};
+enum class EnemyState { Idle, Walking, Attacking, Hurt, Dead };
 
-
-class BaseEnemy : public QObject, public QGraphicsPixmapItem {
+class BaseEnemy : public QObject, public QGraphicsPixmapItem
+{
     Q_OBJECT
 
 protected:
     Position Pos;
-    Direction Dir;
+    EnemyDirection Dir;
     int health;
     int maxHealth;
     float speed;
@@ -45,7 +41,6 @@ protected:
     int defense;
     int width, height;
 
- 
     AnimData idleData;
     AnimData walkData;
     AnimData attackData;
@@ -55,6 +50,7 @@ protected:
     int currentRow = 0;
     QPixmap spriteSheet;
     EnemyState currentState = EnemyState::Idle;
+
 public:
     BaseEnemy(int hp, int atk, int def, float spd = 1.0f);
 
@@ -65,7 +61,7 @@ public:
 
     void moveEnemy();
     virtual void updateAnimation();
-void detectandmove(player);
+    void detectandmove(Player*);
 public slots:
     void update();
 };
