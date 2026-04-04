@@ -86,23 +86,22 @@ void BaseEnemy::updateAnimation()
         currentData = &attackData;
         currentSheet = &attackSheet;
     }
-
-    // Determine which row of the sprite sheet to use based on direction
+    
     if (Dir.y < 0)
     {
-        currentRow = 1; // Up
+        currentRow = 1; // up
     }
     else if (Dir.x > 0)
     {
-        currentRow = 3; // Right
+        currentRow = 3; // right
     }
     else if (Dir.x < 0)
     {
-        currentRow = 2; // Left
+        currentRow = 2; // left
     }
     else
     {
-        currentRow = 0; // Down / Default
+        currentRow = 0; // down
     }
 
     int frameW = currentData->frameWidth;
@@ -119,8 +118,7 @@ void BaseEnemy::moveEnemy()
 {
     float currentSpeed = speed;
 
-    
-    if (Dir.x != 0 && Dir.y != 0)
+        if (Dir.x != 0 && Dir.y != 0)
     {
         currentSpeed = speed * 0.707f;
     }
