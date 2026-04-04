@@ -56,6 +56,9 @@ protected:
     QPixmap walkSheet;
     QPixmap attackSheet;
     float attackRange;
+    int waitCounter = 0;
+    int attackTimer = 0;
+    int attackDuration = 10; // ~1 second
 public:
     BaseEnemy(int hp, int atk, int def, float spd = 1.0f,float range=40.0f);
     void setPlayer(Player*p);

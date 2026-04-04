@@ -128,39 +128,70 @@ void BaseEnemy::moveEnemy()
 
     this->setPos(newX, newY);
 }
-
 void BaseEnemy::update()
 {
-    if (!isalive())
-    {
-        return;
-    }
-    detectandmove(player);
+    if (!isalive()) return;
+    if (!player) return;
 
     EnemyState previousState = currentState;
 
-    if (Dir.x == 0 && Dir.y == 0)
-    {
+    float dx = player->x() - x();
+    float dy = player->y() - y();
+    float distance = sqrt(dx * dx + dy * dy);
+
+    // --- STATE LOGIC ---
+
+    // If walking and player enters range → start waiting
+    if (currentState == EnemyState::Walking && distance < attackRange) {
         currentState = EnemyState::Idle;
-    }
-    else
-    {
-        currentState = EnemyState::Walking;
+        waitCounter = 10; // 3 seconds (30 * 0.1s)
     }
 
-    // Check if player is close enough to attack
-    float distance = sqrt(pow(player->x() - x(), 2) + pow(player->y() - y(), 2));
-    if (distance < attackRange)
-    {
-        currentState = EnemyState::Attacking;
+    // IDLE STATE (waiting or cooldown)
+    else if (currentState == EnemyState::Idle) {
+
+        if (waitCounter > 0) {
+            waitCounter--;
+        }
+        else {
+            // Timer finished
+            if (distance < attackRange) {
+                currentState = EnemyState::Attacking;
+                attackTimer = attackDuration; // start attack
+            } else {
+                currentState = EnemyState::Walking;
+            }
+        }
     }
 
-    // here we make sure if we're switching states that we start from 0
-    if (currentState != previousState)
-    {
+    // ATTACK STATE (lasts for some time)
+    else if (currentState == EnemyState::Attacking) {
+
+        if (attackTimer > 0) {
+            attackTimer--;
+        }
+        else {
+            currentState = EnemyState::Idle;
+            waitCounter = 10; // cooldown after attack
+        }
+    }
+
+    // --- RESET ANIMATION WHEN STATE CHANGES ---
+    if (currentState != previousState) {
         currentFrame = 0;
     }
 
-    moveEnemy();
+    // --- MOVEMENT ---
+    if (currentState == EnemyState::Walking) {
+        detectandmove(player);
+        moveEnemy();
+    } else {
+        // Stop movement when idle or attacking
+        Dir.x = 0;
+        Dir.y = 0;
+    }
+
+    // --- ANIMATION ---
     updateAnimation();
 }
+
