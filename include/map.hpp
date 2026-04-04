@@ -30,6 +30,7 @@ class Map : public QGraphicsScene
     QPixmap Grass6;
     QPixmap Stone1;
     QPixmap Stone2;
+    QPixmap Tree1;
 
     QPixmap topgatel;
     QPixmap topgater;
@@ -47,6 +48,7 @@ public:
     void ImageLoader();
     std::vector<std::vector<int>> collisionmap;
     void DrawCollisionMap();
+    void AddTrees();
 };
 
 #endif // MAP_H
