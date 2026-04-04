@@ -74,6 +74,9 @@ qt_add_resources(QtTest "images"
     FILES "resources/sound-effects/GrassWalk.wav"
     FILES "resources/sound-effects/SwordSwing.wav"
     FILES "resources/map-data/level-1.csv"
+    FILES "resources/enemy/idle/Slime1_Idle_with_shadow.png"
+    FILES "resources/enemy/walk/Slime1_Walk_with_shadow.png"
+    FILES "resources/enemy/Attack/Slime1_Attack_with_shadow.png"
 )
 
 
