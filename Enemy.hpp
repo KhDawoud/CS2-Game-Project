@@ -23,6 +23,8 @@ struct AnimData
     QPixmap sheet;
     int frameCount;
     int speedMs;
+    int frameWidth;
+    int frameHeight;
 };
 
 enum class EnemyState { Idle, Walking, Attacking, Hurt, Dead };
@@ -40,20 +42,23 @@ protected:
     int attack;
     int defense;
     int width, height;
-
+    int totalFrames;
     AnimData idleData;
     AnimData walkData;
     AnimData attackData;
-
+    Player* player;
     void setEnemyState(EnemyState newState);
     int currentFrame = 0;
     int currentRow = 0;
     QPixmap spriteSheet;
     EnemyState currentState = EnemyState::Idle;
-
+    QPixmap idleSheet;
+    QPixmap walkSheet;
+    QPixmap attackSheet;
+    float attackRange;
 public:
-    BaseEnemy(int hp, int atk, int def, float spd = 1.0f);
-
+    BaseEnemy(int hp, int atk, int def, float spd = 1.0f,float range=40.0f);
+    void setPlayer(Player*p);
     bool isalive();
     bool isdead();
 
@@ -65,4 +70,7 @@ public:
 public slots:
     void update();
 };
+
+
+
 #endif

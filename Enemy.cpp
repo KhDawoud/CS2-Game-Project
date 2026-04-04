@@ -3,29 +3,34 @@
 #include <QTimer>
 #include <QTransform>
 
-
 using namespace std;
 
-BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd)
+BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range)
 {
     health = hp;
     maxHealth = hp;
     attack = atk;
     defense = def;
     speed = spd;
-
+    Dir.x =0;
+    Dir.y = 0;
+    attackRange=range;
     QTimer *aiTimer = new QTimer(this);
     connect(aiTimer, &QTimer::timeout, this, &BaseEnemy::update);
     aiTimer->start(100); // Ticks every 0.1 seconds
 }
-
+void BaseEnemy::setPlayer(Player* p) {
+    player = p;
+}
 void BaseEnemy::detectandmove(Player *player)
 {
     float diffX = player->x() - this->x();
     float diffY = player->y() - this->y();
 
-    // 2. Check if the player is within 100  pixels
-    if (abs(diffX) < 100 && abs(diffY) < 100) {
+    float distance = sqrt(diffX * diffX + diffY * diffY);
+
+    if (distance < 100)
+    {
         if (diffX > 0)
             Dir.x = 1; // Player is to the right
         else if (diffX < 0)
@@ -34,7 +39,7 @@ void BaseEnemy::detectandmove(Player *player)
         if (diffY > 0)
             Dir.y = 1; // Player is below
         else if (diffY < 0)
-            Dir.y = -1; // Player is above
+            Dir.y = -1;
 
     } else {
         //  stop moving
@@ -42,91 +47,106 @@ void BaseEnemy::detectandmove(Player *player)
         Dir.y = 0;
     }
 }
-    bool BaseEnemy::isalive()
-    {
-        return (health > 0);
+bool BaseEnemy::isalive()
+{
+    return (health > 0);
+}
+
+bool BaseEnemy::isdead()
+{
+    return (health <= 0);
+}
+
+
+
+void BaseEnemy::TakeDamage(int amount)
+{
+    health -= amount;
+    if (health < 0)
+        health = 0;
+}
+
+void BaseEnemy::updateAnimation()
+{
+    AnimData *currentData = nullptr; 
+
+    if (currentState == EnemyState::Idle) {
+        currentData = &idleData;
     }
 
-    bool BaseEnemy::isdead()
-    {
-        return (health <= 0);
+    else if (currentState == EnemyState::Walking) {
+        currentData = &walkData;
+    } else if (currentState == EnemyState::Attacking) {
+        currentData = &attackData;
+    } 
+
+    if (Dir.y < 0) {
+        currentRow = 1;
     }
 
-    void BaseEnemy::attack(Player & target)
-    {
-        int damage = attack - target.defense;
-        if (damage < 1)
-            damage = 1;
-
-        target.TakeDamage(damage);
+    else if (Dir.x > 0) {
+        currentRow = 3;
+    } else if (Dir.x < 0) {
+        currentRow = 2;
+    } else {
+        currentRow = 0;
     }
 
-    void BaseEnemy::TakeDamage(int amount)
-    {
-        health -= amount;
-        if (health < 0)
-            health = 0;
+    int xCrop = currentFrame * width;
+    int yCrop = currentRow * height;
+
+    QPixmap* currentSheet = nullptr;
+
+    if (currentState == EnemyState::Idle) {
+        currentSheet = &idleSheet;
+    }
+    else if (currentState == EnemyState::Walking) {
+        currentSheet = &walkSheet;
+    }
+    else if (currentState == EnemyState::Attacking) {
+        currentSheet = &attackSheet;
     }
 
-    void BaseEnemy::updateAnimation()
-    {
-        AnimData *currentData = nullptr; //declaring pointer to point to nothing
+    this->setPixmap(currentSheet->copy(xCrop, yCrop, width, height));
+    currentFrame = (currentFrame + 1) % currentData->frameCount;
+}
 
-        if (currentState == EnemyState::Idle) {
-            currentData = &idleData;
-        }
+void BaseEnemy::moveEnemy()
+{
+    float currentSpeed = speed;
 
-        else if (currentState == EnemyState::Walking) {
-            currentData = &walkData;
-        } else if (currentState == EnemyState::Attacking) {
-            currentData = &attackData;
-        } //deciding which animation to take using switch case
-
-        if (Dir.y < 0) {
-            currentRow = 1;
-        }
-
-        else if (Dir.x > 0) {
-            currentRow = 3;
-        } else if (Dir.x < 0) {
-            currentRow = 2;
-        } else {
-            currentRow = 0;
-        }
-
-        int xCrop = currentFrame * width; // horizontal starting point of each frame
-        int yCrop = currentRow * height;  // which row we are in
-
-        this->setPixmap(
-            spriteSheet.copy(xCrop, yCrop, width, height)); // take frames and show in screen
-        currentFrame = (currentFrame + 1) % totalFrames; // looping across frame to show animation
+    if (Dir.x != 0 && Dir.y != 0) {
+        currentSpeed = speed * 0.707f;
     }
 
-    void BaseEnemy::moveEnemy()
-    {
-        float currentSpeed = speed; //to set diagonal
+    float newX = this->x() + (Dir.x * currentSpeed);
+    float newY = this->y() + (Dir.y * currentSpeed);
 
-        // If moving diagonally
-        if (Dir.x != 0 && Dir.y != 0) {
-            currentSpeed = speed * 0.707f;
+    this->setPos(newX, newY);
+}
 
-            // Calculate new position
-            float newX = this->x() + (Dir.x * currentspeed);
-            float newY = this->y() + (Dir.y * currentspeed);
+void BaseEnemy::update()
+{
+    if (!isalive()) {
+        // If the enemy is dead, don't move or animate
+        return;
+    }
+    detectandmove(player );
 
-            // Update the position
-            this->setPos(newX, newY);
-        }
+    if (Dir.x == 0 && Dir.y == 0) {
+        currentState = EnemyState::Idle;
+    } else {
+        currentState = EnemyState::Walking;
     }
 
-        void BaseEnemy::update()
-        {
-            if (!isalive()) {
-                // If the enemy is dead, don't move or animate
-                return;
-            }
-            detectAndMove(player);
-            moveEnemy();       // 1. Change the X,y
-            updateAnimation(); // 2. Change the picture to match movement
-        }
+    // Check if player is close enough to attack
+    float distance = sqrt(pow(player->x() - x(), 2) + pow(player->y() - y(), 2));
+    if (distance < attackRange) {
+        currentState = EnemyState::Attacking;
     }
+    moveEnemy();
+    updateAnimation();
+}
+
+
+
