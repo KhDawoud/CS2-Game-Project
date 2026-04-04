@@ -11,22 +11,22 @@ Map::Map()
     DrawMap();
 
     // Buildings (zValue = 1.0)
-    PlaceEntity(10, 7, House1, 1.0);
-    PlaceEntity(20, 7, House3, 1.0);
-    PlaceEntity(6, 22, House2, 1.0);
-    PlaceEntity(20, 22, House4, 1.0);
-    PlaceEntity(8, 27, Tent2, 1.0);
-    PlaceEntity(22, 17, Tent3, 1.0);
-    PlaceEntity(26, 16, Tent1, 1.0);
+    PlaceEntity(10, 7, House1, 1.0,true);
+    PlaceEntity(20, 7, House3, 1.0,true);
+    PlaceEntity(6, 22, House2, 1.0,true);
+    PlaceEntity(20, 22, House4, 1.0,true);
+    PlaceEntity(8, 27, Tent2, 1.0,true);
+    PlaceEntity(22, 17, Tent3, 1.0,true);
+    PlaceEntity(26, 16, Tent1, 1.0,true);
 
     // Objects and Gates (zValue = 2.1)
-    PlaceEntity(13, 16, Tent4, 2.1);
-    PlaceEntity(29, 14, topgatel, 2.1);
-    PlaceEntity(29, 15, topgater, 2.1);
-    PlaceEntity(30, 14, bottomgatel, 2.1);
-    PlaceEntity(30, 15, bottomgater, 2.1);
-    PlaceEntity(10, 34, sidegate2, 2.1);
-    PlaceEntity(11, 34, sidegate3, 2.1);
+    PlaceEntity(13, 16, Tent4, 2.1,false);
+    PlaceEntity(29, 14, topgatel, 2.1,false);
+    PlaceEntity(29, 15, topgater, 2.1,false);
+    PlaceEntity(30, 14, bottomgatel, 2.1,false);
+    PlaceEntity(30, 15, bottomgater, 2.1,false);
+    PlaceEntity(10, 34, sidegate2, 2.1,false);
+    PlaceEntity(11, 34, sidegate3, 2.1,false);
 
     DrawCollisionMap();
     DrawField();
@@ -89,7 +89,7 @@ void Map::DrawMap()
         }
     }
 }
-void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zValue)
+void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zValue, bool border)
 {
     int widthInTiles = std::ceil((double) image.width() / TILE_SIZE);
     int heightInTiles = std::ceil((double) image.height() / TILE_SIZE);
@@ -98,11 +98,12 @@ void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zV
     entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
     entity->setZValue(zValue);
     addItem(entity);
-
-    for (int i = startRow; i < startRow + heightInTiles; i++) {
-        for (int j = startCol; j < startCol + widthInTiles; j++) {
-            if (i < MAP_ROWS && j < MAP_COLS) {
-                map[i][j] = 1; // Mark as occupied
+    if(border){
+        for (int i = startRow; i < startRow + heightInTiles; i++) {
+            for (int j = startCol; j < startCol + widthInTiles; j++) {
+                if (i < MAP_ROWS && j < MAP_COLS) {
+                    map[i][j] = 1; // Mark as occupied
+                }
             }
         }
     }
@@ -221,7 +222,7 @@ void Map::DrawCollisionMap(){
     std::vector<std::vector<int>> collisionmap(MAP_ROWS,std::vector<int>(MAP_COLS));
     for (int i=0; i<MAP_ROWS; i++){
         for(int j=0; j<MAP_COLS; j++){
-            if(map[i][j] >9|| map[i][j]==1){
+            if((map[i][j] >9 && map[i][j]<20)|| map[i][j]==1){
                 collisionmap[i][j] = 1;
             }else{
                 collisionmap[i][j] = 0;

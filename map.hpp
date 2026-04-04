@@ -1,9 +1,9 @@
 #ifndef MAP_H
 #define MAP_H
-#include <vector>
 #include <QGraphicsScene>
-#include <unordered_map>
 #include <QPixmap>
+#include <unordered_map>
+#include <vector>
 
 constexpr int MAP_ROWS = 35;
 constexpr int MAP_COLS = 40;
@@ -42,9 +42,11 @@ public:
     Map();
     void LoadMapFromCSV(const QString &filePath);
     void DrawMap();
-    void PlaceEntity(int, int, const QPixmap &, qreal);
+    void PlaceEntity(int, int, const QPixmap &, qreal, bool border);
     void DrawField();
     void ImageLoader();
+    std::vector<std::vector<int>> collisionmap;
+    void DrawCollisionMap();
 };
 
 #endif // MAP_H
