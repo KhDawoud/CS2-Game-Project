@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(CS2-Game LANGUAGES CXX)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Widgets Multimedia)
+find_package(Qt6 6.5  REQUIRED COMPONENTS Core Widgets Multimedia)
 
 qt_standard_project_setup()
 
