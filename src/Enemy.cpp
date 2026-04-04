@@ -141,13 +141,13 @@ void BaseEnemy::update()
 
     // --- STATE LOGIC ---
 
-    // If walking and player enters range → start waiting
+    
     if (currentState == EnemyState::Walking && distance < attackRange) {
         currentState = EnemyState::Idle;
         waitCounter = 10; // 3 seconds (30 * 0.1s)
     }
 
-    // IDLE STATE (waiting or cooldown)
+   
     else if (currentState == EnemyState::Idle) {
 
         if (waitCounter > 0) {
@@ -164,7 +164,7 @@ void BaseEnemy::update()
         }
     }
 
-    // ATTACK STATE (lasts for some time)
+    
     else if (currentState == EnemyState::Attacking) {
 
         if (attackTimer > 0) {
@@ -176,22 +176,22 @@ void BaseEnemy::update()
         }
     }
 
-    // --- RESET ANIMATION WHEN STATE CHANGES ---
+  
     if (currentState != previousState) {
         currentFrame = 0;
     }
 
-    // --- MOVEMENT ---
+   
     if (currentState == EnemyState::Walking) {
         detectandmove(player);
         moveEnemy();
     } else {
-        // Stop movement when idle or attacking
+        
         Dir.x = 0;
         Dir.y = 0;
     }
 
-    // --- ANIMATION ---
+    
     updateAnimation();
 }
 
