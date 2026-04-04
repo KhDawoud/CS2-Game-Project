@@ -11,23 +11,24 @@ Map::Map()
     DrawMap();
 
     // Buildings (zValue = 1.0)
-    PlaceEntity(10, 7, House1, 1.0,true);
-    PlaceEntity(20, 7, House3, 1.0,true);
-    PlaceEntity(6, 22, House2, 1.0,true);
-    PlaceEntity(20, 22, House4, 1.0,true);
-    PlaceEntity(8, 27, Tent2, 1.0,true);
-    PlaceEntity(22, 17, Tent3, 1.0,true);
-    PlaceEntity(26, 16, Tent1, 1.0,true);
+    PlaceEntity(10, 7, House1, 1.0, true);
+    PlaceEntity(20, 7, House3, 1.0, true);
+    PlaceEntity(6, 22, House2, 1.0, true);
+    PlaceEntity(20, 22, House4, 1.0, true);
+    PlaceEntity(8, 27, Tent2, 1.0, true);
+    PlaceEntity(22, 17, Tent3, 1.0, true);
+    PlaceEntity(26, 16, Tent1, 1.0, true);
 
     // Objects and Gates (zValue = 2.1)
-    PlaceEntity(13, 16, Tent4, 2.1,false);
-    PlaceEntity(29, 14, topgatel, 2.1,false);
-    PlaceEntity(29, 15, topgater, 2.1,false);
-    PlaceEntity(30, 14, bottomgatel, 2.1,false);
-    PlaceEntity(30, 15, bottomgater, 2.1,false);
-    PlaceEntity(10, 34, sidegate2, 2.1,false);
-    PlaceEntity(11, 34, sidegate3, 2.1,false);
+    PlaceEntity(13, 16, Tent4, 2.1, false);
+    PlaceEntity(29, 14, topgatel, 2.1, false);
+    PlaceEntity(29, 15, topgater, 2.1, false);
+    PlaceEntity(30, 14, bottomgatel, 2.1, false);
+    PlaceEntity(30, 15, bottomgater, 2.1, false);
+    PlaceEntity(10, 34, sidegate2, 2.1, false);
+    PlaceEntity(11, 34, sidegate3, 2.1, false);
 
+    AddTrees();
     DrawCollisionMap();
     DrawField();
 }
@@ -98,7 +99,7 @@ void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zV
     entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
     entity->setZValue(zValue);
     addItem(entity);
-    if(border){
+    if (border) {
         for (int i = startRow; i < startRow + heightInTiles; i++) {
             for (int j = startCol; j < startCol + widthInTiles; j++) {
                 if (i < MAP_ROWS && j < MAP_COLS) {
@@ -209,6 +210,7 @@ void Map::ImageLoader()
     Grass6.load(":resources/map-assets/grass6.png");
     Stone1.load(":resources/map-assets/stone1.png");
     Stone2.load(":resources/map-assets/stone2.png");
+    Tree1.load(":resources/map-assets/Tree_Emerald_2.png");
 
     // Specific Gates
     topgatel.load(":resources/map-assets/topgatel.png");
@@ -218,16 +220,56 @@ void Map::ImageLoader()
     sidegate2.load(":resources/map-assets/sidegate2");
     sidegate3.load(":resources/map-assets/sidegate3");
 }
-void Map::DrawCollisionMap(){
-    std::vector<std::vector<int>> collisionmap(MAP_ROWS,std::vector<int>(MAP_COLS));
-    for (int i=0; i<MAP_ROWS; i++){
-        for(int j=0; j<MAP_COLS; j++){
-            if((map[i][j] >9 && map[i][j]<20)|| map[i][j]==1){
+void Map::DrawCollisionMap()
+{
+    std::vector<std::vector<int>> collisionmap(MAP_ROWS, std::vector<int>(MAP_COLS));
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
+            if ((map[i][j] > 9 && map[i][j] < 20) || map[i][j] == 1) {
                 collisionmap[i][j] = 1;
-            }else{
+            } else {
                 collisionmap[i][j] = 0;
             }
         }
+    }
+}
+void Map::AddTrees()
+{
 
+    int widthInTiles = std::ceil((double) Tree1.width() / TILE_SIZE);
+    int heightInTiles = std::ceil((double) Tree1.height() / TILE_SIZE);
+
+    for (int i = 0; i < MAP_ROWS- heightInTiles; i++) {
+        for (int j = 0; j < MAP_COLS-widthInTiles; j++) {
+            bool empty = true;
+                // Checking if area around tree is empty
+                for (int x = 0; x < heightInTiles; x++) {
+                    for (int y = 0; y < widthInTiles; y++) {
+                        if (map[i+x][j+y] != 0){
+                            empty = false;
+                            break;
+                        }
+                    }
+                    if (!empty) break;
+                }
+
+            if(empty){
+                if (QRandomGenerator::global()->bounded(100) < 10) // 10% chance to spawn a tree
+                {
+                    // place tree
+                    QGraphicsPixmapItem *tree = new QGraphicsPixmapItem(Tree1);
+                    tree->setPos(j * TILE_SIZE, i * TILE_SIZE);
+                    tree->setZValue(2.1);
+                    addItem(tree);
+                }
+                for (int starti = i; starti < i + heightInTiles; starti++) {
+                    for (int startj = j; startj < j + widthInTiles; startj++) {
+                        if (i < MAP_ROWS && j < MAP_COLS) {
+                            map[starti][startj] = 1; // Mark as occupied
+                        }
+                    }
+                }
+            }
+        }
     }
 }

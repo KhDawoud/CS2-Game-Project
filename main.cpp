@@ -5,6 +5,7 @@
 #include "map.hpp"
 #include "AudioManager.hpp"
 #include "slime.hpp"
+#include "characterstats.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -19,6 +20,12 @@ int main(int argc, char *argv[])
     player->setPos(40 * 7, 35 * 28);
     scene->addItem(player);
 
+    CharacterStats *stats = new CharacterStats();
+    stats->setPlayer(player);
+    stats->setZValue(100);
+    scene->addItem(stats);
+    QObject::connect(player, &Player::statsChanged, stats, &CharacterStats::updateBars);
+
     Slime *slime = new Slime();
     slime->setPos(40 * 22, 35 * 20);
     slime->setPlayer(player);
@@ -32,8 +39,12 @@ int main(int argc, char *argv[])
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     view->centerOn(player);
-    QObject::connect(player, &Player::positionChanged, view, [view](QGraphicsItem *p)
-                     { view->centerOn(p); });
+    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p)
+                     { 
+                         view->centerOn(p); 
+                         //draws the statbar in the top left corner regardless of window size and position
+                         stats->setPos(view->mapToScene(10, 10)); });
     view->showMaximized();
+    stats->setPos(view->mapToScene(10, 10));
     return a.exec();
 }

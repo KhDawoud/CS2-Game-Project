@@ -4,6 +4,9 @@
 
 Player::Player()
 {
+    health = 100;
+    stamina = 100;
+    mana = 100;
     currentState = PlayerState::Walking;
     currentDirection = Direction::Right;
     currentFrame = 0;
@@ -177,6 +180,24 @@ void Player::keyPressEvent(QKeyEvent *event)
     if (event->isAutoRepeat())
         return;
     Qt::Key key = static_cast<Qt::Key>(event->key());
+
+    if (key == Qt::Key_O)
+    {
+        if (health - 10 > 0)
+        {
+            health -= 10;
+        }
+        emit statsChanged();
+    }
+
+    if (key == Qt::Key_P)
+    {
+        if (health + 10 <= 100)
+        {
+            health += 10;
+        }
+        emit statsChanged();
+    }
 
     if (key == Qt::Key_Space)
     {
