@@ -14,7 +14,6 @@ qt_add_executable(QtTest
     AudioManager.hpp
     Enemy.cpp Enemy.hpp
     slime.cpp slime.hpp
-slime.qrc
 )
 
 qt_add_resources(QtTest "images"
