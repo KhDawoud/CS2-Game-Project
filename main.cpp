@@ -4,6 +4,7 @@
 #include "player.hpp"
 #include "map.hpp"
 #include "AudioManager.hpp"
+#include "slime.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -17,6 +18,11 @@ int main(int argc, char *argv[])
     Player *player = new Player();
     player->setPos(40 * 7, 35 * 28);
     scene->addItem(player);
+
+    Slime *slime = new Slime();
+    slime->setPos(40 * 22, 35 * 20);
+    slime->setPlayer(player);
+    scene->addItem(slime);
 
     QGraphicsView *view = new QGraphicsView(scene);
     view->setAlignment(Qt::AlignCenter);

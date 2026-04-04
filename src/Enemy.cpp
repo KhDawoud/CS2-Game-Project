@@ -12,14 +12,15 @@ BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range)
     attack = atk;
     defense = def;
     speed = spd;
-    Dir.x =0;
+    Dir.x = 0;
     Dir.y = 0;
-    attackRange=range;
+    attackRange = range;
     QTimer *aiTimer = new QTimer(this);
     connect(aiTimer, &QTimer::timeout, this, &BaseEnemy::update);
     aiTimer->start(100); // Ticks every 0.1 seconds
 }
-void BaseEnemy::setPlayer(Player* p) {
+void BaseEnemy::setPlayer(Player *p)
+{
     player = p;
 }
 void BaseEnemy::detectandmove(Player *player)
@@ -40,8 +41,9 @@ void BaseEnemy::detectandmove(Player *player)
             Dir.y = 1; // Player is below
         else if (diffY < 0)
             Dir.y = -1;
-
-    } else {
+    }
+    else
+    {
         //  stop moving
         Dir.x = 0;
         Dir.y = 0;
@@ -57,8 +59,6 @@ bool BaseEnemy::isdead()
     return (health <= 0);
 }
 
-
-
 void BaseEnemy::TakeDamage(int amount)
 {
     health -= amount;
@@ -68,46 +68,49 @@ void BaseEnemy::TakeDamage(int amount)
 
 void BaseEnemy::updateAnimation()
 {
-    AnimData *currentData = nullptr; 
+    AnimData *currentData = nullptr;
+    QPixmap *currentSheet = nullptr;
 
-    if (currentState == EnemyState::Idle) {
+    if (currentState == EnemyState::Idle)
+    {
         currentData = &idleData;
-    }
-
-    else if (currentState == EnemyState::Walking) {
-        currentData = &walkData;
-    } else if (currentState == EnemyState::Attacking) {
-        currentData = &attackData;
-    }
-
-    if (Dir.y < 0) {
-        currentRow = 1; // up
-    }
-    else if (Dir.y > 0) {
-        currentRow = 0; // down
-    }
-    else if (Dir.x > 0) {
-        currentRow = 3; // right
-    }
-    else if (Dir.x < 0) {
-        currentRow = 2; // left
-    }
-
-    int xCrop = currentFrame * width;
-    int yCrop = currentRow * height;
-
-    QPixmap* currentSheet = nullptr;
-
-    if (currentState == EnemyState::Idle) {
         currentSheet = &idleSheet;
     }
-    else if (currentState == EnemyState::Walking) {
+    else if (currentState == EnemyState::Walking)
+    {
+        currentData = &walkData;
         currentSheet = &walkSheet;
     }
-    else if (currentState == EnemyState::Attacking) {
+    else if (currentState == EnemyState::Attacking)
+    {
+        currentData = &attackData;
         currentSheet = &attackSheet;
     }
-    this->setPixmap(currentSheet->copy(xCrop, yCrop, width, height));
+    
+    if (Dir.y < 0)
+    {
+        currentRow = 1; // up
+    }
+    else if (Dir.x > 0)
+    {
+        currentRow = 3; // right
+    }
+    else if (Dir.x < 0)
+    {
+        currentRow = 2; // left
+    }
+    else
+    {
+        currentRow = 0; // down
+    }
+
+    int frameW = currentData->frameWidth;
+    int frameH = currentData->frameHeight;
+
+    int xCrop = currentFrame * frameW;
+    int yCrop = currentRow * frameH;
+
+    this->setPixmap(currentSheet->copy(xCrop, yCrop, frameW, frameH));
     currentFrame = (currentFrame + 1) % currentData->frameCount;
 }
 
@@ -115,7 +118,8 @@ void BaseEnemy::moveEnemy()
 {
     float currentSpeed = speed;
 
-    if (Dir.x != 0 && Dir.y != 0) {
+        if (Dir.x != 0 && Dir.y != 0)
+    {
         currentSpeed = speed * 0.707f;
     }
 
@@ -127,26 +131,36 @@ void BaseEnemy::moveEnemy()
 
 void BaseEnemy::update()
 {
-    if (!isalive()) {
-        // If the enemy is dead, don't move or animate
+    if (!isalive())
+    {
         return;
     }
-    detectandmove(player );
+    detectandmove(player);
 
-    if (Dir.x == 0 && Dir.y == 0) {
+    EnemyState previousState = currentState;
+
+    if (Dir.x == 0 && Dir.y == 0)
+    {
         currentState = EnemyState::Idle;
-    } else {
+    }
+    else
+    {
         currentState = EnemyState::Walking;
     }
 
     // Check if player is close enough to attack
     float distance = sqrt(pow(player->x() - x(), 2) + pow(player->y() - y(), 2));
-    if (distance < attackRange) {
+    if (distance < attackRange)
+    {
         currentState = EnemyState::Attacking;
     }
+
+    // here we make sure if we're switching states that we start from 0
+    if (currentState != previousState)
+    {
+        currentFrame = 0;
+    }
+
     moveEnemy();
     updateAnimation();
 }
-
-
-
