@@ -1,6 +1,6 @@
 #include "slime.hpp"
 
-Slime::Slime() : BaseEnemy(50, 5, 2, 1.5f, 40.0) // hp, atk, def, speed
+Slime::Slime() : BaseEnemy(50, 5, 2, 1.5f, 5.0) // hp, atk, def, speed
 {
     loadAnimations();
 }
