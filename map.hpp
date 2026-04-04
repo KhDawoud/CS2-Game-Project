@@ -1,0 +1,50 @@
+#ifndef MAP_H
+#define MAP_H
+#include <vector>
+#include <QGraphicsScene>
+#include <unordered_map>
+#include <QPixmap>
+
+constexpr int MAP_ROWS = 35;
+constexpr int MAP_COLS = 40;
+constexpr int TILE_SIZE = 32;
+
+class Map : public QGraphicsScene
+{
+    std::vector<std::vector<int>> map;
+    std::unordered_map<int, QPixmap> tileTextures;
+    QPixmap House1;
+    QPixmap House2;
+    QPixmap House3;
+    QPixmap House4;
+    QPixmap Tent1;
+    QPixmap Tent2;
+    QPixmap Tent3;
+    QPixmap Tent4;
+
+    QPixmap Grass1;
+    QPixmap Grass2;
+    QPixmap Grass3;
+    QPixmap Grass4;
+    QPixmap Grass5;
+    QPixmap Grass6;
+    QPixmap Stone1;
+    QPixmap Stone2;
+
+    QPixmap topgatel;
+    QPixmap topgater;
+    QPixmap bottomgatel;
+    QPixmap bottomgater;
+    QPixmap sidegate2;
+    QPixmap sidegate3;
+
+public:
+    Map();
+    void LoadMapFromCSV(const QString &filePath);
+    void DrawMap();
+    void PlaceEntity(int, int, const QPixmap &, qreal);
+    void DrawField();
+    void ImageLoader();
+};
+
+#endif // MAP_H
