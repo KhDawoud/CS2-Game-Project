@@ -1,8 +1,8 @@
 #include "map.hpp"
 #include <QFile>
-#include <vector>
 #include <QGraphicsPixmapItem>
 #include <QRandomGenerator>
+#include <vector>
 
 Map::Map()
 {
@@ -28,27 +28,25 @@ Map::Map()
     PlaceEntity(10, 34, sidegate2, 2.1);
     PlaceEntity(11, 34, sidegate3, 2.1);
 
+    DrawCollisionMap();
     DrawField();
 }
 
 void Map::LoadMapFromCSV(const QString &filePath)
 {
     QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "ERROR: Could not open the map file:" << filePath;
         return;
     }
     map.clear();
     QTextStream in(&file);
-    while (!in.atEnd())
-    {
+    while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList values = line.split(',');
 
         std::vector<int> row;
-        for (const QString &val : values)
-        {
+        for (const QString &val : values) {
             // need to make to int
             row.push_back(val.trimmed().toInt());
         }
@@ -59,10 +57,8 @@ void Map::LoadMapFromCSV(const QString &filePath)
 
 void Map::DrawMap()
 {
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
             // grass is always at z = 0
             QGraphicsPixmapItem *base = new QGraphicsPixmapItem(tileTextures[0]);
             base->setPos(j * TILE_SIZE, i * TILE_SIZE);
@@ -70,28 +66,20 @@ void Map::DrawMap()
 
             int tileId = map[i][j];
 
-            if (tileId != 0 && tileTextures.find(tileId) != tileTextures.end())
-            {
+            if (tileId != 0 && tileTextures.find(tileId) != tileTextures.end()) {
                 QGraphicsPixmapItem *tile = new QGraphicsPixmapItem(tileTextures[tileId]);
                 tile->setPos(j * TILE_SIZE, i * TILE_SIZE);
 
-                if (tileId >= 2 && tileId <= 9)
-                {
+                if (tileId >= 2 && tileId <= 9) {
                     // paths, z = 0
                     tile->setZValue(0.0);
-                }
-                else if (tileId >= 10 && tileId <= 15)
-                {
+                } else if (tileId >= 10 && tileId <= 15) {
                     // wall top & bottom z = 0.1
                     tile->setZValue((i < 10) ? 0.1 : 2.1);
-                }
-                else if (tileId >= 16 && tileId <= 19)
-                {
+                } else if (tileId >= 16 && tileId <= 19) {
                     // wall sides, z = 0.1
                     tile->setZValue(0.1);
-                }
-                else if (tileId >= 20 && tileId <= 29)
-                {
+                } else if (tileId >= 20 && tileId <= 29) {
                     // wall corners, z = 2.1
                     tile->setZValue(2.1);
                 }
@@ -103,20 +91,17 @@ void Map::DrawMap()
 }
 void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zValue)
 {
-    int widthInTiles = std::ceil((double)image.width() / TILE_SIZE);
-    int heightInTiles = std::ceil((double)image.height() / TILE_SIZE);
+    int widthInTiles = std::ceil((double) image.width() / TILE_SIZE);
+    int heightInTiles = std::ceil((double) image.height() / TILE_SIZE);
 
     QGraphicsPixmapItem *entity = new QGraphicsPixmapItem(image);
     entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
     entity->setZValue(zValue);
     addItem(entity);
 
-    for (int i = startRow; i < startRow + heightInTiles; i++)
-    {
-        for (int j = startCol; j < startCol + widthInTiles; j++)
-        {
-            if (i < MAP_ROWS && j < MAP_COLS)
-            {
+    for (int i = startRow; i < startRow + heightInTiles; i++) {
+        for (int j = startCol; j < startCol + widthInTiles; j++) {
+            if (i < MAP_ROWS && j < MAP_COLS) {
                 map[i][j] = 1; // Mark as occupied
             }
         }
@@ -125,26 +110,31 @@ void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zV
 void Map::DrawField()
 {
     // vector of all decorations so we just randomly choose one from the vector
-    std::vector<QPixmap *> decoPool = {
-        &Grass1, &Grass1, &Grass1, &Grass1,
-        &Grass3, &Grass3,
-        &Grass4, &Grass4,
-        &Grass5, &Grass5,
-        &Grass6, &Grass6,
-        &Stone1,
-        &Stone2};
+    std::vector<QPixmap *> decoPool = {&Grass1,
+                                       &Grass1,
+                                       &Grass1,
+                                       &Grass1,
+                                       &Grass3,
+                                       &Grass3,
+                                       &Grass4,
+                                       &Grass4,
+                                       &Grass5,
+                                       &Grass5,
+                                       &Grass6,
+                                       &Grass6,
+                                       &Stone1,
+                                       &Stone2};
 
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
             if (map[i][j] != 0)
                 continue;
 
             if (QRandomGenerator::global()->bounded(100) < 30) // 30% chance to spawn decoration
             {
                 // this chooses a random decoration from the vector
-                int randomIndex = QRandomGenerator::global()->bounded(static_cast<int>(decoPool.size()));
+                int randomIndex = QRandomGenerator::global()->bounded(
+                    static_cast<int>(decoPool.size()));
 
                 // place decoration
                 QGraphicsPixmapItem *deco = new QGraphicsPixmapItem(*(decoPool[randomIndex]));
@@ -226,4 +216,17 @@ void Map::ImageLoader()
     bottomgater.load(":resources/map-assets/bottomgater.png");
     sidegate2.load(":resources/map-assets/sidegate2");
     sidegate3.load(":resources/map-assets/sidegate3");
+}
+void Map::DrawCollisionMap(){
+    std::vector<std::vector<int>> collisionmap(MAP_ROWS,std::vector<int>(MAP_COLS));
+    for (int i=0; i<MAP_ROWS; i++){
+        for(int j=0; j<MAP_COLS; j++){
+            if(map[i][j] >9|| map[i][j]==1){
+                collisionmap[i][j] = 1;
+            }else{
+                collisionmap[i][j] = 0;
+            }
+        }
+
+    }
 }
