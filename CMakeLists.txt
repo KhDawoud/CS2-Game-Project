@@ -11,6 +11,9 @@ qt_add_executable(QtTest
     player.cpp
     player.hpp
     map.hpp map.cpp
+    AudioManager.hpp
+    Enemy.cpp Enemy.hpp
+    slime.cpp slime.hpp
 )
 
 qt_add_resources(QtTest "images"
