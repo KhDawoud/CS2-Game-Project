@@ -124,33 +124,30 @@ void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zV
 }
 void Map::DrawField()
 {
+    // vector of all decorations so we just randomly choose one from the vector
+    std::vector<QPixmap *> decoPool = {
+        &Grass1, &Grass1, &Grass1, &Grass1,
+        &Grass3, &Grass3,
+        &Grass4, &Grass4,
+        &Grass5, &Grass5,
+        &Grass6, &Grass6,
+        &Stone1,
+        &Stone2};
+
     for (int i = 0; i < MAP_ROWS; i++)
     {
         for (int j = 0; j < MAP_COLS; j++)
         {
             if (map[i][j] != 0)
-                continue; // Skip if not grass
+                continue;
 
-            int chance = QRandomGenerator::global()->bounded(200);
-            QGraphicsPixmapItem *deco = nullptr;
-
-            if (chance < 5)
-                deco = new QGraphicsPixmapItem(Grass1);
-            else if (chance < 8)
-                deco = new QGraphicsPixmapItem(Grass3);
-            else if (chance < 11)
-                deco = new QGraphicsPixmapItem(Grass4);
-            else if (chance < 14)
-                deco = new QGraphicsPixmapItem(Grass5);
-            else if (chance < 17)
-                deco = new QGraphicsPixmapItem(Grass6);
-            else if (chance < 18)
-                deco = new QGraphicsPixmapItem(Stone1);
-            else if (chance < 20)
-                deco = new QGraphicsPixmapItem(Stone2);
-
-            if (deco)
+            if (QRandomGenerator::global()->bounded(100) < 30) // 30% chance to spawn decoration
             {
+                // this chooses a random decoration from the vector
+                int randomIndex = QRandomGenerator::global()->bounded(static_cast<int>(decoPool.size()));
+
+                // place decoration
+                QGraphicsPixmapItem *deco = new QGraphicsPixmapItem(*(decoPool[randomIndex]));
                 deco->setPos(j * TILE_SIZE, i * TILE_SIZE);
                 deco->setZValue(0.1);
                 addItem(deco);
