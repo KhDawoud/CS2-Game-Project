@@ -21,6 +21,7 @@ qt_add_executable(QtTest
     src/map.cpp
     src/Enemy.cpp
     src/slime.cpp
+    src/characterstats.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -88,6 +89,7 @@ qt_add_resources(QtTest "images"
         "resources/enemy/idle/Slime1_Idle_with_shadow.png"
         "resources/enemy/walk/Slime1_Walk_with_shadow.png"
         "resources/enemy/attack/Slime1_Attack_with_shadow.png"
+        "resources/ui-elements/character_panel.png"
 )
 
 target_link_libraries(QtTest

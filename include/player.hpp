@@ -4,15 +4,29 @@
 #include <QObject>
 #include <QTimer>
 
-enum class PlayerState { Idle, Walking, Attacking };
+enum class PlayerState
+{
+    Idle,
+    Walking,
+    Attacking
+};
 
-enum class Direction { Right = 2, Up = 3, Left = 1, Down = 0 };
+enum class Direction
+{
+    Right = 2,
+    Up = 3,
+    Left = 1,
+    Down = 0
+};
 
 class Player : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
     Player();
+    float getHealth() { return health; };
+    float getStamina() { return stamina; };
+    float getMana() { return mana; };
 
 public slots:
     void updateAnimation();
@@ -24,10 +38,14 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
 
 signals:
-    void positionChanged(QGraphicsItem* playerPtr); // The announcement
-
+    void positionChanged(QGraphicsItem *playerPtr); // The announcement
+    void statsChanged();
 
 private:
+    float health;
+    float stamina;
+    float mana;
+
     QTimer *animTimer;
     QTimer *idleTimer;
 
