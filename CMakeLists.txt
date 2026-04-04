@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(CS2-Game LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Multimedia)
 
 qt_standard_project_setup()
 
@@ -10,13 +10,13 @@ qt_add_executable(QtTest
     main.cpp
     player.cpp
     player.hpp
-    map.h map.cpp
+    map.hpp map.cpp
 )
 
 qt_add_resources(QtTest "images"
     FILES "resources/player/attacking/swordsman_1_attack.png"
-    FILES "resources/player/idling/Swordsman_lvl1_Idle_with_shadow.png"
-    FILES "resources/player/running/Swordsman_lvl1_Run_with_shadow.png"
+    FILES "resources/player/idling/swordsman_1_idle.png"
+    FILES "resources/player/running/swordsman_1_run.png"
     FILES "resources/map-assets/grass.png"
     FILES "resources/map-assets/left.png"
     FILES "resources/map-assets/right.png"
@@ -68,6 +68,9 @@ qt_add_resources(QtTest "images"
     FILES "resources/map-assets/sidegate2.png"
     FILES "resources/map-assets/sidegate3.png"
     FILES "resources/map-assets/sidegate4.png"
+    FILES "resources/sound-effects/GrassWalk.wav"
+    FILES "resources/sound-effects/SwordSwing.wav"
+    FILES "resources/map-data/level-1.csv"
 )
 
 
@@ -75,6 +78,7 @@ target_link_libraries(QtTest
     PRIVATE
         Qt::Core
         Qt::Widgets
+        Qt::Multimedia
 )
 
 include(GNUInstallDirs)
