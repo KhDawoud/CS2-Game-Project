@@ -78,18 +78,19 @@ void BaseEnemy::updateAnimation()
         currentData = &walkData;
     } else if (currentState == EnemyState::Attacking) {
         currentData = &attackData;
-    } 
-
-    if (Dir.y < 0) {
-        currentRow = 1;
     }
 
+    if (Dir.y < 0) {
+        currentRow = 1; // up
+    }
+    else if (Dir.y > 0) {
+        currentRow = 0; // down
+    }
     else if (Dir.x > 0) {
-        currentRow = 3;
-    } else if (Dir.x < 0) {
-        currentRow = 2;
-    } else {
-        currentRow = 0;
+        currentRow = 3; // right
+    }
+    else if (Dir.x < 0) {
+        currentRow = 2; // left
     }
 
     int xCrop = currentFrame * width;
@@ -106,7 +107,6 @@ void BaseEnemy::updateAnimation()
     else if (currentState == EnemyState::Attacking) {
         currentSheet = &attackSheet;
     }
-
     this->setPixmap(currentSheet->copy(xCrop, yCrop, width, height));
     currentFrame = (currentFrame + 1) % currentData->frameCount;
 }
