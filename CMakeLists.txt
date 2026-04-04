@@ -88,6 +88,7 @@ qt_add_resources(QtTest "images"
         "resources/enemy/idle/Slime1_Idle_with_shadow.png"
         "resources/enemy/walk/Slime1_Walk_with_shadow.png"
         "resources/enemy/attack/Slime1_Attack_with_shadow.png"
+        "resources/map-assets/Tree_Emerald_2.png"
 )
 
 target_link_libraries(QtTest
