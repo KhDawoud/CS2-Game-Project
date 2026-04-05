@@ -31,6 +31,11 @@ class Map : public QGraphicsScene
     QPixmap Stone1;
     QPixmap Stone2;
     QPixmap Tree1;
+    QPixmap Tree2;
+    QPixmap Tree3;
+    QPixmap Tree4;
+    QPixmap Log1;
+    QPixmap Log2;
 
     QPixmap topgatel;
     QPixmap topgater;
@@ -46,7 +51,7 @@ public:
     void PlaceEntity(int, int, const QPixmap &, qreal, bool border);
     void DrawField();
     void ImageLoader();
-    std::vector<std::vector<int>> collisionmap;
+    std::vector<std::vector<int>> collision_map;
     void DrawCollisionMap();
     void AddTrees();
 };

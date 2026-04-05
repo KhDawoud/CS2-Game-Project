@@ -42,6 +42,8 @@ signals:
     void statsChanged();
 
 private:
+    float staminaRegenRate;
+    QTimer *staminaRegenTimer;
     float health;
     float stamina;
     float mana;
@@ -71,5 +73,10 @@ private:
     QList<Qt::Key> activeKeys;
 
     void setAnimationState(PlayerState newState);
+    void regenStamina(float amount)
+    {
+        stamina = std::min(100.0f, stamina + amount);
+        emit statsChanged();
+    };
 };
 #endif // PLAYER_HPP

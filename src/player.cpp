@@ -7,6 +7,13 @@ Player::Player()
     health = 100;
     stamina = 100;
     mana = 100;
+
+    staminaRegenRate = 5;
+    staminaRegenTimer = new QTimer(this);
+    connect(staminaRegenTimer, &QTimer::timeout, [this]()
+            { regenStamina(staminaRegenRate); });
+    staminaRegenTimer->start(500);
+
     currentState = PlayerState::Walking;
     currentDirection = Direction::Right;
     currentFrame = 0;
@@ -204,7 +211,13 @@ void Player::keyPressEvent(QKeyEvent *event)
         if (currentState != PlayerState::Attacking)
         {
             idleTimer->stop();
-            setAnimationState(PlayerState::Attacking);
+            if (stamina >= 20)
+            {
+                setAnimationState(PlayerState::Attacking);
+                stamina -= 20;
+                emit statsChanged();
+                return;
+            }
         }
         return;
     }

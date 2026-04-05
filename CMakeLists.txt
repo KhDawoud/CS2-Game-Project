@@ -91,6 +91,12 @@ qt_add_resources(QtTest "images"
         "resources/enemy/attack/Slime1_Attack_with_shadow.png"
         "resources/ui-elements/character_panel.png"
         "resources/map-assets/Tree_Emerald_2.png"
+        "resources/map-assets/TreeBasic1.png"
+        "resources/map-assets/TreeBasic2.png"
+        "resources/map-assets/TreeBasic3.png"
+        "resources/map-assets/TreeBasic4.png"
+        "resources/map-assets/LogBasic1.png"
+        "resources/map-assets/LogBasic2.png"
 )
 
 target_link_libraries(QtTest

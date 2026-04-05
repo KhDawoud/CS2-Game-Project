@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/images">
-        <file>resources/slime/Slime1_Walk_with_shadow.png</file>
-        <file>resources/slime/Slime1_Attack_with_shadow.png</file>
-        <file>resources/slime/Slime1_Idle_with_shadow.png</file>
-    </qresource>
-</RCC>

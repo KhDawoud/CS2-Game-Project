@@ -3,6 +3,7 @@
 #include <QGraphicsPixmapItem>
 #include <QRandomGenerator>
 #include <vector>
+#include <algorithm>
 
 Map::Map()
 {
@@ -36,18 +37,21 @@ Map::Map()
 void Map::LoadMapFromCSV(const QString &filePath)
 {
     QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
         qDebug() << "ERROR: Could not open the map file:" << filePath;
         return;
     }
     map.clear();
     QTextStream in(&file);
-    while (!in.atEnd()) {
+    while (!in.atEnd())
+    {
         QString line = in.readLine();
         QStringList values = line.split(',');
 
         std::vector<int> row;
-        for (const QString &val : values) {
+        for (const QString &val : values)
+        {
             // need to make to int
             row.push_back(val.trimmed().toInt());
         }
@@ -58,8 +62,10 @@ void Map::LoadMapFromCSV(const QString &filePath)
 
 void Map::DrawMap()
 {
-    for (int i = 0; i < MAP_ROWS; i++) {
-        for (int j = 0; j < MAP_COLS; j++) {
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
             // grass is always at z = 0
             QGraphicsPixmapItem *base = new QGraphicsPixmapItem(tileTextures[0]);
             base->setPos(j * TILE_SIZE, i * TILE_SIZE);
@@ -67,20 +73,28 @@ void Map::DrawMap()
 
             int tileId = map[i][j];
 
-            if (tileId != 0 && tileTextures.find(tileId) != tileTextures.end()) {
+            if (tileId != 0 && tileTextures.find(tileId) != tileTextures.end())
+            {
                 QGraphicsPixmapItem *tile = new QGraphicsPixmapItem(tileTextures[tileId]);
                 tile->setPos(j * TILE_SIZE, i * TILE_SIZE);
 
-                if (tileId >= 2 && tileId <= 9) {
+                if (tileId >= 2 && tileId <= 9)
+                {
                     // paths, z = 0
                     tile->setZValue(0.0);
-                } else if (tileId >= 10 && tileId <= 15) {
+                }
+                else if (tileId >= 10 && tileId <= 15)
+                {
                     // wall top & bottom z = 0.1
                     tile->setZValue((i < 10) ? 0.1 : 2.1);
-                } else if (tileId >= 16 && tileId <= 19) {
+                }
+                else if (tileId >= 16 && tileId <= 19)
+                {
                     // wall sides, z = 0.1
                     tile->setZValue(0.1);
-                } else if (tileId >= 20 && tileId <= 29) {
+                }
+                else if (tileId >= 20 && tileId <= 29)
+                {
                     // wall corners, z = 2.1
                     tile->setZValue(2.1);
                 }
@@ -92,17 +106,21 @@ void Map::DrawMap()
 }
 void Map::PlaceEntity(int startRow, int startCol, const QPixmap &image, qreal zValue, bool border)
 {
-    int widthInTiles = std::ceil((double) image.width() / TILE_SIZE);
-    int heightInTiles = std::ceil((double) image.height() / TILE_SIZE);
+    int widthInTiles = std::ceil((double)image.width() / TILE_SIZE);
+    int heightInTiles = std::ceil((double)image.height() / TILE_SIZE);
 
     QGraphicsPixmapItem *entity = new QGraphicsPixmapItem(image);
     entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
     entity->setZValue(zValue);
     addItem(entity);
-    if (border) {
-        for (int i = startRow; i < startRow + heightInTiles; i++) {
-            for (int j = startCol; j < startCol + widthInTiles; j++) {
-                if (i < MAP_ROWS && j < MAP_COLS) {
+    if (border)
+    {
+        for (int i = startRow; i < startRow + heightInTiles; i++)
+        {
+            for (int j = startCol; j < startCol + widthInTiles; j++)
+            {
+                if (i < MAP_ROWS && j < MAP_COLS)
+                {
                     map[i][j] = 1; // Mark as occupied
                 }
             }
@@ -127,8 +145,10 @@ void Map::DrawField()
                                        &Stone1,
                                        &Stone2};
 
-    for (int i = 0; i < MAP_ROWS; i++) {
-        for (int j = 0; j < MAP_COLS; j++) {
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
             if (map[i][j] != 0)
                 continue;
 
@@ -210,7 +230,12 @@ void Map::ImageLoader()
     Grass6.load(":resources/map-assets/grass6.png");
     Stone1.load(":resources/map-assets/stone1.png");
     Stone2.load(":resources/map-assets/stone2.png");
-    Tree1.load(":resources/map-assets/Tree_Emerald_2.png");
+    Tree1.load(":resources/map-assets/TreeBasic1.png");
+    Tree2.load(":resources/map-assets/TreeBasic2.png");
+    Tree3.load(":resources/map-assets/TreeBasic3.png");
+    Tree4.load(":resources/map-assets/TreeBasic4.png");
+    Log1.load(":resources/map-assets/LogBasic1.png");
+    Log2.load(":resources/map-assets/LogBasic2.png");
 
     // Specific Gates
     topgatel.load(":resources/map-assets/topgatel.png");
@@ -222,50 +247,79 @@ void Map::ImageLoader()
 }
 void Map::DrawCollisionMap()
 {
-    std::vector<std::vector<int>> collisionmap(MAP_ROWS, std::vector<int>(MAP_COLS));
-    for (int i = 0; i < MAP_ROWS; i++) {
-        for (int j = 0; j < MAP_COLS; j++) {
-            if ((map[i][j] > 9 && map[i][j] < 20) || map[i][j] == 1) {
-                collisionmap[i][j] = 1;
-            } else {
-                collisionmap[i][j] = 0;
+    std::vector<std::vector<int>> collision_map(MAP_ROWS, std::vector<int>(MAP_COLS));
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
+            if ((map[i][j] > 9 && map[i][j] < 20) || map[i][j] == 1)
+            {
+                collision_map[i][j] = 1;
+            }
+            else
+            {
+                collision_map[i][j] = 0;
             }
         }
     }
 }
 void Map::AddTrees()
 {
+    // made it like the field where it chooses randomly from many tree sprites
+    std::vector<QPixmap *> treePool = {&Tree1, &Tree2, &Tree3, &Tree4, &Log1, &Log2};
+    int spacing = 1; // make it so trees don't spawn too close
 
-    int widthInTiles = std::ceil((double) Tree1.width() / TILE_SIZE);
-    int heightInTiles = std::ceil((double) Tree1.height() / TILE_SIZE);
+    // Iterate through the map
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
+            if (QRandomGenerator::global()->bounded(100) < 20) // 20% chance
+            {
+                int randomIndex = QRandomGenerator::global()->bounded(static_cast<int>(treePool.size()));
+                QPixmap *selectedTree = treePool[randomIndex];
 
-    for (int i = 0; i < MAP_ROWS- heightInTiles; i++) {
-        for (int j = 0; j < MAP_COLS-widthInTiles; j++) {
-            bool empty = true;
-                // Checking if area around tree is empty
-                for (int x = 0; x < heightInTiles; x++) {
-                    for (int y = 0; y < widthInTiles; y++) {
-                        if (map[i+x][j+y] != 0){
+                int widthInTiles = std::ceil((double)selectedTree->width() / TILE_SIZE);
+                int heightInTiles = std::ceil((double)selectedTree->height() / TILE_SIZE);
+
+                // so it can't spawn offscreen
+                if (i + heightInTiles > MAP_ROWS || j + widthInTiles > MAP_COLS)
+                {
+                    continue;
+                }
+                int checkStartRow = std::max(0, i - spacing);
+                int checkEndRow = std::min(MAP_ROWS, i + heightInTiles + spacing);
+                int checkStartCol = std::max(0, j - spacing);
+                int checkEndCol = std::min(MAP_COLS, j + widthInTiles + spacing);
+
+                bool empty = true;
+
+                for (int x = checkStartRow; x < checkEndRow; x++)
+                {
+                    for (int y = checkStartCol; y < checkEndCol; y++)
+                    {
+                        if (map[x][y] != 0)
+                        {
                             empty = false;
                             break;
                         }
                     }
-                    if (!empty) break;
+                    if (!empty)
+                        break;
                 }
 
-            if(empty){
-                if (QRandomGenerator::global()->bounded(100) < 10) // 10% chance to spawn a tree
+                if (empty)
                 {
-                    // place tree
-                    QGraphicsPixmapItem *tree = new QGraphicsPixmapItem(Tree1);
+                    QGraphicsPixmapItem *tree = new QGraphicsPixmapItem(*selectedTree);
                     tree->setPos(j * TILE_SIZE, i * TILE_SIZE);
                     tree->setZValue(2.1);
                     addItem(tree);
-                }
-                for (int starti = i; starti < i + heightInTiles; starti++) {
-                    for (int startj = j; startj < j + widthInTiles; startj++) {
-                        if (i < MAP_ROWS && j < MAP_COLS) {
-                            map[starti][startj] = 1; // Mark as occupied
+
+                    for (int starti = i; starti < i + heightInTiles; starti++)
+                    {
+                        for (int startj = j; startj < j + widthInTiles; startj++)
+                        {
+                            map[starti][startj] = 1;
                         }
                     }
                 }
