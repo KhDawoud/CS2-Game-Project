@@ -1,11 +1,12 @@
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include "player.hpp"
-#include "map.hpp"
-#include "AudioManager.hpp"
-#include "slime.hpp"
-#include "characterstats.hpp"
+#include "include/AudioManager.hpp"
+#include "include/characterstats.hpp"
+#include "include/map.hpp"
+#include "include/player.hpp"
+#include "include/slime.hpp"
+#include "include/gameview.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -31,20 +32,13 @@ int main(int argc, char *argv[])
     slime->setPlayer(player);
     scene->addItem(slime);
 
-    QGraphicsView *view = new QGraphicsView(scene);
-    view->setAlignment(Qt::AlignCenter);
+    GameView *view = new GameView(scene,player);
 
-    view->scale(3.0, 3.0);
-    view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    view->centerOn(player);
-    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p)
-                     { 
-                         view->centerOn(p); 
-                         //draws the statbar in the top left corner regardless of window size and position
-                         stats->setPos(view->mapToScene(10, 10)); });
-    view->showMaximized();
+    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p) {
+        view->centerOn(p);
+        //draws the statbar in the top left corner regardless of window size and position
+        stats->setPos(view->mapToScene(10, 10));
+    });
     stats->setPos(view->mapToScene(10, 10));
     return a.exec();
 }

@@ -22,6 +22,8 @@ qt_add_executable(QtTest
     src/Enemy.cpp
     src/slime.cpp
     src/characterstats.cpp
+    src/gameview.cpp
+    src/pausewindow.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -97,6 +99,7 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/TreeBasic4.png"
         "resources/map-assets/LogBasic1.png"
         "resources/map-assets/LogBasic2.png"
+        "resources/fonts/ARCADECLASSIC.TTF"
 )
 
 target_link_libraries(QtTest
