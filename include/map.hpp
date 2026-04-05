@@ -37,6 +37,13 @@ class Map : public QGraphicsScene
     QPixmap Log1;
     QPixmap Log2;
 
+    QPixmap CutDownLogs;
+    QPixmap Cart;
+    QPixmap Axe;
+    QPixmap Lamp;
+    QPixmap Barrel;
+    QPixmap WaterWell;
+
     QPixmap topgatel;
     QPixmap topgater;
     QPixmap bottomgatel;
@@ -48,7 +55,7 @@ public:
     Map();
     void LoadMapFromCSV(const QString &filePath);
     void DrawMap();
-    void PlaceEntity(int, int, const QPixmap &, qreal, bool border);
+    void PlaceEntity(float, float, const QPixmap &, qreal, bool border);
     void DrawField();
     void ImageLoader();
     std::vector<std::vector<int>> collision_map;
