@@ -38,6 +38,12 @@ Map::Map()
     PlaceEntity(9,19.9,Lamp,2.1,true);
     PlaceEntity(14.4,16.9,Barrel,2.1,true);
     PlaceEntity(6,14,WaterWell,2.1,true);
+    PlaceEntity(20,28,CampLog1,1.0,true);
+    PlaceEntity(20.5,29.3,CampLog2,1.0,true);
+    AddCampfire(19,29,CampFire);
+    PlaceEntity(28,10,CampLog1,1.0,true);
+    PlaceEntity(28.5,11.3,CampLog2,1.0,true);
+    AddCampfire(27,11,CampFire2);
 
     AddTrees();
     DrawCollisionMap();
@@ -116,6 +122,22 @@ void Map::PlaceEntity(float startRow, float startCol, const QPixmap &image, qrea
                 if (i < MAP_ROWS && j < MAP_COLS) {
                     map[i][j] = 1; // Mark as occupied
                 }
+            }
+        }
+    }
+}
+void Map::AddCampfire(float startRow, float startCol, Campfire* cf)
+{
+    int widthInTiles = std::ceil((double) cf->getwidth() / TILE_SIZE);
+    int heightInTiles = std::ceil((double) cf->getheight() / TILE_SIZE);
+
+    cf->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
+    cf->setZValue(1.0);
+    addItem(cf);
+    for (int i = qRound(startRow); i < startRow + heightInTiles; i++) {
+        for (int j = qRound(startCol); j < startCol + widthInTiles; j++) {
+            if (i < MAP_ROWS && j < MAP_COLS) {
+                map[i][j] = 1; // Mark as occupied
             }
         }
     }
@@ -246,7 +268,8 @@ void Map::ImageLoader()
     Axe.load(":resources/map-assets/axe.png");
     Barrel.load(":resources/map-assets/barrel.png");
     WaterWell.load(":resources/map-assets/hut.png");
-
+    CampLog1.load(":resources/map-assets/camplog1.png");
+    CampLog2.load(":resources/map-assets/camplog2.png");
     // Specific Gates
     topgatel.load(":resources/map-assets/topgatel.png");
     topgater.load(":resources/map-assets/topgater.png");
