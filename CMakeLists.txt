@@ -24,6 +24,7 @@ qt_add_executable(QtTest
     src/characterstats.cpp
     src/gameview.cpp
     src/pausewindow.cpp
+    src/campfire.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -116,6 +117,9 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/lamp.png"
         "resources/map-assets/barrel.png"
         "resources/map-assets/hut.png"
+        "resources/map-assets/campfire.png"
+        "resources/map-assets/camplog1.png"
+        "resources/map-assets/camplog2.png"
 )
 
 target_link_libraries(QtTest
