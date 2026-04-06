@@ -32,13 +32,24 @@ int main(int argc, char *argv[])
     slime->setPlayer(player);
     scene->addItem(slime);
 
-    GameView *view = new GameView(scene,player);
+    GameView *view = new GameView(scene, player);
 
-    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p) {
+    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p)
+                     {
         view->centerOn(p);
         //draws the statbar in the top left corner regardless of window size and position
-        stats->setPos(view->mapToScene(10, 10));
-    });
+        stats->setPos(view->mapToScene(10, 10)); });
     stats->setPos(view->mapToScene(10, 10));
+
+    view->setFocus();
+    player->setFocus();
+
+    // making sure the glitch where player goes out of focus doesn't happen
+    QObject::connect(scene, &QGraphicsScene::focusItemChanged, [player](QGraphicsItem *newFocus, QGraphicsItem *oldFocus, Qt::FocusReason reason)
+                     {
+        if (newFocus != player) {
+            player->setFocus();
+        } });
+
     return a.exec();
 }
