@@ -9,7 +9,8 @@ enum class PlayerState
     Idle,
     Walking,
     Attacking,
-    Damaged
+    Damaged,
+    Dead
 };
 
 enum class Direction
@@ -41,6 +42,7 @@ protected:
 signals:
     void positionChanged(QGraphicsItem *playerPtr); // The announcement
     void statsChanged();
+    void playerDied();
 
 private:
     float staminaRegenRate;
@@ -60,6 +62,7 @@ private:
     QPixmap idleSheet;
     QPixmap attackSheet;
     QPixmap damagedSheet;
+    QPixmap deadSheet;
 
     int walkFrameWidth;
     int walkFrameHeight;
@@ -72,6 +75,9 @@ private:
 
     int damagedFrameWidth;
     int damagedFrameHeight;
+
+    int deadFrameWidth;
+    int deadFrameHeight;
 
     int maxFrames;
 

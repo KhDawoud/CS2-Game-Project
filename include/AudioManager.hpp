@@ -51,6 +51,11 @@ private:
         damageTaken->setSource(QUrl("qrc:/resources/sound-effects/DamageTaken.wav"));
         damageTaken->setVolume(0.5f);
         soundTable["DamageTaken"] = damageTaken;
+
+        QSoundEffect *gameOver = new QSoundEffect(this);
+        gameOver->setSource(QUrl("qrc:/resources/sound-effects/GameOver.wav"));
+        gameOver->setVolume(2);
+        soundTable["GameOver"] = gameOver;
     }
 
     std::unordered_map<std::string, QSoundEffect *> soundTable;

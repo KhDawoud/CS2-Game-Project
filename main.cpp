@@ -1,12 +1,16 @@
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>
-#include "include/AudioManager.hpp"
-#include "include/characterstats.hpp"
-#include "include/map.hpp"
-#include "include/player.hpp"
-#include "include/slime.hpp"
-#include "include/gameview.hpp"
+#include <QTimer>
+
+// mish lazem /include since it's defined in the cmake
+#include "AudioManager.hpp"
+#include "characterstats.hpp"
+#include "map.hpp"
+#include "player.hpp"
+#include "slime.hpp"
+#include "gameview.hpp"
+#include "deathwindow.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +54,11 @@ int main(int argc, char *argv[])
         if (newFocus != player) {
             player->setFocus();
         } });
+
+    QObject::connect(player, &Player::playerDied, [view]()
+                     {
+        DeathWindow *deathScreen = new DeathWindow(view); 
+        deathScreen->exec(); });
 
     return a.exec();
 }

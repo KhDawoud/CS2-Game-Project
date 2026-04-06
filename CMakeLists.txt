@@ -24,6 +24,7 @@ qt_add_executable(QtTest
     src/characterstats.cpp
     src/gameview.cpp
     src/pausewindow.cpp
+    src/deathwindow.cpp
     src/campfire.cpp
 )
 
@@ -36,6 +37,7 @@ qt_add_resources(QtTest "images"
         "resources/player/idling/swordsman_1_idle.png"
         "resources/player/running/swordsman_1_run.png"
         "resources/player/damaged/swordsman_1_damaged.png"
+        "resources/player/dead/swordsman_1_dead.png"
         "resources/map-assets/grass.png"
         "resources/map-assets/left.png"
         "resources/map-assets/right.png"
@@ -91,6 +93,7 @@ qt_add_resources(QtTest "images"
         "resources/sound-effects/GrassWalk.wav"
         "resources/sound-effects/SwordSwing.wav"
         "resources/sound-effects/DamageTaken.wav"
+        "resources/sound-effects/GameOver.wav"
         "resources/map-data/level-1.csv"
         "resources/enemy/idle/Slime1_Idle_with_shadow.png"
         "resources/enemy/walk/Slime1_Walk_with_shadow.png"

@@ -22,6 +22,7 @@ Player::Player()
     idleSheet.load(":resources/player/idling/swordsman_1_idle.png");
     attackSheet.load(":resources/player/attacking/swordsman_1_attack.png");
     damagedSheet.load(":resources/player/damaged/swordsman_1_damaged.png");
+    deadSheet.load(":resources/player/dead/swordsman_1_dead.png");
 
     walkFrameWidth = walkSheet.width() / 8;
     walkFrameHeight = walkSheet.height() / 4;
@@ -34,6 +35,9 @@ Player::Player()
 
     damagedFrameWidth = damagedSheet.width() / 5;
     damagedFrameHeight = damagedSheet.height() / 4;
+
+    deadFrameWidth = deadSheet.width() / 7;
+    deadFrameHeight = deadSheet.height() / 4;
 
     setScale(1.2);
 
@@ -113,6 +117,17 @@ void Player::updateAnimation()
             AudioManager::instance().playSound("DamageTaken");
         }
     }
+    else if (currentState == PlayerState::Dead)
+    {
+        maxFrames = 7;
+        currentFrameWidth = deadFrameWidth;
+        currentFrameHeight = deadFrameHeight;
+        sheetToDraw = &deadSheet;
+        if (currentFrame == 0)
+        {
+            AudioManager::instance().playSound("DamageTaken");
+        }
+    }
     else
     {
         maxFrames = 8;
@@ -144,6 +159,12 @@ void Player::updateAnimation()
     {
         currentFrame = 0;
 
+        if (currentState == PlayerState::Dead)
+        {
+            AudioManager::instance().playSound("GameOver");
+            emit playerDied();
+        }
+
         if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged)
         {
             idleTimer->start(1000);
@@ -154,7 +175,7 @@ void Player::updateAnimation()
 
 void Player::movePlayer()
 {
-    if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged)
+    if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged || currentState == PlayerState::Dead)
         return;
 
     float dx = 0, dy = 0;
@@ -199,7 +220,7 @@ void Player::movePlayer()
 
 void Player::keyPressEvent(QKeyEvent *event)
 {
-    if (event->isAutoRepeat())
+    if (event->isAutoRepeat() || currentState == PlayerState::Dead)
         return;
     Qt::Key key = static_cast<Qt::Key>(event->key());
 
@@ -214,6 +235,10 @@ void Player::keyPressEvent(QKeyEvent *event)
                 health -= 5;
                 emit statsChanged();
                 return;
+            }
+            else
+            {
+                setAnimationState(PlayerState::Dead);
             }
         }
     }

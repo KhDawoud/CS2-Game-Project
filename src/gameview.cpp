@@ -16,7 +16,8 @@ GameView::GameView(Map *scene, Player *player)
 
 void GameView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape) {
+    if (event->key() == Qt::Key_Escape)
+    {
         QGraphicsColorizeEffect *dim = new QGraphicsColorizeEffect();
         dim->setColor(Qt::black);
         dim->setStrength(0.7); // 70% dark
@@ -28,7 +29,9 @@ void GameView::keyPressEvent(QKeyEvent *event)
         // This stops the game (blocks) until the user clicks a button
         window.exec();
         this->setGraphicsEffect(nullptr);
-    } else {
+    }
+    else
+    {
         // Pass other keys (movement) to the base class
         QGraphicsView::keyPressEvent(event);
     }
