@@ -21,6 +21,7 @@ Player::Player()
     walkSheet.load(":resources/player/running/swordsman_1_run.png");
     idleSheet.load(":resources/player/idling/swordsman_1_idle.png");
     attackSheet.load(":resources/player/attacking/swordsman_1_attack.png");
+    damagedSheet.load(":resources/player/damaged/swordsman_1_damaged.png");
 
     walkFrameWidth = walkSheet.width() / 8;
     walkFrameHeight = walkSheet.height() / 4;
@@ -30,6 +31,9 @@ Player::Player()
 
     attackFrameWidth = attackSheet.width() / 8;
     attackFrameHeight = attackSheet.height() / 4;
+
+    damagedFrameWidth = damagedSheet.width() / 5;
+    damagedFrameHeight = damagedSheet.height() / 4;
 
     setScale(1.2);
 
@@ -62,7 +66,7 @@ void Player::setAnimationState(PlayerState newState)
     {
         animTimer->start(200);
     }
-    else if (currentState == PlayerState::Attacking)
+    else if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged)
     {
         animTimer->start(70);
     }
@@ -98,6 +102,17 @@ void Player::updateAnimation()
             AudioManager::instance().playSound("SwordSwing");
         }
     }
+    else if (currentState == PlayerState::Damaged)
+    {
+        maxFrames = 5;
+        currentFrameWidth = damagedFrameWidth;
+        currentFrameHeight = damagedFrameHeight;
+        sheetToDraw = &damagedSheet;
+        if (currentFrame == 0)
+        {
+            AudioManager::instance().playSound("DamageTaken");
+        }
+    }
     else
     {
         maxFrames = 8;
@@ -129,7 +144,7 @@ void Player::updateAnimation()
     {
         currentFrame = 0;
 
-        if (currentState == PlayerState::Attacking)
+        if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged)
         {
             idleTimer->start(1000);
             setAnimationState(PlayerState::Idle);
@@ -139,7 +154,7 @@ void Player::updateAnimation()
 
 void Player::movePlayer()
 {
-    if (currentState == PlayerState::Attacking)
+    if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged)
         return;
 
     float dx = 0, dy = 0;
@@ -190,11 +205,17 @@ void Player::keyPressEvent(QKeyEvent *event)
 
     if (key == Qt::Key_O)
     {
-        if (health - 10 > 0)
+        if (currentState != PlayerState::Damaged)
         {
-            health -= 10;
+            idleTimer->stop();
+            if (health >= 5)
+            {
+                setAnimationState(PlayerState::Damaged);
+                health -= 5;
+                emit statsChanged();
+                return;
+            }
         }
-        emit statsChanged();
     }
 
     if (key == Qt::Key_P)

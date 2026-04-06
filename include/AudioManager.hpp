@@ -47,7 +47,10 @@ private:
         swordSwing->setVolume(0.5f);
         soundTable["SwordSwing"] = swordSwing;
 
-
+        QSoundEffect *damageTaken = new QSoundEffect(this);
+        damageTaken->setSource(QUrl("qrc:/resources/sound-effects/DamageTaken.wav"));
+        damageTaken->setVolume(0.5f);
+        soundTable["DamageTaken"] = damageTaken;
     }
 
     std::unordered_map<std::string, QSoundEffect *> soundTable;
