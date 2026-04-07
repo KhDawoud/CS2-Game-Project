@@ -60,10 +60,24 @@ bool BaseEnemy::isdead()
 }
 
 void BaseEnemy::TakeDamage(int amount)
-{
+{if ( currentState == EnemyState::Dead || currentState == EnemyState::Hurt)
+        return;
+
+
     health -= amount;
-    if (health < 0)
+
+    if (health > 0)
+    {
+        currentState = EnemyState::Hurt;
+        currentFrame = 0;
+        waitCounter = 5;
+    }
+    else
+    {
         health = 0;
+        currentState = EnemyState::Dead;
+        currentFrame = 0;
+    }
 }
 
 void BaseEnemy::updateAnimation()
@@ -86,7 +100,16 @@ void BaseEnemy::updateAnimation()
         currentData = &attackData;
         currentSheet = &attackSheet;
     }
-    
+    else if (currentState == EnemyState::Hurt)
+    {
+        currentData = &idleData;  // TEMP (until you add hurt sprites)
+        currentSheet = &idleSheet;
+    }
+    else if (currentState == EnemyState::Dead)
+    {
+        currentData = &idleData;  // TEMP (replace later with death sprites)
+        currentSheet = &idleSheet;
+    }
     if (Dir.y < 0)
     {
         currentRow = 1; // up
@@ -130,8 +153,27 @@ void BaseEnemy::moveEnemy()
 }
 void BaseEnemy::update()
 {
-    if (!isalive()) return;
     if (!player) return;
+    if (currentState == EnemyState::Dead)
+    {
+        updateAnimation();
+        return;
+    }
+    if (currentState == EnemyState::Hurt)
+    {
+        waitCounter--;
+
+        if (waitCounter <= 0)
+        {
+            currentState = EnemyState::Idle;
+        }
+
+        updateAnimation();
+        return;
+    }
+
+
+
 
     EnemyState previousState = currentState;
 
