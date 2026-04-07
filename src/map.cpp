@@ -103,6 +103,9 @@ void Map::DrawMap()
                 } else if (tileId >= 20 && tileId <= 29) {
                     // wall corners, z = 2.1
                     tile->setZValue(2.1);
+                } else if (tileId == 30) {
+                // wall corners, z = 2.1
+                tile->setZValue(2.1);
                 }
 
                 addItem(tile);
@@ -337,8 +340,8 @@ void Map::DrawCollisionMap()
     collision_map.assign(MAP_ROWS, std::vector<int>(MAP_COLS, 0));
     for (int i = 0; i < MAP_ROWS; i++) {
         for (int j = 0; j < MAP_COLS; j++) {
-            if ((map[i][j] > 9 && map[i][j] < 27) || map[i][j] == 1
-                || map[i][j] > 29 && map[i][j] < 37) {
+            if ((map[i][j] > 12 && map[i][j] < 27) || map[i][j] == 1
+                || map[i][j] > 30 && map[i][j] < 37) {
                 collision_map[i][j] = 1;
             } else {
                 collision_map[i][j] = 0;
