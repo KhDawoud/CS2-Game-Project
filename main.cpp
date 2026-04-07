@@ -39,11 +39,11 @@ int main(int argc, char *argv[])
 
     GameView *view = new GameView(scene, player);
 
-    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p) {
+    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p)
+                     {
         view->centerOn(p);
         //draws the statbar in the top left corner regardless of window size and position
-        stats->setPos(view->mapToScene(10, 10));
-    });
+        stats->setPos(view->mapToScene(10, 10)); });
     stats->setPos(view->mapToScene(10, 10));
 
     view->setFocus();
@@ -54,16 +54,18 @@ int main(int argc, char *argv[])
                      &QGraphicsScene::focusItemChanged,
                      [player](QGraphicsItem *newFocus,
                               QGraphicsItem *oldFocus,
-                              Qt::FocusReason reason) {
-                         if (newFocus != player) {
+                              Qt::FocusReason reason)
+                     {
+                         if (newFocus != player)
+                         {
                              player->setFocus();
                          }
                      });
 
-    QObject::connect(player, &Player::playerDied, [view]() {
+    QObject::connect(player, &Player::playerDied, [view]()
+                     {
         DeathWindow *deathScreen = new DeathWindow(view);
-        deathScreen->exec();
-    });
+        deathScreen->exec(); });
 
     return a.exec();
 }

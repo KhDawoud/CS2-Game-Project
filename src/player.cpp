@@ -1,5 +1,6 @@
 #include "player.hpp"
 #include <QKeyEvent>
+#include <cmath>
 #include "AudioManager.hpp"
 #include "map2.hpp"
 
@@ -238,20 +239,19 @@ void Player::movePlayer()
     QRectF actualHitbox = getPlayerHitbox(pos());
     setZValue(actualHitbox.bottom());
 
-
-    // debug hitbox for now
-    if (!debugHitboxItem && scene())
-    {
-        debugHitboxItem = new QGraphicsRectItem();
-        debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
-        debugHitboxItem->setPen(QPen(Qt::blue));
-        debugHitboxItem->setZValue(10000);
-        scene()->addItem(debugHitboxItem);
-    }
-    if (debugHitboxItem)
-    {
-        debugHitboxItem->setRect(actualHitbox);
-    }
+    // uncomment to draw the hitbox
+    // if (!debugHitboxItem && scene())
+    // {
+    //     debugHitboxItem = new QGraphicsRectItem();
+    //     debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
+    //     debugHitboxItem->setPen(QPen(Qt::blue));
+    //     debugHitboxItem->setZValue(10000);
+    //     scene()->addItem(debugHitboxItem);
+    // }
+    // if (debugHitboxItem)
+    // {
+    //     debugHitboxItem->setRect(actualHitbox);
+    // }
 
     emit positionChanged(this);
 }
@@ -335,14 +335,17 @@ bool Player::checkCollision(const QRectF &hitbox, Map *map) const
     if (!map)
         return false;
 
-    int tileSize = 32;
+    if (hitbox.left() < 0 || hitbox.top() < 0)
+        return true;
+
+    float tileSize = 32.0f;
+
+    int leftCol = static_cast<int>(std::floor(hitbox.left() / tileSize));
+    int rightCol = static_cast<int>(std::floor(hitbox.right() / tileSize));
+    int topRow = static_cast<int>(std::floor(hitbox.top() / tileSize));
+    int bottomRow = static_cast<int>(std::floor(hitbox.bottom() / tileSize));
 
     // we see the collision map itself
-    int leftCol = hitbox.left() / tileSize;
-    int rightCol = hitbox.right() / tileSize;
-    int topRow = hitbox.top() / tileSize;
-    int bottomRow = hitbox.bottom() / tileSize;
-
     for (int r = topRow; r <= bottomRow; ++r)
     {
         for (int c = leftCol; c <= rightCol; ++c)

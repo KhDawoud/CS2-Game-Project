@@ -19,7 +19,6 @@ qt_add_executable(QtTest
     ${HEADERS}
     src/player.cpp
     src/map2.cpp
-    src/map.cpp
     src/Enemy.cpp
     src/slime.cpp
     src/characterstats.cpp
