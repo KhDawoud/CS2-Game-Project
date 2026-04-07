@@ -6,7 +6,7 @@
 // mish lazem /include since it's defined in the cmake
 #include "AudioManager.hpp"
 #include "characterstats.hpp"
-#include "map.hpp"
+#include "map2.hpp"
 #include "player.hpp"
 #include "slime.hpp"
 #include "gameview.hpp"
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 
     CharacterStats *stats = new CharacterStats();
     stats->setPlayer(player);
-    stats->setZValue(100);
+    stats->setZValue(1000);
     scene->addItem(stats);
     QObject::connect(player, &Player::statsChanged, stats, &CharacterStats::updateBars);
 

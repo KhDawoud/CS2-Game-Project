@@ -2,6 +2,8 @@
 #include <QKeyEvent>
 #include <QGraphicsColorizeEffect>
 #include "pausewindow.hpp"
+#include "map2.hpp"
+
 GameView::GameView(Map *scene, Player *player)
     : QGraphicsView(scene)
 {
