@@ -9,7 +9,8 @@ void Slime::loadAnimations()
     idleSheet.load(":resources/enemy/idle/Slime1_Idle_with_shadow.png");
     walkSheet.load(":resources/enemy/walk/Slime1_Walk_with_shadow.png");
     attackSheet.load(":resources/enemy/attack/Slime1_Attack_with_shadow.png");
-
+    deadSheet.load(":resources/enemy/dead/Slime1_Death_with_shadow.png");
+    hurtSheet.load(":resources/enemy/hurt/Slime1_Hurt_with_shadow.png");
     idleData.frameCount = 6;
     idleData.frameWidth = 64;
     idleData.frameHeight = 64;
@@ -19,4 +20,10 @@ void Slime::loadAnimations()
     attackData.frameCount = 10;
     attackData.frameWidth = 64;
     attackData.frameHeight = 64;
+    deadData.frameHeight= 64;
+    deadData.frameWidth = 64;
+    hurtData.frameHeight= 64;
+    hurtData.frameWidth = 64;
+    deadData.frameCount = 10;
+    hurtData.frameCount = 5 ;
 }

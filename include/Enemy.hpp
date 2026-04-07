@@ -46,6 +46,8 @@ protected:
     AnimData idleData;
     AnimData walkData;
     AnimData attackData;
+    AnimData deadData;
+    AnimData hurtData;
     Player* player;
     void setEnemyState(EnemyState newState);
     int currentFrame = 0;
@@ -55,6 +57,8 @@ protected:
     QPixmap idleSheet;
     QPixmap walkSheet;
     QPixmap attackSheet;
+    QPixmap deadSheet;
+    QPixmap hurtSheet;
     float attackRange;
     int waitCounter = 0;
     int attackTimer = 0;
