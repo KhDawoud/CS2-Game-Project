@@ -102,13 +102,13 @@ void BaseEnemy::updateAnimation()
     }
     else if (currentState == EnemyState::Hurt)
     {
-        currentData = &idleData;  // TEMP (until you add hurt sprites)
-        currentSheet = &idleSheet;
+        currentData = &hurtData;
+        currentSheet = &hurtSheet;
     }
     else if (currentState == EnemyState::Dead)
     {
-        currentData = &idleData;  // TEMP (replace later with death sprites)
-        currentSheet = &idleSheet;
+        currentData = &deadData;
+        currentSheet = &deadSheet;
     }
     if (Dir.y < 0)
     {
