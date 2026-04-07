@@ -39,7 +39,7 @@ private:
     {
         QSoundEffect *grassWalk = new QSoundEffect(this);
         grassWalk->setSource(QUrl("qrc:/resources/sound-effects/GrassWalk.wav"));
-        grassWalk->setVolume(0.3f);
+        grassWalk->setVolume(0.1f);
         soundTable["GrassWalk"] = grassWalk;
 
         QSoundEffect *swordSwing = new QSoundEffect(this);

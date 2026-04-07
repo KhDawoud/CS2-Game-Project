@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
 
     Player *player = new Player();
     player->setPos(40 * 7, 35 * 28);
+    player->setMap(scene);
     scene->addItem(player);
 
     CharacterStats *stats = new CharacterStats();

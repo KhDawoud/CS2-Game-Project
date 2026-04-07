@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QTimer>
 
+class Map;
+
 enum class PlayerState
 {
     Idle,
@@ -29,6 +31,7 @@ public:
     float getHealth() { return health; };
     float getStamina() { return stamina; };
     float getMana() { return mana; };
+    void setMap(Map *m) { gameMap = m; }
 
 public slots:
     void updateAnimation();
@@ -45,6 +48,7 @@ signals:
     void playerDied();
 
 private:
+    Map *gameMap = nullptr;
     float staminaRegenRate;
     QTimer *staminaRegenTimer;
     float health;

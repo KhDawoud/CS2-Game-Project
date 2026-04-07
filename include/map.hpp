@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <QTimer>
+#include <QRectF>
 #include "campfire.hpp"
 constexpr int MAP_ROWS = 35;
 constexpr int MAP_COLS = 40;
@@ -39,8 +40,8 @@ class Map : public QGraphicsScene
     QPixmap Log2;
     QPixmap CampLog1;
     QPixmap CampLog2;
-    Campfire* CampFire = new Campfire();
-    Campfire* CampFire2 = new Campfire();
+    Campfire *CampFire = new Campfire();
+    Campfire *CampFire2 = new Campfire();
 
     QPixmap CutDownLogs;
     QPixmap Cart;
@@ -66,7 +67,8 @@ public:
     std::vector<std::vector<int>> collision_map;
     void DrawCollisionMap();
     void AddTrees();
-    void AddCampfire(float, float, Campfire*);
+    void AddCampfire(float, float, Campfire *);
+    bool isTileCollidable(int, int);
 };
 
 #endif // MAP_H
