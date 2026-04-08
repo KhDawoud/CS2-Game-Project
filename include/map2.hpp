@@ -8,6 +8,10 @@
 #include <vector>
 #include <unordered_map>
 #include "campfire.hpp"
+#include "Enemy.hpp"
+#include "player.hpp"
+#include "characterstats.hpp"
+
 
 constexpr int MAP_ROWS = 35;
 constexpr int MAP_COLS = 40;
@@ -28,12 +32,13 @@ class Map : public QGraphicsScene
 {
     std::vector<std::vector<int>> mapData;
     std::vector<std::vector<int>> collision_map;
-
     std::unordered_map<int, QPixmap> baseTiles;
     std::vector<QPixmap> nonCollidableDecoPool;
     std::vector<CollidableTemplate> collidableTemplates;
     std::vector<PlacedObject> activeCollidableObjects;
     std::vector<Campfire *> activeCampfires;
+    Player* player;
+    CharacterStats *stats;
     QPixmap Tent4;
     QPixmap topgatel;
     QPixmap topgater;
@@ -56,7 +61,10 @@ public:
     void NonCollidablePlaceEntity(float, float,const QPixmap&,qreal);
     void PlaceCollidable(float startRow, float startCol, int templateIndex);
     void AddCampfire(float startRow, float startCol);
-
+    void AddEnemysRandomly(int count,int spacing);
+    void AddPlayerandStats();
+    Player* getPlayer();
+    CharacterStats* getStats();
     bool isTileCollidable(int row, int col) const;
     const std::vector<PlacedObject> &getCollidableObjects() const { return activeCollidableObjects; }
 };

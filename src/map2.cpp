@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QRandomGenerator>
 #include <cmath>
+#include "slime.hpp"
 
 Map::Map()
 {
@@ -11,15 +12,15 @@ Map::Map()
 
     // draw the base grass and path tiles
     DrawMapAndGenerateBaseCollisions();
+    // the built in things in the map (like buildings)
     PlaceMapStandardTiles();
     // add grass and stones (non-collidable)
     DrawFieldDecorations();
-
-    // the built in things in the map (like buildings)
-
-
+    AddPlayerandStats();
+    AddEnemysRandomly(15,10);
     // place 40 collidable objects randomly with 1 block of spacing
     DistributeRandomCollidables(40, 8, 13, 1);
+
 
 }
 
@@ -593,4 +594,46 @@ void Map::NonCollidablePlaceEntity(float startRow,
             }
         }
     }
+}
+void Map::AddEnemysRandomly(int count, int spacing)
+{
+    int placed = 0;
+    int attempts = 0;
+    int maxAttempts = count * 100;
+
+    while (placed < count && attempts < maxAttempts) {
+        attempts++;
+        int randomRow = QRandomGenerator::global()->bounded(5,28);
+        int randomCol = QRandomGenerator::global()->bounded(5,33);
+
+        bool canPlace = true;
+
+        if (canPlace) {
+            Slime* newSlime = new Slime();
+            newSlime->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
+            addItem(newSlime);
+            newSlime->setPlayer(player);
+            mapData[randomRow][randomCol] = 98;
+            placed++;
+        }
+    }
+
+}
+void Map::AddPlayerandStats(){
+    player = new Player();
+    player->setPos(40 * 7, 35 * 28);
+    player->setMap(this);
+    addItem(player);
+
+    stats = new CharacterStats();
+    stats->setPlayer(player);
+    stats->setZValue(1000);
+    addItem(stats);
+    QObject::connect(player, &Player::statsChanged, stats, &CharacterStats::updateBars);
+}
+Player* Map::getPlayer(){
+    return player;
+}
+CharacterStats* Map::getStats(){
+    return stats;
 }
