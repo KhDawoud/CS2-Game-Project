@@ -16,12 +16,11 @@ BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range)
     Dir.x = 0;
     Dir.y = 0;
     attackRange = range;
-<<<<<<< Updated upstream
-=======
+
     QTimer *aiTimer = new QTimer(this);
     connect(aiTimer, &QTimer::timeout, this, &BaseEnemy::update);
     aiTimer->start(100); //
->>>>>>> Stashed changes
+
 }
 void BaseEnemy::setPlayer(Player *p)
 {
