@@ -2,6 +2,7 @@
 #include "player.hpp"
 #include <QTimer>
 #include <QTransform>
+#include <QDebug>
 
 using namespace std;
 
@@ -15,9 +16,7 @@ BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range)
     Dir.x = 0;
     Dir.y = 0;
     attackRange = range;
-    QTimer *aiTimer = new QTimer(this);
-    connect(aiTimer, &QTimer::timeout, this, &BaseEnemy::update);
-    aiTimer->start(100); // Ticks every 0.1 seconds
+
 }
 void BaseEnemy::setPlayer(Player *p)
 {
@@ -60,9 +59,9 @@ bool BaseEnemy::isdead()
 }
 
 void BaseEnemy::TakeDamage(int amount)
-{if ( currentState == EnemyState::Dead || currentState == EnemyState::Hurt)
+{
+    if (currentState == EnemyState::Dead || currentState == EnemyState::Hurt)
         return;
-
 
     health -= amount;
 
@@ -70,7 +69,7 @@ void BaseEnemy::TakeDamage(int amount)
     {
         currentState = EnemyState::Hurt;
         currentFrame = 0;
-        waitCounter = 5;
+        waitCounter = hurtData.frameCount; // Changed to match animation length
     }
     else
     {
@@ -85,56 +84,27 @@ void BaseEnemy::updateAnimation()
     AnimData *currentData = nullptr;
     QPixmap *currentSheet = nullptr;
 
-    if (currentState == EnemyState::Idle)
-    {
-        currentData = &idleData;
-        currentSheet = &idleSheet;
-    }
-    else if (currentState == EnemyState::Walking)
-    {
-        currentData = &walkData;
-        currentSheet = &walkSheet;
-    }
-    else if (currentState == EnemyState::Attacking)
-    {
-        currentData = &attackData;
-        currentSheet = &attackSheet;
-    }
-    else if (currentState == EnemyState::Hurt)
-    {
-        currentData = &hurtData;
-        currentSheet = &hurtSheet;
-    }
-    else if (currentState == EnemyState::Dead)
-    {
-        currentData = &deadData;
-        currentSheet = &deadSheet;
-    }
-    if (Dir.y < 0)
-    {
-        currentRow = 1; // up
-    }
-    else if (Dir.x > 0)
-    {
-        currentRow = 3; // right
-    }
-    else if (Dir.x < 0)
-    {
-        currentRow = 2; // left
-    }
-    else
-    {
-        currentRow = 0; // down
-    }
+    if (currentState == EnemyState::Idle) { currentData = &idleData; currentSheet = &idleSheet; }
+    else if (currentState == EnemyState::Walking) { currentData = &walkData; currentSheet = &walkSheet; }
+    else if (currentState == EnemyState::Attacking) { currentData = &attackData; currentSheet = &attackSheet; }
+    else if (currentState == EnemyState::Hurt) { currentData = &hurtData; currentSheet = &hurtSheet; }
+    else if (currentState == EnemyState::Dead) { currentData = &deadData; currentSheet = &deadSheet; }
 
     int frameW = currentData->frameWidth;
     int frameH = currentData->frameHeight;
-
     int xCrop = currentFrame * frameW;
     int yCrop = currentRow * frameH;
 
     this->setPixmap(currentSheet->copy(xCrop, yCrop, frameW, frameH));
-    currentFrame = (currentFrame + 1) % currentData->frameCount;
+
+    // Logic: Only loop if NOT dead. If dead, stay on the last frame.
+    if (currentState == EnemyState::Dead) {
+        if (currentFrame < currentData->frameCount - 1) {
+            currentFrame++;
+        }
+    } else {
+        currentFrame = (currentFrame + 1) % currentData->frameCount;
+    }
 }
 
 void BaseEnemy::moveEnemy()
@@ -154,26 +124,31 @@ void BaseEnemy::moveEnemy()
 void BaseEnemy::update()
 {
     if (!player) return;
+
     if (currentState == EnemyState::Dead)
     {
         updateAnimation();
+        // Check if we have reached the final frame of the death sheet
+        if (currentFrame >= deadData.frameCount - 1)
+        {
+            this->hide();
+            this->setEnabled(false);
+        }
         return;
     }
+
     if (currentState == EnemyState::Hurt)
     {
+        updateAnimation();
         waitCounter--;
 
         if (waitCounter <= 0)
         {
             currentState = EnemyState::Idle;
+            currentFrame = 0;
         }
-
-        updateAnimation();
         return;
     }
-
-
-
 
     EnemyState previousState = currentState;
 
@@ -181,59 +156,54 @@ void BaseEnemy::update()
     float dy = player->y() - y();
     float distance = sqrt(dx * dx + dy * dy);
 
+    // Update currentRow based on player position
+    if (distance < 150)
+    {
+        if (abs(dx) > abs(dy)) {
+            currentRow = (dx > 0) ? 3 : 2;
+        } else {
+            currentRow = (dy > 0) ? 0 : 1;
+        }
+    }
+
     // --- STATE LOGIC ---
-
-    
-    if (currentState == EnemyState::Walking && distance < attackRange) {
+    if (distance < attackRange) {
+        if (currentState != EnemyState::Attacking && waitCounter <= 0) {
+            currentState = EnemyState::Attacking;
+            attackTimer = attackDuration;
+        } else if (currentState != EnemyState::Attacking) {
+            currentState = EnemyState::Idle;
+        }
+    } else if (distance < 150) {
+        currentState = EnemyState::Walking;
+    } else {
         currentState = EnemyState::Idle;
-        waitCounter = 10; // 3 seconds (30 * 0.1s)
     }
 
-   
-    else if (currentState == EnemyState::Idle) {
-
-        if (waitCounter > 0) {
-            waitCounter--;
-        }
-        else {
-            // Timer finished
-            if (distance < attackRange) {
-                currentState = EnemyState::Attacking;
-                attackTimer = attackDuration; // start attack
-            } else {
-                currentState = EnemyState::Walking;
-            }
-        }
+    if (currentState == EnemyState::Idle && waitCounter > 0) {
+        waitCounter--;
     }
 
-    
-    else if (currentState == EnemyState::Attacking) {
-
+    if (currentState == EnemyState::Attacking) {
         if (attackTimer > 0) {
             attackTimer--;
-        }
-        else {
+        } else {
             currentState = EnemyState::Idle;
-            waitCounter = 10; // cooldown after attack
+            waitCounter = 10; // Cooldown
         }
     }
 
-  
     if (currentState != previousState) {
         currentFrame = 0;
     }
 
-   
     if (currentState == EnemyState::Walking) {
         detectandmove(player);
         moveEnemy();
     } else {
-        
         Dir.x = 0;
         Dir.y = 0;
     }
 
-    
     updateAnimation();
 }
-

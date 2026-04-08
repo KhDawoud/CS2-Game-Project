@@ -63,6 +63,8 @@ protected:
     int waitCounter = 0;
     int attackTimer = 0;
     int attackDuration = 10; // ~1 second
+    int lastRow=0;
+
 public:
     BaseEnemy(int hp, int atk, int def, float spd = 1.0f,float range=40.0f);
     void setPlayer(Player*p);
@@ -74,6 +76,9 @@ public:
     void moveEnemy();
     virtual void updateAnimation();
     void detectandmove(Player*);
+
+    void testHurtAnimation() { this->TakeDamage(25); }
+    void testDeathAnimation() { this->TakeDamage(9999); }
 public slots:
     void update();
 };
