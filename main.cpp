@@ -5,12 +5,9 @@
 
 // mish lazem /include since it's defined in the cmake
 #include "AudioManager.hpp"
-#include "characterstats.hpp"
 #include "deathwindow.hpp"
 #include "gameview.hpp"
 #include "map2.hpp"
-#include "player.hpp"
-#include "slime.hpp"
 #include "house_interior.hpp"
 
 int main(int argc, char *argv[])
@@ -25,38 +22,23 @@ int main(int argc, char *argv[])
     House_Interior* interior = new House_Interior();
     interior->setSceneRect(0, 0, 16 * 32, 10 * 32);
 
-    Player *player = new Player();
-    player->setPos(40 * 7, 35 * 28);
-    player->setMap(scene);
-    scene->addItem(player);
 
-    CharacterStats *stats = new CharacterStats();
-    stats->setPlayer(player);
-    stats->setZValue(1000);
-    scene->addItem(stats);
-    QObject::connect(player, &Player::statsChanged, stats, &CharacterStats::updateBars);
+    GameView *view = new GameView(scene,interior, scene->getPlayer());
 
-    Slime *slime = new Slime();
-    slime->setPos(40 * 22, 35 * 20);
-    slime->setPlayer(player);
-    scene->addItem(slime);
-
-    GameView *view = new GameView(scene,interior, player);
-
-    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p) {
+    QObject::connect(scene->getPlayer(), &Player::positionChanged, view, [view, stats=scene->getStats()](QGraphicsItem *p) {
         view->centerOn(p);
         //draws the statbar in the top left corner regardless of window size and position
         stats->setPos(view->mapToScene(10, 10));
     });
-    stats->setPos(view->mapToScene(10, 10));
+    scene->getStats()->setPos(view->mapToScene(10, 10));
 
     view->setFocus();
-    player->setFocus();
+    scene->getPlayer()->setFocus();
 
     // making sure the glitch where player goes out of focus doesn't happen
     QObject::connect(scene,
                      &QGraphicsScene::focusItemChanged,
-                     [player](QGraphicsItem *newFocus,
+                     [player=scene->getPlayer()](QGraphicsItem *newFocus,
                               QGraphicsItem *oldFocus,
                               Qt::FocusReason reason) {
                          if (newFocus != player) {
@@ -64,7 +46,7 @@ int main(int argc, char *argv[])
                          }
                      });
 
-    QObject::connect(player, &Player::playerDied, [view]() {
+    QObject::connect(scene->getPlayer(), &Player::playerDied, [view]() {
         DeathWindow *deathScreen = new DeathWindow(view);
         deathScreen->exec();
     });
