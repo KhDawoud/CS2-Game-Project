@@ -1,8 +1,8 @@
 #include "Enemy.hpp"
-#include "player.hpp"
+#include <QDebug>
 #include <QTimer>
 #include <QTransform>
-#include <QDebug>
+#include "player.hpp"
 
 using namespace std;
 
@@ -16,7 +16,6 @@ BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range)
     Dir.x = 0;
     Dir.y = 0;
     attackRange = range;
-
 }
 void BaseEnemy::setPlayer(Player *p)
 {
@@ -29,8 +28,7 @@ void BaseEnemy::detectandmove(Player *player)
 
     float distance = sqrt(diffX * diffX + diffY * diffY);
 
-    if (distance < 100)
-    {
+    if (distance < 100) {
         if (diffX > 0)
             Dir.x = 1; // Player is to the right
         else if (diffX < 0)
@@ -40,9 +38,7 @@ void BaseEnemy::detectandmove(Player *player)
             Dir.y = 1; // Player is below
         else if (diffY < 0)
             Dir.y = -1;
-    }
-    else
-    {
+    } else {
         //  stop moving
         Dir.x = 0;
         Dir.y = 0;
@@ -65,14 +61,11 @@ void BaseEnemy::TakeDamage(int amount)
 
     health -= amount;
 
-    if (health > 0)
-    {
+    if (health > 0) {
         currentState = EnemyState::Hurt;
         currentFrame = 0;
         waitCounter = hurtData.frameCount; // Changed to match animation length
-    }
-    else
-    {
+    } else {
         health = 0;
         currentState = EnemyState::Dead;
         currentFrame = 0;
@@ -84,11 +77,22 @@ void BaseEnemy::updateAnimation()
     AnimData *currentData = nullptr;
     QPixmap *currentSheet = nullptr;
 
-    if (currentState == EnemyState::Idle) { currentData = &idleData; currentSheet = &idleSheet; }
-    else if (currentState == EnemyState::Walking) { currentData = &walkData; currentSheet = &walkSheet; }
-    else if (currentState == EnemyState::Attacking) { currentData = &attackData; currentSheet = &attackSheet; }
-    else if (currentState == EnemyState::Hurt) { currentData = &hurtData; currentSheet = &hurtSheet; }
-    else if (currentState == EnemyState::Dead) { currentData = &deadData; currentSheet = &deadSheet; }
+    if (currentState == EnemyState::Idle) {
+        currentData = &idleData;
+        currentSheet = &idleSheet;
+    } else if (currentState == EnemyState::Walking) {
+        currentData = &walkData;
+        currentSheet = &walkSheet;
+    } else if (currentState == EnemyState::Attacking) {
+        currentData = &attackData;
+        currentSheet = &attackSheet;
+    } else if (currentState == EnemyState::Hurt) {
+        currentData = &hurtData;
+        currentSheet = &hurtSheet;
+    } else if (currentState == EnemyState::Dead) {
+        currentData = &deadData;
+        currentSheet = &deadSheet;
+    }
 
     int frameW = currentData->frameWidth;
     int frameH = currentData->frameHeight;
@@ -111,8 +115,7 @@ void BaseEnemy::moveEnemy()
 {
     float currentSpeed = speed;
 
-        if (Dir.x != 0 && Dir.y != 0)
-    {
+    if (Dir.x != 0 && Dir.y != 0) {
         currentSpeed = speed * 0.707f;
     }
 
@@ -123,27 +126,24 @@ void BaseEnemy::moveEnemy()
 }
 void BaseEnemy::update()
 {
-    if (!player) return;
+    if (!player)
+        return;
 
-    if (currentState == EnemyState::Dead)
-    {
+    if (currentState == EnemyState::Dead) {
         updateAnimation();
         // Check if we have reached the final frame of the death sheet
-        if (currentFrame >= deadData.frameCount - 1)
-        {
+        if (currentFrame >= deadData.frameCount - 1) {
             this->hide();
             this->setEnabled(false);
         }
         return;
     }
 
-    if (currentState == EnemyState::Hurt)
-    {
+    if (currentState == EnemyState::Hurt) {
         updateAnimation();
         waitCounter--;
 
-        if (waitCounter <= 0)
-        {
+        if (waitCounter <= 0) {
             currentState = EnemyState::Idle;
             currentFrame = 0;
         }
@@ -157,8 +157,7 @@ void BaseEnemy::update()
     float distance = sqrt(dx * dx + dy * dy);
 
     // Update currentRow based on player position
-    if (distance < 150)
-    {
+    if (distance < 150) {
         if (abs(dx) > abs(dy)) {
             currentRow = (dx > 0) ? 3 : 2;
         } else {

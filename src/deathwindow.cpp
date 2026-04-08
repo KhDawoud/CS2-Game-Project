@@ -8,8 +8,7 @@ DeathWindow::DeathWindow(QWidget *parent)
 {
     int fontId = QFontDatabase::addApplicationFont(":resources/fonts/pixelfont.ttf");
 
-    if (fontId != -1)
-    {
+    if (fontId != -1) {
         // Retrieve the exact family name assigned by the font file
         QString family = QFontDatabase::applicationFontFamilies(fontId).at(0);
 
@@ -49,13 +48,13 @@ DeathWindow::DeathWindow(QWidget *parent)
         layout->addWidget(quitBtn);
 
         connect(quitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
-        connect(restartBtn, &QPushButton::clicked, this, []()
-                {
+        connect(restartBtn, &QPushButton::clicked, this, []() {
             // basically just closes and reopens the program for now
             QString program = QCoreApplication::applicationFilePath();
             QStringList args = qApp->arguments();
-            args.takeFirst(); 
+            args.takeFirst();
             QProcess::startDetached(program, args);
-            qApp->quit(); });
+            qApp->quit();
+        });
     }
 }

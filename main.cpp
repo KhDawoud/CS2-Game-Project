@@ -11,6 +11,7 @@
 #include "map2.hpp"
 #include "player.hpp"
 #include "slime.hpp"
+#include "house_interior.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -20,6 +21,9 @@ int main(int argc, char *argv[])
 
     Map *scene = new Map();
     scene->setSceneRect(0, 0, 40 * 32, 35 * 32);
+
+    House_Interior* interior = new House_Interior();
+    interior->setSceneRect(0, 0, 16 * 32, 10 * 32);
 
     Player *player = new Player();
     player->setPos(40 * 7, 35 * 28);
@@ -37,13 +41,13 @@ int main(int argc, char *argv[])
     slime->setPlayer(player);
     scene->addItem(slime);
 
-    GameView *view = new GameView(scene, player);
+    GameView *view = new GameView(scene,interior, player);
 
-    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p)
-                     {
+    QObject::connect(player, &Player::positionChanged, view, [view, stats](QGraphicsItem *p) {
         view->centerOn(p);
         //draws the statbar in the top left corner regardless of window size and position
-        stats->setPos(view->mapToScene(10, 10)); });
+        stats->setPos(view->mapToScene(10, 10));
+    });
     stats->setPos(view->mapToScene(10, 10));
 
     view->setFocus();
@@ -54,18 +58,16 @@ int main(int argc, char *argv[])
                      &QGraphicsScene::focusItemChanged,
                      [player](QGraphicsItem *newFocus,
                               QGraphicsItem *oldFocus,
-                              Qt::FocusReason reason)
-                     {
-                         if (newFocus != player)
-                         {
+                              Qt::FocusReason reason) {
+                         if (newFocus != player) {
                              player->setFocus();
                          }
                      });
 
-    QObject::connect(player, &Player::playerDied, [view]()
-                     {
+    QObject::connect(player, &Player::playerDied, [view]() {
         DeathWindow *deathScreen = new DeathWindow(view);
-        deathScreen->exec(); });
+        deathScreen->exec();
+    });
 
     return a.exec();
 }

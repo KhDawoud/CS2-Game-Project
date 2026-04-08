@@ -12,13 +12,13 @@ Map::Map()
     DrawMap();
 
     // Buildings (zValue = 1.0)
-    PlaceEntity(10.5, 7,5,4, House1, 1.0);
-    PlaceEntity(19.8, 7,3,4, House3, 3.0);
-    PlaceEntity(6.5, 22,4,3, House2, 1.9);
-    NonCollidablePlaceEntity(20, 22,House4, 2.1);
-    PlaceEntityWithOffset(8, 27,2,1, Tent2, 2.1);
-    PlaceEntityWithOffset(22, 17,2,1, Tent3, 2.1);
-    PlaceEntityWithOffset(26, 16,2,1, Tent1, 2.1,-1);
+    PlaceEntity(10.5, 7, 5, 4, House1, 1.0);
+    PlaceEntity(19.8, 7, 3, 4, House3, 3.0);
+    PlaceEntity(6.5, 22, 4, 3, House2, 1.9);
+    NonCollidablePlaceEntity(20, 22, House4, 2.1);
+    PlaceEntityWithOffset(8, 27, 2, 1, Tent2, 2.1);
+    PlaceEntityWithOffset(22, 17, 2, 1, Tent3, 2.1);
+    PlaceEntityWithOffset(26, 16, 2, 1, Tent1, 2.1, -1);
 
     // Objects and Gates (zValue = 2.1)
     NonCollidablePlaceEntity(13, 16, Tent4, 2.2);
@@ -30,19 +30,19 @@ Map::Map()
     NonCollidablePlaceEntity(11, 34, sidegate3, 2.1);
 
     // Decorations
-    PlaceEntity(14, 12, 2, 1 ,Cart, 1);
-    PlaceEntity(23.2, 12, 2, 1,CutDownLogs, 1);
-    PlaceEntity(23.2, 13, 1, 1,Axe, 1);
-    Addlamp(25, 13.5,Lamp);
-    Addlamp(16, 13.5,Lamp);
-    Addlamp(11.1, 22,Lamp);
-    PlaceEntity(14.3, 17,1,1, Barrel, 1.9);
-    PlaceEntity(6, 14,1,2, WaterWell, 2.1);
-    NonCollidablePlaceEntity(20, 28,CampLog1, 1.0);
-    NonCollidablePlaceEntity(20.5, 29.3,CampLog2, 1.0);
+    PlaceEntity(14, 12, 2, 1, Cart, 1);
+    PlaceEntity(23.2, 12, 2, 1, CutDownLogs, 1);
+    PlaceEntity(23.2, 13, 1, 1, Axe, 1);
+    Addlamp(25, 13.5, Lamp);
+    Addlamp(16, 13.5, Lamp);
+    Addlamp(11.1, 22, Lamp);
+    PlaceEntity(14.3, 17, 1, 1, Barrel, 1.9);
+    PlaceEntity(6, 14, 1, 2, WaterWell, 2.1);
+    NonCollidablePlaceEntity(20, 28, CampLog1, 1.0);
+    NonCollidablePlaceEntity(20.5, 29.3, CampLog2, 1.0);
     AddCampfire(19, 29, CampFire);
-    NonCollidablePlaceEntity(28, 10,CampLog1, 1.0);
-    NonCollidablePlaceEntity(28.5, 11.3,CampLog2, 1.0);
+    NonCollidablePlaceEntity(28, 10, CampLog1, 1.0);
+    NonCollidablePlaceEntity(28.5, 11.3, CampLog2, 1.0);
     AddCampfire(27, 11, CampFire2);
 
     AddTrees();
@@ -104,8 +104,8 @@ void Map::DrawMap()
                     // wall corners, z = 2.1
                     tile->setZValue(2.1);
                 } else if (tileId == 30) {
-                // wall corners, z = 2.1
-                tile->setZValue(2.1);
+                    // wall corners, z = 2.1
+                    tile->setZValue(2.1);
                 }
 
                 addItem(tile);
@@ -113,9 +113,9 @@ void Map::DrawMap()
         }
     }
 }
-void Map::PlaceEntity(float startRow, float startCol,int colW, int colH, const QPixmap & image,qreal zValue)
+void Map::PlaceEntity(
+    float startRow, float startCol, int colW, int colH, const QPixmap &image, qreal zValue)
 {
-
     QGraphicsPixmapItem *entity = new QGraphicsPixmapItem(image);
     entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
     entity->setZValue(zValue);
@@ -130,12 +130,17 @@ void Map::PlaceEntity(float startRow, float startCol,int colW, int colH, const Q
             int c = gridCol + j;
             if (r >= 0 && r < MAP_ROWS && c >= 0 && c < MAP_COLS) {
                 map[r][c] = 1;
-
             }
         }
     }
 }
-void Map::PlaceEntityWithOffset(float startRow, float startCol,int colW, int colH, const QPixmap & image,qreal zValue, int offsetcontrol)
+void Map::PlaceEntityWithOffset(float startRow,
+                                float startCol,
+                                int colW,
+                                int colH,
+                                const QPixmap &image,
+                                qreal zValue,
+                                int offsetcontrol)
 {
     int heightInTiles = std::ceil((double) image.height() / TILE_SIZE);
 
@@ -146,20 +151,22 @@ void Map::PlaceEntityWithOffset(float startRow, float startCol,int colW, int col
 
     int gridRow = qRound(startRow);
     int gridCol = qRound(startCol);
-    int rowOffset = (heightInTiles - colH)+offsetcontrol;
+    int rowOffset = (heightInTiles - colH) + offsetcontrol;
 
     for (int i = 0; i < colH; i++) {
         for (int j = 0; j < colW; j++) {
-            int r = gridRow + i +rowOffset;
+            int r = gridRow + i + rowOffset;
             int c = gridCol + j;
             if (r >= 0 && r < MAP_ROWS && c >= 0 && c < MAP_COLS) {
                 map[r][c] = 1;
-
             }
         }
     }
 }
-void Map::NonCollidablePlaceEntity(float startRow, float startCol,const QPixmap &image, qreal zValue)
+void Map::NonCollidablePlaceEntity(float startRow,
+                                   float startCol,
+                                   const QPixmap &image,
+                                   qreal zValue)
 {
     int widthInTiles = std::ceil((double) image.width() / TILE_SIZE);
     int heightInTiles = std::ceil((double) image.height() / TILE_SIZE);
@@ -178,7 +185,7 @@ void Map::NonCollidablePlaceEntity(float startRow, float startCol,const QPixmap 
         }
     }
 }
-void Map::Addlamp(float startRow, float startCol,const QPixmap &image)
+void Map::Addlamp(float startRow, float startCol, const QPixmap &image)
 {
     QGraphicsPixmapItem *entity = new QGraphicsPixmapItem(image);
     entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
@@ -223,7 +230,7 @@ void Map::DrawField()
 
     for (int i = 0; i < MAP_ROWS; i++) {
         for (int j = 0; j < MAP_COLS; j++) {
-            if (map[i][j] == 0 || map[i][j] == 99){
+            if (map[i][j] == 0 || map[i][j] == 99) {
                 if (QRandomGenerator::global()->bounded(100) < 30) // 30% chance to spawn decoration
                 {
                     // this chooses a random decoration from the vector
@@ -352,7 +359,7 @@ void Map::DrawCollisionMap()
 void Map::AddTrees()
 {
     // made it like the field where it chooses randomly from many tree sprites
-    std::vector<QPixmap *> treePool = {&Tree2, &Tree3,&Log2};
+    std::vector<QPixmap *> treePool = {&Tree2, &Tree3, &Log2};
     int spacing = 1; // make it so trees don't spawn too close
 
     // Iterate through the map
@@ -397,7 +404,6 @@ void Map::AddTrees()
 
                     int trunkWidth = 2;
                     int trunkHeight = 1;
-
 
                     int trunkOffsetX = (widthInTiles - trunkWidth);
                     int trunkOffsetY = heightInTiles - trunkHeight;

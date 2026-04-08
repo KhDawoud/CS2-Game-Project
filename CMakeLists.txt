@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Multimedia)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Widgets Multimedia)
 
 qt_standard_project_setup()
 
@@ -26,12 +26,14 @@ qt_add_executable(QtTest
     src/pausewindow.cpp
     src/deathwindow.cpp
     src/campfire.cpp
+    src/house_interior.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
 
 
 qt_add_resources(QtTest "images"
+    PREFIX "/"
     FILES 
         "resources/player/attacking/swordsman_1_attack.png"
         "resources/player/idling/swordsman_1_idle.png"
@@ -128,6 +130,46 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/campfire.png"
         "resources/map-assets/camplog1.png"
         "resources/map-assets/camplog2.png"
+        "resources/house_interior/Using/black_image.png"
+        "resources/house_interior/Using/floor_left.png"
+        "resources/house_interior/Using/floor_right.png"
+        "resources/house_interior/Using/floor_bottom.png"
+        "resources/house_interior/Using/floor_bottom_left_corner.png"
+        "resources/house_interior/Using/floor_bottom_right_corner.png"
+        "resources/house_interior/Using/floor_top_left_corner.png"
+        "resources/house_interior/Using/floor_top_right_corner.png"
+        "resources/house_interior/Using/floor_middle.png"
+        "resources/house_interior/Using/wall_no_door.png"
+        "resources/house_interior/Using/wall_middle.png"
+        "resources/house_interior/Using/wall_left.png"
+        "resources/house_interior/Using/wall_right.png"
+        "resources/house_interior/Using-Deco/purple_carpet_circle.png"
+        "resources/house_interior/Using-Deco/red_carpet_oval_2.png"
+        "resources/house_interior/Using-Deco/red_carpet_rectangle.png"
+        "resources/house_interior/Using-Deco/red_carpet_rectangle_2.png"
+        "resources/house_interior/Using-Deco/bookcase.png"
+        "resources/house_interior/Using-Deco/cupboard_full.png"
+        "resources/house_interior/Using-Deco/cupboard_empty.png"
+        "resources/house_interior/Using-Deco/sword_holder.png"
+        "resources/house_interior/Using-Deco/dining_table.png"
+        "resources/house_interior/Using-Deco/bed.png"
+        "resources/house_interior/Using-Deco/nightstand.png"
+        "resources/house_interior/Using-Deco/couch_side_profile.png"
+        "resources/house_interior/Using-Deco/wooden_crates.png"
+        "resources/house_interior/Using-Deco/stairs.png"
+        "resources/house_interior/Using-Deco/potion_table.png"
+        "resources/house_interior/Using-Deco/wooden_barrel.png"
+        "resources/house_interior/Using/wall_right_turn.png"
+        "resources/house_interior/Using/wall_left_turn.png"
+        "resources/house_interior/Using/side_of_wall.png"
+        "resources/house_interior/Using-Deco/window.png"
+        "resources/house_interior/Using-Deco/banana.png"
+        "resources/house_interior/Using-Deco/garlic.png"
+        "resources/house_interior/Using-Deco/coal.png"
+        "resources/house_interior/Using-Deco/round_table.png"
+        "resources/house_interior/Using/side_of_wall_2.png"
+        "resources/house_interior/Using/entrance.png"
+        "resources/house_interior/CSV/house_interior.csv"
 )
 
 target_link_libraries(QtTest
@@ -144,9 +186,9 @@ install(TARGETS QtTest
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-qt_generate_deploy_app_script(
-    TARGET QtTest
-    OUTPUT_SCRIPT deploy_script
-    NO_UNSUPPORTED_PLATFORM_ERROR
-)
-install(SCRIPT ${deploy_script})
+#qt_generate_deploy_app_script(
+#    TARGET QtTest
+#    OUTPUT_SCRIPT deploy_script
+#    NO_UNSUPPORTED_PLATFORM_ERROR
+#)
+#install(SCRIPT ${deploy_script})

@@ -1,9 +1,9 @@
-#include "player.hpp"
 #include "characterstats.hpp"
 #include <QGraphicsPixmapItem>
 #include <QObject>
-#include <QPixmap>
 #include <QPainter>
+#include <QPixmap>
+#include "player.hpp"
 
 CharacterStats::CharacterStats()
 {
@@ -58,8 +58,7 @@ void CharacterStats::updateBars()
 
     // scale healthbar by current health and draw it
     int currentHealthWidth = static_cast<int>(healthBarFullRect.width() * healthPercent);
-    if (currentHealthWidth > 0)
-    {
+    if (currentHealthWidth > 0) {
         QRect currentHealthRect = healthBarFullRect;
         currentHealthRect.setWidth(currentHealthWidth);
         painter.drawPixmap(healthOffsetOnPanel, spriteSheet.copy(currentHealthRect));
@@ -67,8 +66,7 @@ void CharacterStats::updateBars()
 
     // scale manabar by current mana and draw it
     int currentManaWidth = static_cast<int>(manaBarFullRect.width() * manaPercent);
-    if (currentManaWidth > 0)
-    {
+    if (currentManaWidth > 0) {
         QRect currentManaRect = manaBarFullRect;
         currentManaRect.setWidth(currentManaWidth);
         painter.drawPixmap(manaOffsetOnPanel, spriteSheet.copy(currentManaRect));
@@ -76,8 +74,7 @@ void CharacterStats::updateBars()
 
     // scale staminabar by current stamina and draw it
     int currentStaminaWidth = static_cast<int>(staminaFullRect.width() * staminaPercent);
-    if (currentStaminaWidth > 0)
-    {
+    if (currentStaminaWidth > 0) {
         QRect currentStaminaRect = staminaFullRect;
         currentStaminaRect.setWidth(currentStaminaWidth);
         painter.drawPixmap(staminaOffsetOnPanel, spriteSheet.copy(currentStaminaRect));

@@ -75,7 +75,8 @@ void Map::ImageLoader()
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/tent3.png"), QRectF(2, 30, 60, 33)});
     collidableTemplates.push_back(
-        {QPixmap(":resources/map-assets/tent4.png"), QRectF(0, 32, 60, 32)}); // should remove this one since it's complicated
+        {QPixmap(":resources/map-assets/tent4.png"),
+         QRectF(0, 32, 60, 32)}); // should remove this one since it's complicated
 
     // Trees & Logs [Indices 8 - 13]
     collidableTemplates.push_back(
@@ -94,10 +95,8 @@ void Map::ImageLoader()
     // General Decorations [Indices 14 - 21]
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/cutdownlogs.png"), QRectF(6, 5, 10, 16)});
-    collidableTemplates.push_back(
-        {QPixmap(":resources/map-assets/cart.png"), QRectF(4, 7, 40, 20)});
-    collidableTemplates.push_back(
-        {QPixmap(":resources/map-assets/lamp.png"), QRectF(6, 18, 5, 20)});
+    collidableTemplates.push_back({QPixmap(":resources/map-assets/cart.png"), QRectF(4, 7, 40, 20)});
+    collidableTemplates.push_back({QPixmap(":resources/map-assets/lamp.png"), QRectF(6, 18, 5, 20)});
     collidableTemplates.push_back({QPixmap(":resources/map-assets/axe.png"), QRectF(1, 10, 11, 8)});
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/barrel.png"), QRectF(0, 0, 20, 22)});
@@ -124,7 +123,9 @@ void Map::ImageLoader()
     // ==========================================
     // 4. FORMER CSV WALLS AND GATES [Indices 28+]
     // ==========================================
-    collidableTemplates.push_back({QPixmap(":resources/map-assets/wallt"), QRectF(0, 30, 32, 2)}); // these have no hitbox since theyre high up
+    collidableTemplates.push_back(
+        {QPixmap(":resources/map-assets/wallt"),
+         QRectF(0, 30, 32, 2)}); // these have no hitbox since theyre high up
     collidableTemplates.push_back({QPixmap(":resources/map-assets/wallt2"), QRectF(0, 30, 32, 2)});
     collidableTemplates.push_back({QPixmap(":resources/map-assets/wallt3"), QRectF(0, 30, 32, 2)});
     collidableTemplates.push_back({QPixmap(":resources/map-assets/walltb1"), QRectF(0, 0, 31, 26)});
@@ -156,8 +157,10 @@ void Map::ImageLoader()
         {QPixmap(":resources/map-assets/brokenlog1"), QRectF(15, 8, 6, 24)});
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/brokenlog2"), QRectF(10, 0, 8, 20)});
-    collidableTemplates.push_back({QPixmap(":resources/map-assets/remains1"), QRectF(1, 15, 19, 13)});
-    collidableTemplates.push_back({QPixmap(":resources/map-assets/remains2"), QRectF(11, 12, 11, 17)});
+    collidableTemplates.push_back(
+        {QPixmap(":resources/map-assets/remains1"), QRectF(1, 15, 19, 13)});
+    collidableTemplates.push_back(
+        {QPixmap(":resources/map-assets/remains2"), QRectF(11, 12, 11, 17)});
     collidableTemplates.push_back({QPixmap(":resources/map-assets/remains3"), QRectF(8, 9, 14, 11)});
 }
 
@@ -169,12 +172,10 @@ void Map::LoadMapFromCSV(const QString &filePath)
 
     mapData.clear();
     QTextStream in(&file);
-    while (!in.atEnd())
-    {
+    while (!in.atEnd()) {
         QStringList values = in.readLine().split(',');
         std::vector<int> row;
-        for (const QString &val : values)
-        {
+        for (const QString &val : values) {
             row.push_back(val.trimmed().toInt());
         }
         mapData.push_back(row);
@@ -186,10 +187,8 @@ void Map::DrawMapAndGenerateBaseCollisions()
 {
     collision_map.assign(MAP_ROWS, std::vector<int>(MAP_COLS, 0));
 
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
             QGraphicsPixmapItem *base = new QGraphicsPixmapItem(baseTiles[0]);
             base->setPos(j * TILE_SIZE, i * TILE_SIZE);
             base->setZValue(-100.0);
@@ -197,8 +196,7 @@ void Map::DrawMapAndGenerateBaseCollisions()
 
             int tileId = mapData[i][j];
 
-            if (tileId != 0 && baseTiles.find(tileId) != baseTiles.end())
-            {
+            if (tileId != 0 && baseTiles.find(tileId) != baseTiles.end()) {
                 QGraphicsPixmapItem *tile = new QGraphicsPixmapItem(baseTiles[tileId]);
                 tile->setPos(j * TILE_SIZE, i * TILE_SIZE);
                 tile->setZValue(-100.0);
@@ -212,15 +210,12 @@ void Map::DrawMapAndGenerateBaseCollisions()
 
 void Map::DrawFieldDecorations()
 {
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
             if (mapData[i][j] != 0)
                 continue; // only goes on plain grass
 
-            if (QRandomGenerator::global()->bounded(100) < 30)
-            {
+            if (QRandomGenerator::global()->bounded(100) < 30) {
                 int randomIndex = QRandomGenerator::global()->bounded(
                     static_cast<int>(nonCollidableDecoPool.size()));
 
@@ -267,8 +262,7 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
     int placed = 0;
     int maxAttempts = count * 30;
 
-    while (placed < count && attempts < maxAttempts)
-    {
+    while (placed < count && attempts < maxAttempts) {
         attempts++;
         int randomRow = QRandomGenerator::global()->bounded(MAP_ROWS);
         int randomCol = QRandomGenerator::global()->bounded(MAP_COLS);
@@ -277,11 +271,10 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
         int templateIndex = QRandomGenerator::global()->bounded(minIndex, maxIndex + 1);
         const CollidableTemplate &tmpl = collidableTemplates[templateIndex];
 
-        int widthInTiles = std::ceil((double)tmpl.texture.width() / TILE_SIZE);
-        int heightInTiles = std::ceil((double)tmpl.texture.height() / TILE_SIZE);
+        int widthInTiles = std::ceil((double) tmpl.texture.width() / TILE_SIZE);
+        int heightInTiles = std::ceil((double) tmpl.texture.height() / TILE_SIZE);
 
-        if (randomRow + heightInTiles > MAP_ROWS || randomCol + widthInTiles > MAP_COLS)
-        {
+        if (randomRow + heightInTiles > MAP_ROWS || randomCol + widthInTiles > MAP_COLS) {
             continue;
         }
 
@@ -293,12 +286,9 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
         int checkStartCol = std::max(0, randomCol - spacing);
         int checkEndCol = std::min(MAP_COLS, randomCol + widthInTiles + spacing);
 
-        for (int r = checkStartRow; r < checkEndRow; r++)
-        {
-            for (int c = checkStartCol; c < checkEndCol; c++)
-            {
-                if (mapData[r][c] != 0)
-                {
+        for (int r = checkStartRow; r < checkEndRow; r++) {
+            for (int c = checkStartCol; c < checkEndCol; c++) {
+                if (mapData[r][c] != 0) {
                     canPlace = false;
                     break;
                 }
@@ -321,18 +311,15 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
                                                  spacing * TILE_SIZE);
 
         QList<QGraphicsItem *> itemsInArea = items(spacingRect);
-        for (QGraphicsItem *item : itemsInArea)
-        {
+        for (QGraphicsItem *item : itemsInArea) {
             // no overlapping
-            if (item->zValue() > -50.0)
-            {
+            if (item->zValue() > -50.0) {
                 canPlace = false;
                 break;
             }
         }
 
-        if (canPlace)
-        {
+        if (canPlace) {
             PlaceCollidable(randomRow, randomCol, templateIndex);
             placed++;
         }
@@ -377,6 +364,7 @@ void Map::PlaceMapStandardTiles()
     PlaceCollidable(12, 24, 14); // CutDownLogs
     PlaceCollidable(13, 24, 17); // Axe
     PlaceCollidable(17, 16, 18); // Barrel
+    //PlaceCollidable(14, 9, 18); // Jo
 
     // Campfire Area 2
     PlaceCollidable(7, 28, 20);     // CampLog1
@@ -550,10 +538,8 @@ void Map::PlaceMapStandardTiles()
 // to help us create the map
 void Map::DrawDebugGridCoordinates()
 {
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
             QString coordText = QString("%1,%2").arg(i).arg(j);
             QGraphicsSimpleTextItem *textItem = new QGraphicsSimpleTextItem(coordText);
             textItem->setPos((j * TILE_SIZE) + 2, (i * TILE_SIZE) + 2);
