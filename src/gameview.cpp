@@ -58,7 +58,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
             this->scale(4.5,4.5);
         }
 
-        else if ((this->scene() == _interior) && (currentRow >= 7 && currentRow <= 7.5) && (currentCol >=10.5 && currentCol <= 11)){
+        else if ((this->scene() == _interior) && (currentRow >= 7 && currentRow <= 7.5) && (currentCol >=10 && currentCol <= 11)){
 
             _interior->removeItem(_player);
             this->setScene(_overworld);
