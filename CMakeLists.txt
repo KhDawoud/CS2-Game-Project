@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Core Widgets Multimedia)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Multimedia)
 
 qt_standard_project_setup()
 
@@ -27,14 +27,12 @@ qt_add_executable(QtTest
     src/deathwindow.cpp
     src/campfire.cpp
     src/house_interior.cpp
-    build/.gitignore
 )
 
 target_include_directories(QtTest PUBLIC include)
 
 
 qt_add_resources(QtTest "images"
-    PREFIX "/"
     FILES 
         "resources/player/attacking/swordsman_1_attack.png"
         "resources/player/idling/swordsman_1_idle.png"
@@ -187,9 +185,9 @@ install(TARGETS QtTest
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-#qt_generate_deploy_app_script(
-#    TARGET QtTest
-#    OUTPUT_SCRIPT deploy_script
-#    NO_UNSUPPORTED_PLATFORM_ERROR
-#)
-#install(SCRIPT ${deploy_script})
+qt_generate_deploy_app_script(
+    TARGET QtTest
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})
