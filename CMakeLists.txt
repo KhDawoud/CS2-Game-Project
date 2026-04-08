@@ -27,6 +27,7 @@ qt_add_executable(QtTest
     src/deathwindow.cpp
     src/campfire.cpp
     src/house_interior.cpp
+    build/.gitignore
 )
 
 target_include_directories(QtTest PUBLIC include)
