@@ -34,6 +34,13 @@ class Map : public QGraphicsScene
     std::vector<CollidableTemplate> collidableTemplates;
     std::vector<PlacedObject> activeCollidableObjects;
     std::vector<Campfire *> activeCampfires;
+    QPixmap Tent4;
+    QPixmap topgatel;
+    QPixmap topgater;
+    QPixmap bottomgatel;
+    QPixmap bottomgater;
+    QPixmap sidegate2;
+    QPixmap sidegate3;
 
 public:
     Map();
@@ -46,7 +53,7 @@ public:
 
     void DrawFieldDecorations();
     void DistributeRandomCollidables(int count, int minIndex, int maxIndex, int spacing);
-
+    void NonCollidablePlaceEntity(float, float,const QPixmap&,qreal);
     void PlaceCollidable(float startRow, float startCol, int templateIndex);
     void AddCampfire(float startRow, float startCol);
 

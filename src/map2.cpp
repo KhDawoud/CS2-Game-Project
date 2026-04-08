@@ -11,15 +11,16 @@ Map::Map()
 
     // draw the base grass and path tiles
     DrawMapAndGenerateBaseCollisions();
-
+    PlaceMapStandardTiles();
     // add grass and stones (non-collidable)
     DrawFieldDecorations();
 
     // the built in things in the map (like buildings)
-    PlaceMapStandardTiles();
+
 
     // place 40 collidable objects randomly with 1 block of spacing
     DistributeRandomCollidables(40, 8, 13, 1);
+
 }
 
 void Map::ImageLoader()
@@ -76,7 +77,9 @@ void Map::ImageLoader()
         {QPixmap(":resources/map-assets/tent3.png"), QRectF(2, 30, 60, 33)});
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/tent4.png"),
-         QRectF(0, 32, 60, 32)}); // should remove this one since it's complicated
+         QRectF(0, 32, 60, 32)});
+    Tent4.load(":resources/map-assets/tent4.png");
+
 
     // Trees & Logs [Indices 8 - 13]
     collidableTemplates.push_back(
@@ -119,6 +122,12 @@ void Map::ImageLoader()
         {QPixmap(":resources/map-assets/sidegate2"), QRectF(16, 0, 9, 23)});
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/sidegate3"), QRectF(19, 0, 6, 32)});
+    topgatel.load(":resources/map-assets/topgatel.png");
+    topgater.load(":resources/map-assets/topgater.png");
+    bottomgatel.load(":resources/map-assets/bottomgatel.png");
+    bottomgater.load(":resources/map-assets/bottomgater.png");
+    sidegate2.load(":resources/map-assets/sidegate2");
+    sidegate3.load(":resources/map-assets/sidegate3");
 
     // ==========================================
     // 4. FORMER CSV WALLS AND GATES [Indices 28+]
@@ -212,7 +221,7 @@ void Map::DrawFieldDecorations()
 {
     for (int i = 0; i < MAP_ROWS; i++) {
         for (int j = 0; j < MAP_COLS; j++) {
-            if (mapData[i][j] != 0)
+            if (mapData[i][j] != 0 && mapData[i][j]!=99)
                 continue; // only goes on plain grass
 
             if (QRandomGenerator::global()->bounded(100) < 30) {
@@ -288,7 +297,7 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
 
         for (int r = checkStartRow; r < checkEndRow; r++) {
             for (int c = checkStartCol; c < checkEndCol; c++) {
-                if (mapData[r][c] != 0) {
+                if (mapData[r][c] != 0 && mapData[r][c] != 99) {
                     canPlace = false;
                     break;
                 }
@@ -352,24 +361,33 @@ void Map::PlaceMapStandardTiles()
 
     PlaceCollidable(10.5, 7, 0); // House1
     PlaceCollidable(19.8, 7, 2); // House3
-    PlaceCollidable(23, 22, 3);  // House4
-    PlaceCollidable(17, 22, 6);  // Tent3
-    PlaceCollidable(16, 26, 4);  // Tent1
+    PlaceCollidable(20, 22, 3);  // House4
+    PlaceCollidable(22, 17, 6);  // Tent3
+    PlaceCollidable(26, 16, 4);  // Tent1
 
     // Objects and Gates
-    PlaceCollidable(17, 11, 7); // Tent4
+    NonCollidablePlaceEntity(13, 16, Tent4, 1000); // Tent4
+    NonCollidablePlaceEntity(29, 14, topgatel, 1000);
+    NonCollidablePlaceEntity(29, 15, topgater, 1000);
+    NonCollidablePlaceEntity(30, 14, bottomgatel, 1000);
+    NonCollidablePlaceEntity(30, 15, bottomgater, 1000);
+    NonCollidablePlaceEntity(10, 34, sidegate2, 1000);
+    NonCollidablePlaceEntity(11, 34, sidegate3, 1000);
 
     // General Decorations
-    PlaceCollidable(11, 14, 15); // Cart
-    PlaceCollidable(12, 24, 14); // CutDownLogs
-    PlaceCollidable(13, 24, 17); // Axe
-    PlaceCollidable(17, 16, 18); // Barrel
+    PlaceCollidable(14, 12, 15); // Cart
+    PlaceCollidable(23.2, 13, 14); // CutDownLogs
+    PlaceCollidable(23.2, 12, 17); // Axe
+    PlaceCollidable(14.3, 17, 18); // Barrel
     //PlaceCollidable(14, 9, 18); // Jo
 
     // Campfire Area 2
-    PlaceCollidable(7, 28, 20);     // CampLog1
-    PlaceCollidable(8.5, 27.5, 21); // CampLog2
-    AddCampfire(7, 27);             // Campfire 2
+    PlaceCollidable(28, 10, 20);     // CampLog1
+    PlaceCollidable(28.5, 11.3, 21); // CampLog2
+    AddCampfire(27, 11);             // Campfire1
+    PlaceCollidable(20, 28, 20);     // CampLog1
+    PlaceCollidable(20.5, 29.3, 21); // CampLog2
+    AddCampfire(19, 29);             // Campfire2
 
     // Walls
     PlaceCollidable(3, 4, 40);   // ID 22
@@ -551,6 +569,28 @@ void Map::DrawDebugGridCoordinates()
             textItem->setBrush(QBrush(Qt::yellow));
 
             addItem(textItem);
+        }
+    }
+}
+void Map::NonCollidablePlaceEntity(float startRow,
+                                   float startCol,
+                                   const QPixmap &image,
+                                   qreal zValue)
+{
+    int widthInTiles = std::ceil((double) image.width() / TILE_SIZE);
+    int heightInTiles = std::ceil((double) image.height() / TILE_SIZE);
+
+    QGraphicsPixmapItem *entity = new QGraphicsPixmapItem(image);
+    entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
+    entity->setZValue(zValue);
+    addItem(entity);
+
+    for (int i = startRow; i < startRow + heightInTiles; i++) {
+        for (int j = startCol; j < startCol + widthInTiles; j++) {
+            // IMPORTANT: Check bounds for EVERY tile to prevent crashes
+            if (i >= 0 && i < MAP_ROWS && j >= 0 && j < MAP_COLS) {
+                mapData[i][j] = 99;
+            }
         }
     }
 }
