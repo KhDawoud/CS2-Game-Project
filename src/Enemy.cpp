@@ -171,22 +171,37 @@ void BaseEnemy::update()
     }
 
     // --- STATE LOGIC ---
-    if (distance < attackRange) {
-        if (currentState != EnemyState::Attacking && waitCounter <= 0) {
-            currentState = EnemyState::Attacking;
-            attackTimer = attackDuration;
-        } else if (currentState != EnemyState::Attacking) {
-            currentState = EnemyState::Idle;
+    if (distance < attackRange)
+    {
+        if (currentState != EnemyState::Attacking)
+        {
+            if (waitCounter <= 0)
+            {
+                waitCounter = 20;
+                currentState = EnemyState::Idle;
+            }
+            else
+            {
+                waitCounter--;
+
+                if (waitCounter == 0)
+                {
+                    currentState = EnemyState::Attacking;
+                    attackTimer = attackDuration;
+                    currentFrame = 0;
+                }
+            }
         }
-    } else if (distance < 150) {
+    }
+    else if (distance < 150)
+    {
         currentState = EnemyState::Walking;
-    } else {
+    }
+    else
+    {
         currentState = EnemyState::Idle;
     }
 
-    if (currentState == EnemyState::Idle && waitCounter > 0) {
-        waitCounter--;
-    }
 
     if (currentState == EnemyState::Attacking) {
         if (attackTimer > 0) {

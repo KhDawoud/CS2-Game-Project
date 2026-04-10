@@ -7,8 +7,9 @@ class Slime : public BaseEnemy
 {
 public:
     Slime();
-
+    int slimenumber;
     void loadAnimations();
+    Slime(int num);
 };
 
 #endif // SLIME_HPP

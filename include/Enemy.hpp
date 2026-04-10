@@ -41,29 +41,33 @@ protected:
     float speed;
     int attack;
     int defense;
-    int width, height;
-    int totalFrames;
+
     AnimData idleData;
     AnimData walkData;
     AnimData attackData;
     AnimData deadData;
     AnimData hurtData;
+
     Player* player;
+
     void setEnemyState(EnemyState newState);
     int currentFrame = 0;
     int currentRow = 0;
-    QPixmap spriteSheet;
+
+
     EnemyState currentState = EnemyState::Idle;
+
     QPixmap idleSheet;
     QPixmap walkSheet;
     QPixmap attackSheet;
     QPixmap deadSheet;
     QPixmap hurtSheet;
+
     float attackRange;
     int waitCounter = 0;
     int attackTimer = 0;
     int attackDuration = 10; // ~1 second
-    int lastRow=0;
+
 
 public:
     BaseEnemy(int hp, int atk, int def, float spd = 1.0f,float range=40.0f);
@@ -77,8 +81,6 @@ public:
     virtual void updateAnimation();
     void detectandmove(Player*);
 
-    void testHurtAnimation() { this->TakeDamage(25); }
-    void testDeathAnimation() { this->TakeDamage(9999); }
 public slots:
     void update();
 };
