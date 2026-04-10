@@ -2,7 +2,7 @@
 
 // Default slime is type 1
 Slime::Slime()
-    : BaseEnemy(50, 5, 2, 1.0f, 40.0f, "SlimeDamage"), slimenumber(1)
+    : BaseEnemy(50, 5, 2, 2.0f, 20.0f, "SlimeDamage"), slimenumber(1)
 {
     loadAnimations();
 }
@@ -13,8 +13,8 @@ Slime::Slime(int num)
           (num == 1 ? 50 : (num == 2 ? 60 : 70)),          // health
           (num == 1 ? 5 : (num == 2 ? 10 : 15)),           // attack
           (num == 1 ? 2 : (num == 2 ? 4 : 8)),             // defense
-          (num == 1 ? 1.0f : (num == 2 ? 2.0f : 3.0f)),    // speed
-          (num == 1 ? 20.0f : (num == 2 ? 20.0f : 20.0f)), // range
+          (num == 1 ? 2.0f : (num == 2 ? 2.5f : 3.0f)),    // speed
+          (num == 1 ? 20.0f : (num == 2 ? 20.0f : 25.0f)), // range
           "SlimeDamage"),
       slimenumber(num)
 {

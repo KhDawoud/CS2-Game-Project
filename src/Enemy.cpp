@@ -20,7 +20,7 @@ BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range, std::stri
     attackRange = range;
     damageSound = damagePath;
 
-    QTimer *aiTimer = new QTimer(this);
+    aiTimer = new QTimer(this);
     connect(aiTimer, &QTimer::timeout, this, &BaseEnemy::update);
     aiTimer->start(100); //
 }
@@ -77,6 +77,7 @@ void BaseEnemy::TakeDamage(int amount)
         currentFrame = 0;
         waitCounter = hurtData.frameCount; // Changed to match animation length
         AudioManager::instance().playSound(damageSound);
+        aiTimer->setInterval(70); // making the attack animation a bit faster
     }
     else
     {
@@ -202,57 +203,61 @@ void BaseEnemy::update()
         }
     }
 
-    // --- STATE LOGIC ---
-    if (distance < attackRange)
+    // changed it a bit so it doesn't move while attacking and so attack and hurt animations
+    // cycle faster than walking and idle
+    if (currentState == EnemyState::Attacking)
     {
-        if (currentState != EnemyState::Attacking)
-        {
-            if (waitCounter <= 0)
-            {
-                waitCounter = 20;
-                currentState = EnemyState::Idle;
-            }
-            else
-            {
-                waitCounter--;
+        Dir.x = 0;
+        Dir.y = 0;
 
-                if (waitCounter == 0)
-                {
-                    currentState = EnemyState::Attacking;
-                    attackTimer = attackDuration;
-                    currentFrame = 0;
-                }
+        if (currentFrame == 6)
+        {
+            if (distance <= attackRange)
+            {
+                player->takeDamage(attack);
             }
+        }
+
+        if (currentFrame == 0 && previousState == EnemyState::Attacking)
+        {
+            currentState = EnemyState::Idle;
+            waitCounter = 10; // Cooldown duration
+            aiTimer->setInterval(100);
+        }
+    }
+    else if (distance <= attackRange)
+    {
+        // stop when player in range
+        Dir.x = 0;
+        Dir.y = 0;
+
+        // delay to give player time to dodge
+        if (waitCounter > 0)
+        {
+            waitCounter--;
+            currentState = EnemyState::Idle;
+        }
+        else
+        {
+            currentState = EnemyState::Attacking;
+            currentFrame = 0;
+            aiTimer->setInterval(70);
         }
     }
     else if (distance < 150)
     {
         currentState = EnemyState::Walking;
+
+        if (waitCounter <= 0)
+        {
+            waitCounter = 5;
+        }
     }
     else
     {
         currentState = EnemyState::Idle;
-    }
-
-    if (currentState == EnemyState::Attacking)
-    {
-        if (attackTimer > 0)
-        {
-            attackTimer--;
-        }
-        else
-        {
-            // when the animation finishes if player still there he takes damage
-            float currentDist = sqrt(pow(player->x() - x(), 2) + pow(player->y() - y(), 2));
-
-            if (currentDist <= attackRange)
-            {
-                player->takeDamage(attack);
-            }
-
-            currentState = EnemyState::Idle;
-            waitCounter = 10;
-        }
+        Dir.x = 0;
+        Dir.y = 0;
     }
 
     if (currentState != previousState)
@@ -264,11 +269,6 @@ void BaseEnemy::update()
     {
         detectandmove(player);
         moveEnemy();
-    }
-    else
-    {
-        Dir.x = 0;
-        Dir.y = 0;
     }
 
     updateAnimation();

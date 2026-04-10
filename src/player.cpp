@@ -396,7 +396,7 @@ void Player::performAttack()
         attackRect = QRectF(pBox.center().x() - 20, pBox.bottom(), 40, 20);
     }
 
-    // uncomment if u wanna see the attack range
+    // uncomment to draw the attack range
 
     // QGraphicsRectItem *debugAttack = new QGraphicsRectItem(attackRect);
     // debugAttack->setBrush(QBrush(QColor(255, 0, 0, 100)));

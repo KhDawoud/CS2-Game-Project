@@ -75,6 +75,7 @@ protected:
     int waitCounter = 0;
     int attackTimer = 0;
     int attackDuration = 10; // ~1 second
+    QTimer *aiTimer;
 
 public:
     BaseEnemy(int hp, int atk, int def, float spd = 1.0f, float range = 40.0f, std::string damagePath = "SlimeDamage");
