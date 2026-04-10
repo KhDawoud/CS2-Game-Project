@@ -80,6 +80,8 @@ public:
     void moveEnemy();
     virtual void updateAnimation();
     void detectandmove(Player*);
+signals:
+    void enemyDied();
 
 public slots:
     void update();

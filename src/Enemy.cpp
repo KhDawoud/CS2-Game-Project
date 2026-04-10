@@ -74,6 +74,7 @@ void BaseEnemy::TakeDamage(int amount)
         health = 0;
         currentState = EnemyState::Dead;
         currentFrame = 0;
+        emit enemyDied();
     }
 }
 
