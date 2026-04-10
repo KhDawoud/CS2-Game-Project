@@ -34,15 +34,6 @@ int main(int argc, char *argv[])
 
     view->setFocus();
     scene->getPlayer()->setFocus();
-    Slime *slime2 = new Slime(2);
-    slime2->setPos(160, 120);
-    slime2->setPlayer(scene->getPlayer());   // ✅ ADD THIS
-    scene->addItem(slime2);
-
-    Slime *slime3 = new Slime(3);
-    slime3->setPos(130, 150);
-    slime3->setPlayer(scene->getPlayer());   // ✅ ADD THIS
-    scene->addItem(slime3);
     // making sure the glitch where player goes out of focus doesn't happen
     QObject::connect(scene,
                      &QGraphicsScene::focusItemChanged,
