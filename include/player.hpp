@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 
+
 class Map;
 
 enum class PlayerState
@@ -48,6 +49,7 @@ signals:
     void playerDied();
 
 private:
+    QGraphicsRectItem *debugHitboxItem = nullptr;
     Map *gameMap = nullptr;
     float staminaRegenRate;
     QTimer *staminaRegenTimer;
@@ -93,5 +95,7 @@ private:
         stamina = std::min(100.0f, stamina + amount);
         emit statsChanged();
     };
+    QRectF getPlayerHitbox(QPointF pos) const;
+    bool checkCollision(const QRectF &hitbox, Map *map) const;
 };
 #endif // PLAYER_HPP

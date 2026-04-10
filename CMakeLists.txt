@@ -18,7 +18,7 @@ qt_add_executable(QtTest
     main.cpp
     ${HEADERS}
     src/player.cpp
-    src/map.cpp
+    src/map2.cpp
     src/Enemy.cpp
     src/slime.cpp
     src/characterstats.cpp
@@ -26,6 +26,7 @@ qt_add_executable(QtTest
     src/pausewindow.cpp
     src/deathwindow.cpp
     src/campfire.cpp
+    src/house_interior.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -95,9 +96,12 @@ qt_add_resources(QtTest "images"
         "resources/sound-effects/DamageTaken.wav"
         "resources/sound-effects/GameOver.wav"
         "resources/map-data/level-1.csv"
+        "resources/map-data/level-1-updated.csv"
         "resources/enemy/idle/Slime1_Idle_with_shadow.png"
         "resources/enemy/walk/Slime1_Walk_with_shadow.png"
         "resources/enemy/attack/Slime1_Attack_with_shadow.png"
+        "resources/enemy/dead/Slime1_Death_with_shadow.png"
+        "resources/enemy/hurt/Slime1_Hurt_with_shadow.png"
         "resources/ui-elements/character_panel.png"
         "resources/map-assets/Tree_Emerald_2.png"
         "resources/map-assets/TreeBasic1.png"
@@ -125,6 +129,46 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/campfire.png"
         "resources/map-assets/camplog1.png"
         "resources/map-assets/camplog2.png"
+        "resources/house_interior/Using/black_image.png"
+        "resources/house_interior/Using/floor_left.png"
+        "resources/house_interior/Using/floor_right.png"
+        "resources/house_interior/Using/floor_bottom.png"
+        "resources/house_interior/Using/floor_bottom_left_corner.png"
+        "resources/house_interior/Using/floor_bottom_right_corner.png"
+        "resources/house_interior/Using/floor_top_left_corner.png"
+        "resources/house_interior/Using/floor_top_right_corner.png"
+        "resources/house_interior/Using/floor_middle.png"
+        "resources/house_interior/Using/wall_no_door.png"
+        "resources/house_interior/Using/wall_middle.png"
+        "resources/house_interior/Using/wall_left.png"
+        "resources/house_interior/Using/wall_right.png"
+        "resources/house_interior/Using-Deco/purple_carpet_circle.png"
+        "resources/house_interior/Using-Deco/red_carpet_oval_2.png"
+        "resources/house_interior/Using-Deco/red_carpet_rectangle.png"
+        "resources/house_interior/Using-Deco/red_carpet_rectangle_2.png"
+        "resources/house_interior/Using-Deco/bookcase.png"
+        "resources/house_interior/Using-Deco/cupboard_full.png"
+        "resources/house_interior/Using-Deco/cupboard_empty.png"
+        "resources/house_interior/Using-Deco/sword_holder.png"
+        "resources/house_interior/Using-Deco/dining_table.png"
+        "resources/house_interior/Using-Deco/bed.png"
+        "resources/house_interior/Using-Deco/nightstand.png"
+        "resources/house_interior/Using-Deco/couch_side_profile.png"
+        "resources/house_interior/Using-Deco/wooden_crates.png"
+        "resources/house_interior/Using-Deco/stairs.png"
+        "resources/house_interior/Using-Deco/potion_table.png"
+        "resources/house_interior/Using-Deco/wooden_barrel.png"
+        "resources/house_interior/Using/wall_right_turn.png"
+        "resources/house_interior/Using/wall_left_turn.png"
+        "resources/house_interior/Using/side_of_wall.png"
+        "resources/house_interior/Using-Deco/window.png"
+        "resources/house_interior/Using-Deco/banana.png"
+        "resources/house_interior/Using-Deco/garlic.png"
+        "resources/house_interior/Using-Deco/coal.png"
+        "resources/house_interior/Using-Deco/round_table.png"
+        "resources/house_interior/Using/side_of_wall_2.png"
+        "resources/house_interior/Using/entrance.png"
+        "resources/house_interior/CSV/house_interior.csv"
 )
 
 target_link_libraries(QtTest

@@ -1,24 +1,26 @@
 #include "campfire.hpp"
 
-Campfire::Campfire() {
+Campfire::Campfire()
+{
     framesheet.load(":resources/map-assets/campfire.png");
     FrameWidth = framesheet.width() / framecount;
-    currentframe=0;
+    currentframe = 0;
     UpdateAnimation();
-    animationTimer = new QTimer (this);
+    animationTimer = new QTimer(this);
     connect(animationTimer, &QTimer::timeout, this, &Campfire::UpdateAnimation);
     animationTimer->start(125);
-
 }
-void Campfire::UpdateAnimation(){
+void Campfire::UpdateAnimation()
+{
     int x = currentframe * FrameWidth;
-    setPixmap(framesheet.copy(x, 0,FrameWidth,framesheet.height()));
-    currentframe = (currentframe+1)%framecount;
-
+    setPixmap(framesheet.copy(x, 0, FrameWidth, framesheet.height()));
+    currentframe = (currentframe + 1) % framecount;
 }
-int Campfire::getwidth(){
+int Campfire::getwidth()
+{
     return FrameWidth;
 }
-int Campfire::getheight(){
+int Campfire::getheight()
+{
     return framesheet.height();
 }
