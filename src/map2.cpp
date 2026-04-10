@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QRandomGenerator>
+#include <QKeyEvent>
 #include <cmath>
 #include "slime.hpp"
 
@@ -618,23 +619,27 @@ void Map::AddEnemysRandomly(int count, int spacing)
                 slime1->setPlayer(player);
                 mapData[randomRow][randomCol] = 98;
                 placed++;
+                connect(slime1, &Slime::enemyDied, this, &Map::updateEnemyCount);
             }else if(randnum<50){
                 Slime *slime2 = new Slime(2);
                 slime2->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
-                slime2->setPlayer(player);   // ✅ ADD THIS
+                slime2->setPlayer(player);
                 addItem(slime2);
                 mapData[randomRow][randomCol] = 98;
                 placed++;
+                connect(slime2, &Slime::enemyDied, this, &Map::updateEnemyCount);
             }else if(randnum<60){
                 Slime *slime3 = new Slime(3);
                 slime3->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
-                slime3->setPlayer(player);   // ✅ ADD THIS
+                slime3->setPlayer(player);
                 addItem(slime3);
                 mapData[randomRow][randomCol] = 98;
                 placed++;
+                connect(slime3, &Slime::enemyDied, this, &Map::updateEnemyCount);
             }
         }
     }
+    currentEnemyCount = placed;
 
 }
 void Map::AddPlayerandStats(){
@@ -655,3 +660,30 @@ Player* Map::getPlayer(){
 CharacterStats* Map::getStats(){
     return stats;
 }
+void Map::updateEnemyCount() {
+    currentEnemyCount--;
+    emit requestBarUpdate(currentEnemyCount);
+
+    if (currentEnemyCount <= 0) {
+        // here we will add what happens when we win
+    }
+}
+int Map::getCurrentEnimies(){
+    return currentEnemyCount;
+}
+// Use this to test that the bar changes when the slime dies
+// void Map::keyPressEvent(QKeyEvent *event) {
+//     if (event->key() == Qt::Key_K) {
+//         // Find all Slimes in the scene
+//         QList<QGraphicsItem*> allItems = items();
+//         for (QGraphicsItem* item : allItems) {
+//             Slime* slime = dynamic_cast<Slime*>(item);
+//             if (slime) {
+//                 emit slime->enemyDied(); // Manually trigger the signal
+//                 slime->deleteLater(); //remove it from screen too
+//                 break;
+//             }
+//         }
+//     }
+//     QGraphicsScene::keyPressEvent(event);
+// }

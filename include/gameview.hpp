@@ -8,14 +8,18 @@
 
 class GameView: public QGraphicsView
 {
+    Q_OBJECT
 public:
     GameView(Map*, House_Interior*, Player*);
     void keyPressEvent(QKeyEvent *event) override;
+signals:
+    void isoverworld(bool);
 
 private:
     Map* _overworld;
     House_Interior* _interior;
     Player* _player;
 };
+
 
 #endif // GAMEVIEW_HPP

@@ -8,8 +8,6 @@
 #include <vector>
 #include <unordered_map>
 #include "campfire.hpp"
-#include "Enemy.hpp"
-#include "player.hpp"
 #include "characterstats.hpp"
 
 
@@ -30,6 +28,8 @@ struct PlacedObject
 
 class Map : public QGraphicsScene
 {
+    Q_OBJECT
+private:
     std::vector<std::vector<int>> mapData;
     std::vector<std::vector<int>> collision_map;
     std::unordered_map<int, QPixmap> baseTiles;
@@ -46,6 +46,7 @@ class Map : public QGraphicsScene
     QPixmap bottomgater;
     QPixmap sidegate2;
     QPixmap sidegate3;
+    int currentEnemyCount;
 
 public:
     Map();
@@ -67,6 +68,12 @@ public:
     CharacterStats* getStats();
     bool isTileCollidable(int row, int col) const;
     const std::vector<PlacedObject> &getCollidableObjects() const { return activeCollidableObjects; }
+    int getCurrentEnimies();
+    //void keyPressEvent(QKeyEvent *event) override;
+public slots:
+    void updateEnemyCount();
+signals:
+    void requestBarUpdate(int currentCount);
 };
 
 #endif // MAP_H

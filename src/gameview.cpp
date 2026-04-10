@@ -3,6 +3,7 @@
 #include <QKeyEvent>
 #include "map2.hpp"
 #include "pausewindow.hpp"
+#include <QProgressBar>
 
 GameView::GameView(Map *scene,House_Interior* interior,  Player *player)
     : QGraphicsView(scene), _overworld(scene), _interior(interior), _player(player)
@@ -13,6 +14,27 @@ GameView::GameView(Map *scene,House_Interior* interior,  Player *player)
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     centerOn(player);
+
+    QProgressBar *progressBar = new QProgressBar(this);
+    progressBar->setGeometry((scene->width()-200) / 2, 20, 400, 25);
+    progressBar->setStyleSheet(
+    "QProgressBar {"
+    "   background-color: rgba(50, 50, 50, 150);"
+    "   border: 3px solid #333;"
+    "   border-radius: 10px;"
+    "   color: white;"
+    "text-align: center;"
+    "}"
+    "QProgressBar::chunk {"
+    "   background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #c0392b, stop:1 #e74c3c);"
+    "   border-radius: 7px;"
+    "}"
+);
+    progressBar->setRange(0, _overworld->getCurrentEnimies());
+    progressBar->setValue(_overworld->getCurrentEnimies());
+    connect(_overworld, &Map::requestBarUpdate, progressBar, &QProgressBar::setValue);
+    connect(this,&GameView::isoverworld,progressBar, &QProgressBar::hide);
+
     showFullScreen();
 
 }
@@ -46,6 +68,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
             // 3. Remove player from Overworld and move to Interior
             _overworld->removeItem(_player);
             this->setScene(_interior);
+            emit isoverworld(false);
             _interior->addItem(_player);
             _player->setFocus();
 
@@ -62,6 +85,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
 
             _interior->removeItem(_player);
             this->setScene(_overworld);
+            emit isoverworld(true);
             _overworld->addItem(_player);
             _player->setFocus();
 
