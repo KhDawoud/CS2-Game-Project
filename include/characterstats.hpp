@@ -1,4 +1,5 @@
-
+#ifndef CHARACTERSTATS_HPP
+#define CHARACTERSTATS_HPP
 #include "player.hpp"
 #include <QGraphicsPixmapItem>
 #include <QObject>
@@ -22,3 +23,4 @@ public:
     void setPlayer(Player *player);
     void updateValues();
 };
+#endif
