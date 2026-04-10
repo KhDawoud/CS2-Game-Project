@@ -33,7 +33,7 @@ GameView::GameView(Map *scene,House_Interior* interior,  Player *player)
     progressBar->setRange(0, _overworld->getCurrentEnimies());
     progressBar->setValue(_overworld->getCurrentEnimies());
     connect(_overworld, &Map::requestBarUpdate, progressBar, &QProgressBar::setValue);
-    connect(this,&GameView::isoverworld,progressBar, &QProgressBar::hide);
+    connect(this,&GameView::isoverworld,progressBar, &QProgressBar::setVisible);
 
     showFullScreen();
 
