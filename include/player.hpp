@@ -32,6 +32,7 @@ public:
     float getStamina() { return stamina; };
     float getMana() { return mana; };
     void setMap(Map *m) { gameMap = m; }
+    void takeDamage(float damage);
 
 public slots:
     void updateAnimation();

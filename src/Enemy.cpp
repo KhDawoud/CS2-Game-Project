@@ -242,8 +242,16 @@ void BaseEnemy::update()
         }
         else
         {
+            // when the animation finishes if player still there he takes damage
+            float currentDist = sqrt(pow(player->x() - x(), 2) + pow(player->y() - y(), 2));
+
+            if (currentDist <= attackRange)
+            {
+                player->takeDamage(attack);
+            }
+
             currentState = EnemyState::Idle;
-            waitCounter = 10; // Cooldown
+            waitCounter = 10;
         }
     }
 

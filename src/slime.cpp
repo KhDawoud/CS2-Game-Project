@@ -10,12 +10,12 @@ Slime::Slime()
 // Constructor with slime number
 Slime::Slime(int num)
     : BaseEnemy(
-          (num == 1 ? 50 : (num == 2 ? 60 : 70)),         // health
-          (num == 1 ? 5 : (num == 2 ? 10 : 15)),          // attack
-          (num == 1 ? 2 : (num == 2 ? 4 : 8)),            // defense
-          (num == 1 ? 1.0f : (num == 2 ? 2.0f : 3.0f)),   // speed
-          (num == 1 ? 20.0f : (num == 2 ? 20.0f : 20.0f)) // range
-          ),
+          (num == 1 ? 50 : (num == 2 ? 60 : 70)),          // health
+          (num == 1 ? 5 : (num == 2 ? 10 : 15)),           // attack
+          (num == 1 ? 2 : (num == 2 ? 4 : 8)),             // defense
+          (num == 1 ? 1.0f : (num == 2 ? 2.0f : 3.0f)),    // speed
+          (num == 1 ? 20.0f : (num == 2 ? 20.0f : 20.0f)), // range
+          "SlimeDamage"),
       slimenumber(num)
 {
     loadAnimations();

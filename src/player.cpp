@@ -255,30 +255,30 @@ void Player::movePlayer()
     emit positionChanged(this);
 }
 
+void Player::takeDamage(float damage)
+{
+    if (currentState != PlayerState::Damaged)
+    {
+        idleTimer->stop();
+        if (health >= damage)
+        {
+            setAnimationState(PlayerState::Damaged);
+            health -= damage;
+            emit statsChanged();
+            return;
+        }
+        else
+        {
+            setAnimationState(PlayerState::Dead);
+        }
+    }
+}
+
 void Player::keyPressEvent(QKeyEvent *event)
 {
     if (event->isAutoRepeat() || currentState == PlayerState::Dead)
         return;
     Qt::Key key = static_cast<Qt::Key>(event->key());
-
-    if (key == Qt::Key_O)
-    {
-        if (currentState != PlayerState::Damaged)
-        {
-            idleTimer->stop();
-            if (health >= 5)
-            {
-                setAnimationState(PlayerState::Damaged);
-                health -= 5;
-                emit statsChanged();
-                return;
-            }
-            else
-            {
-                setAnimationState(PlayerState::Dead);
-            }
-        }
-    }
 
     if (key == Qt::Key_P)
     {
