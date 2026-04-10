@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QTimer>
 
-
 class Map;
 
 enum class PlayerState
@@ -97,5 +96,6 @@ private:
     };
     QRectF getPlayerHitbox(QPointF pos) const;
     bool checkCollision(const QRectF &hitbox, Map *map) const;
+    void performAttack();
 };
 #endif // PLAYER_HPP
