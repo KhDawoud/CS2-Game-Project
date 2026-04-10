@@ -17,10 +17,10 @@ Map::Map()
     // add grass and stones (non-collidable)
     DrawFieldDecorations();
     AddPlayerandStats();
-    AddEnemysRandomly(15,10);
+
     // place 40 collidable objects randomly with 1 block of spacing
     DistributeRandomCollidables(40, 8, 13, 1);
-
+    AddEnemysRandomly(15,10);
 
 }
 
@@ -606,15 +606,33 @@ void Map::AddEnemysRandomly(int count, int spacing)
         int randomRow = QRandomGenerator::global()->bounded(5,28);
         int randomCol = QRandomGenerator::global()->bounded(5,33);
 
-        bool canPlace = true;
+        int tileValue = mapData[randomRow][randomCol];
+        bool canPlace = (tileValue == 0 || tileValue == 99);
 
         if (canPlace) {
-            Slime* newSlime = new Slime();
-            newSlime->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
-            addItem(newSlime);
-            newSlime->setPlayer(player);
-            mapData[randomRow][randomCol] = 98;
-            placed++;
+            int randnum = QRandomGenerator::global()->bounded(100);
+            if(randnum<30){
+                Slime* slime1 = new Slime();
+                slime1->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
+                addItem(slime1);
+                slime1->setPlayer(player);
+                mapData[randomRow][randomCol] = 98;
+                placed++;
+            }else if(randnum<50){
+                Slime *slime2 = new Slime(2);
+                slime2->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
+                slime2->setPlayer(player);   // ✅ ADD THIS
+                addItem(slime2);
+                mapData[randomRow][randomCol] = 98;
+                placed++;
+            }else if(randnum<60){
+                Slime *slime3 = new Slime(3);
+                slime3->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
+                slime3->setPlayer(player);   // ✅ ADD THIS
+                addItem(slime3);
+                mapData[randomRow][randomCol] = 98;
+                placed++;
+            }
         }
     }
 
