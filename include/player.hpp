@@ -6,6 +6,7 @@
 
 
 class Map;
+class House_Interior;
 
 enum class PlayerState
 {
@@ -96,6 +97,6 @@ private:
         emit statsChanged();
     };
     QRectF getPlayerHitbox(QPointF pos) const;
-    bool checkCollision(const QRectF &hitbox, Map *map) const;
+    bool checkCollision(const QRectF &hitbox, Map *map, House_Interior *interior) const;
 };
 #endif // PLAYER_HPP

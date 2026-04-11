@@ -2,6 +2,7 @@
 #include <QKeyEvent>
 #include "AudioManager.hpp"
 #include "map2.hpp"
+#include "house_interior-2.hpp"
 #include <cmath>
 
 Player::Player()
@@ -189,6 +190,7 @@ void Player::movePlayer()
     float speed = (dx != 0 && dy != 0) ? 1.414f : 2.0f;
 
     Map *map = dynamic_cast<Map *>(scene());
+    House_Interior *interior = dynamic_cast<House_Interior *>(scene());
 
     // Target positions
     float newX = x() + (dx * speed);
@@ -197,32 +199,32 @@ void Player::movePlayer()
     // check x and y seperately so you dont get stuck if ur going diagonally
     if (dx != 0) {
         QRectF predictedHitboxX = getPlayerHitbox(QPointF(newX, y()));
-        if (!checkCollision(predictedHitboxX, map)) {
+        if (!checkCollision(predictedHitboxX, map, interior)) {
             setX(newX);
         }
     }
     if (dy != 0) {
         QRectF predictedHitboxY = getPlayerHitbox(QPointF(x(), newY));
-        if (!checkCollision(predictedHitboxY, map)) {
+        if (!checkCollision(predictedHitboxY, map, interior)) {
             setY(newY);
         }
     }
     QRectF actualHitbox = getPlayerHitbox(pos());
     setZValue(actualHitbox.bottom());
 
-    // uncomment to draw the hitbox
-    // if (!debugHitboxItem && scene())
-    // {
-    //     debugHitboxItem = new QGraphicsRectItem();
-    //     debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
-    //     debugHitboxItem->setPen(QPen(Qt::blue));
-    //     debugHitboxItem->setZValue(10000);
-    //     scene()->addItem(debugHitboxItem);
-    // }
-    // if (debugHitboxItem)
-    // {
-    //     debugHitboxItem->setRect(actualHitbox);
-    // }
+    //uncomment to draw the hitbox
+    /*if (!debugHitboxItem) //&& scene())
+    {
+        debugHitboxItem = new QGraphicsRectItem();
+         debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
+         debugHitboxItem->setPen(QPen(Qt::blue));
+         debugHitboxItem->setZValue(10000);
+        scene()->addItem(debugHitboxItem);
+    }
+    if (debugHitboxItem)
+     {
+         debugHitboxItem->setRect(actualHitbox);
+     }*/
 
     emit positionChanged(this);
 }
@@ -292,10 +294,9 @@ QRectF Player::getPlayerHitbox(QPointF pos) const
     return QRectF(pos.x() + offsetX, pos.y() + offsetY, hitboxWidth, hitboxHeight);
 }
 
-bool Player::checkCollision(const QRectF &hitbox, Map *map) const
+bool Player::checkCollision(const QRectF &hitbox, Map *map, House_Interior* interior) const
 {
-    if (!map)
-        return false;
+
 
     if (hitbox.left() < 0 || hitbox.top() < 0)
         return true;
@@ -308,6 +309,7 @@ bool Player::checkCollision(const QRectF &hitbox, Map *map) const
     int bottomRow = static_cast<int>(std::floor(hitbox.bottom() / tileSize));
 
     // we see the collision map itself
+    if (map){
     for (int r = topRow; r <= bottomRow; ++r) {
         for (int c = leftCol; c <= rightCol; ++c) {
             if (map->isTileCollidable(r, c)) {
@@ -322,6 +324,27 @@ bool Player::checkCollision(const QRectF &hitbox, Map *map) const
         if (hitbox.intersects(obj.worldHitbox)) {
             return true;
         }
+    }
+    }
+
+
+    // we see the collision map itself
+    else if (interior) {
+    for (int r = topRow; r <= bottomRow; ++r) {
+        for (int c = leftCol; c <= rightCol; ++c) {
+            if (interior->isTileCollidable(r, c)) {
+                return true;
+            }
+        }
+    }
+
+    // we see the collideable object we place
+    const auto &objects2 = interior->getCollidableObjects();
+    for (const auto &obj2 : objects2) {
+        if (hitbox.intersects(obj2.worldHitbox)) {
+            return true;
+        }
+    }
     }
 
     return false;

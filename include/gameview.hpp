@@ -3,7 +3,8 @@
 #include <QGraphicsView>
 #include "player.hpp"
 #include "map.hpp"
-#include "house_interior.hpp"
+//#include "house_interior.hpp"
+#include "house_interior-2.hpp"
 
 
 class GameView: public QGraphicsView

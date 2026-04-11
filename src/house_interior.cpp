@@ -1,3 +1,4 @@
+/*
 #include "house_interior.hpp"
 #include <QFile>
 #include <QGraphicsPixmapItem>
@@ -13,27 +14,25 @@ House_Interior::House_Interior()
 
     // --- CARPETS (zValue = 0.1) ---
     PlaceEntity(5.5, 6, purple_carpet, 0.5, false);
-    PlaceEntity(8,11,red_carpet_oval_2,0.5,false);
+    PlaceEntity(8, 11, red_carpet_oval_2, 0.5, false);
     //PlaceEntity(8,11,red_carpet_oval,0.5,false);
-    PlaceEntity(2, 9.9,red_carpet_rectangle_2,0.5,false);
-    PlaceEntity(2, 9,red_carpet_rectangle_2,0.5,false);
-    PlaceEntity(2,8,red_carpet_rectangle_2,0.5,false);
-    PlaceEntity(2,7,red_carpet_rectangle_2,0.5,false);
-    PlaceEntity(2,6,red_carpet_rectangle_2,0.5,false);
-    PlaceEntity(2,5.1,red_carpet_rectangle_2,0.5,false);
+    PlaceEntity(2, 9.9, red_carpet_rectangle_2, 0.5, false);
+    PlaceEntity(2, 9, red_carpet_rectangle_2, 0.5, false);
+    PlaceEntity(2, 8, red_carpet_rectangle_2, 0.5, false);
+    PlaceEntity(2, 7, red_carpet_rectangle_2, 0.5, false);
+    PlaceEntity(2, 6, red_carpet_rectangle_2, 0.5, false);
+    PlaceEntity(2, 5.1, red_carpet_rectangle_2, 0.5, false);
 
-    PlaceEntity(3,9.9,red_carpet_rectangle,0.5,false);
-    PlaceEntity(3,9,red_carpet_rectangle,0.5,false);
-    PlaceEntity(3,8,red_carpet_rectangle,0.5,false);
-    PlaceEntity(3,7,red_carpet_rectangle,0.5,false);
-    PlaceEntity(3,6,red_carpet_rectangle,0.5,false);
-    PlaceEntity(3,5.1,red_carpet_rectangle,0.5,false);
+    PlaceEntity(3, 9.9, red_carpet_rectangle, 0.5, false);
+    PlaceEntity(3, 9, red_carpet_rectangle, 0.5, false);
+    PlaceEntity(3, 8, red_carpet_rectangle, 0.5, false);
+    PlaceEntity(3, 7, red_carpet_rectangle, 0.5, false);
+    PlaceEntity(3, 6, red_carpet_rectangle, 0.5, false);
+    PlaceEntity(3, 5.1, red_carpet_rectangle, 0.5, false);
 
-
-    PlaceEntity(8.85,11.8, entrance, 1, false);
+    PlaceEntity(8.85, 11.8, entrance, 1, false);
     // --- DINING AREA (zValue = 2) ---
     PlaceEntity(6, 6.65, dining_table, 2, false);
-
 
     // --- BEDROOM AREA (Top Left, zValue = 2) ---
     PlaceEntity(2, 5.6, bed, 2, true);
@@ -42,12 +41,12 @@ House_Interior::House_Interior()
     PlaceEntity(1, 10, bookcase, 2, true);
     PlaceEntity(1, 9, bookcase, 2, true);
     PlaceEntity(2, 10, couch_side_profile, 2, true);
-    PlaceEntity(1.5,8,window,2,false);
-    PlaceEntity(1.5,7,window,2,false);
+    PlaceEntity(1.5, 8, window, 2, false);
+    PlaceEntity(1.5, 7, window, 2, false);
 
     // --- PANTRY / STORAGE (Top Right, zValue = 2) ---
     PlaceEntity(1, 13, cupboard_full, 2, true);
-    PlaceEntity(4, 13, wooden_crates, 2, true);    // (If you meant to use 'chest' here, swap it)
+    PlaceEntity(4, 13, wooden_crates, 2, true); // (If you meant to use 'chest' here, swap it)
     PlaceEntity(1, 11, cupboard_empty, 2, true);
     PlaceEntity(1, 12, banana, 2, true);
     PlaceEntity(1.5, 12, banana, 2, true);
@@ -64,8 +63,7 @@ House_Interior::House_Interior()
     PlaceEntity(8, 2, wooden_barrel, 2, true);
 
     //--- Walls ---
-    PlaceEntity(4,5,wall_right_turn, 2.1, true);
-
+    PlaceEntity(4, 5, wall_right_turn, 2.1, true);
 
     // --- Walls of Room 1 (zValue = 2.1) ---
 
@@ -74,11 +72,10 @@ House_Interior::House_Interior()
     PlaceEntity(6, 1, wall_left, 2.1, true);
     PlaceEntity(6, 3, wall_right, 2.1, true);
 
-
     // --- Floors of Room 1 (zValue = 0.1) ---
     //PlaceEntity(7, 3, floor_right, 0.1, true);
     //PlaceEntity(8, 3, floor_bottom_right_corner, 0.1, true);
-    PlaceEntity(6,3,side_of_wall_2, 2.1, true);
+    PlaceEntity(6, 3, side_of_wall_2, 2.1, true);
 
     // --- Walls of Room 2 (zValue = 2.1) ---
 
@@ -86,8 +83,8 @@ House_Interior::House_Interior()
     PlaceEntity(5, 12, wall_middle, 2.1, true);
     PlaceEntity(5, 11, wall_middle, 2.1, true);
     PlaceEntity(5, 14, wall_right, 2.1, true);
-    PlaceEntity(5,10,wall_left_turn, 2.2, true);
-    PlaceEntity(1.1,10,side_of_wall, 2.1, true);
+    PlaceEntity(5, 10, wall_left_turn, 2.2, true);
+    PlaceEntity(1.1, 10, side_of_wall, 2.1, true);
 
     //CollisionMap to be completed
     DrawCollisionMap();
@@ -145,7 +142,8 @@ void House_Interior::DrawMap()
     }
 }
 
-void House_Interior::PlaceEntity(float startRow, float startCol, const QPixmap &image, qreal zValue, bool border)
+void House_Interior::PlaceEntity(
+    float startRow, float startCol, const QPixmap &image, qreal zValue, bool border)
 {
     int widthInTiles = std::ceil((double) image.width() / SIZE);
     int heightInTiles = std::ceil((double) image.height() / SIZE);
@@ -212,7 +210,6 @@ void House_Interior::ImageLoader()
     coal.load(":resources/house_interior/Using-Deco/coal.png");
     round_table.load(":resources/house_interior/Using-Deco/round_table.png");
 
-
     // --- ARMORY ---
     sword_holder.load(":resources/house_interior/Using-Deco/sword_holder.png");
 
@@ -239,7 +236,6 @@ void House_Interior::ImageLoader()
     floor_top_left_corner.load(":resources/house_interior/Using/floor_top_left_corner.png");
 }
 
-
 void House_Interior::DrawCollisionMap()
 {
     std::vector<std::vector<int>> collision_map(HOUSE_ROWS, std::vector<int>(HOUSE_COLS));
@@ -254,4 +250,4 @@ void House_Interior::DrawCollisionMap()
         }
     }
 }
-
+*/

@@ -1,4 +1,4 @@
-#ifndef HOUSE_INTERIOR_HPP
+/*#ifndef HOUSE_INTERIOR_HPP
 #define HOUSE_INTERIOR_HPP
 
 
@@ -84,3 +84,4 @@ public:
 };
 
 #endif // HOUSE_INTERIOR_HPP
+*/
