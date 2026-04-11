@@ -1,10 +1,10 @@
 #include "map2.hpp"
 #include <QDebug>
 #include <QFile>
-#include <QRandomGenerator>
 #include <QKeyEvent>
-#include <cmath>
+#include <QRandomGenerator>
 #include "slime.hpp"
+#include <cmath>
 
 Map::Map()
 {
@@ -21,8 +21,7 @@ Map::Map()
 
     // place 40 collidable objects randomly with 1 block of spacing
     DistributeRandomCollidables(40, 8, 13, 1);
-    AddEnemysRandomly(15,10);
-
+    AddEnemysRandomly(15, 10);
 }
 
 void Map::ImageLoader()
@@ -78,10 +77,8 @@ void Map::ImageLoader()
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/tent3.png"), QRectF(2, 30, 60, 33)});
     collidableTemplates.push_back(
-        {QPixmap(":resources/map-assets/tent4.png"),
-         QRectF(0, 32, 60, 32)});
+        {QPixmap(":resources/map-assets/tent4.png"), QRectF(0, 32, 60, 32)});
     Tent4.load(":resources/map-assets/tent4.png");
-
 
     // Trees & Logs [Indices 8 - 13]
     collidableTemplates.push_back(
@@ -223,7 +220,7 @@ void Map::DrawFieldDecorations()
 {
     for (int i = 0; i < MAP_ROWS; i++) {
         for (int j = 0; j < MAP_COLS; j++) {
-            if (mapData[i][j] != 0 && mapData[i][j]!=99)
+            if (mapData[i][j] != 0 && mapData[i][j] != 99)
                 continue; // only goes on plain grass
 
             if (QRandomGenerator::global()->bounded(100) < 30) {
@@ -377,7 +374,7 @@ void Map::PlaceMapStandardTiles()
     NonCollidablePlaceEntity(11, 34, sidegate3, 1000);
 
     // General Decorations
-    PlaceCollidable(14, 12, 15); // Cart
+    PlaceCollidable(14, 12, 15);   // Cart
     PlaceCollidable(23.2, 13, 14); // CutDownLogs
     PlaceCollidable(23.2, 12, 17); // Axe
     PlaceCollidable(14.3, 17, 18); // Barrel
@@ -604,23 +601,23 @@ void Map::AddEnemysRandomly(int count, int spacing)
 
     while (placed < count && attempts < maxAttempts) {
         attempts++;
-        int randomRow = QRandomGenerator::global()->bounded(5,28);
-        int randomCol = QRandomGenerator::global()->bounded(5,33);
+        int randomRow = QRandomGenerator::global()->bounded(5, 28);
+        int randomCol = QRandomGenerator::global()->bounded(5, 33);
 
         int tileValue = mapData[randomRow][randomCol];
         bool canPlace = (tileValue == 0 || tileValue == 99);
 
         if (canPlace) {
             int randnum = QRandomGenerator::global()->bounded(100);
-            if(randnum<30){
-                Slime* slime1 = new Slime();
+            if (randnum < 30) {
+                Slime *slime1 = new Slime();
                 slime1->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
                 addItem(slime1);
                 slime1->setPlayer(player);
                 mapData[randomRow][randomCol] = 98;
                 placed++;
                 connect(slime1, &Slime::enemyDied, this, &Map::updateEnemyCount);
-            }else if(randnum<50){
+            } else if (randnum < 50) {
                 Slime *slime2 = new Slime(2);
                 slime2->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
                 slime2->setPlayer(player);
@@ -628,7 +625,7 @@ void Map::AddEnemysRandomly(int count, int spacing)
                 mapData[randomRow][randomCol] = 98;
                 placed++;
                 connect(slime2, &Slime::enemyDied, this, &Map::updateEnemyCount);
-            }else if(randnum<60){
+            } else if (randnum < 60) {
                 Slime *slime3 = new Slime(3);
                 slime3->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
                 slime3->setPlayer(player);
@@ -640,9 +637,9 @@ void Map::AddEnemysRandomly(int count, int spacing)
         }
     }
     currentEnemyCount = placed;
-
 }
-void Map::AddPlayerandStats(){
+void Map::AddPlayerandStats()
+{
     player = new Player();
     player->setPos(40 * 7, 35 * 28);
     player->setMap(this);
@@ -654,13 +651,16 @@ void Map::AddPlayerandStats(){
     addItem(stats);
     QObject::connect(player, &Player::statsChanged, stats, &CharacterStats::updateBars);
 }
-Player* Map::getPlayer(){
+Player *Map::getPlayer()
+{
     return player;
 }
-CharacterStats* Map::getStats(){
+CharacterStats *Map::getStats()
+{
     return stats;
 }
-void Map::updateEnemyCount() {
+void Map::updateEnemyCount()
+{
     currentEnemyCount--;
     emit requestBarUpdate(currentEnemyCount);
 
@@ -668,7 +668,8 @@ void Map::updateEnemyCount() {
         // here we will add what happens when we win
     }
 }
-int Map::getCurrentEnimies(){
+int Map::getCurrentEnimies()
+{
     return currentEnemyCount;
 }
 // Use this to test that the bar changes when the slime dies
