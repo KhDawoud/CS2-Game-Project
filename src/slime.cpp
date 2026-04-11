@@ -2,21 +2,25 @@
 
 // Default slime is type 1
 Slime::Slime()
-    : BaseEnemy(50, 5, 2, 1.0f, 40.0f)
-    , slimenumber(1)
+
+    : BaseEnemy(50, 5, 2, 2.0f, 20.0f, "SlimeDamage"), slimenumber(1)
+
 {
     loadAnimations();
 }
 
 // Constructor with slime number
 Slime::Slime(int num)
-    : BaseEnemy((num == 1 ? 50 : (num == 2 ? 60 : 70)),         // health
-                (num == 1 ? 5 : (num == 2 ? 10 : 15)),          // attack
-                (num == 1 ? 2 : (num == 2 ? 4 : 8)),            // defense
-                (num == 1 ? 1.0f : (num == 2 ? 2.0f : 3.0f)),   // speed
-                (num == 1 ? 20.0f : (num == 2 ? 20.0f : 20.0f)) // range
-                )
-    , slimenumber(num)
+
+    : BaseEnemy(
+          (num == 1 ? 50 : (num == 2 ? 60 : 70)),          // health
+          (num == 1 ? 5 : (num == 2 ? 10 : 15)),           // attack
+          (num == 1 ? 2 : (num == 2 ? 4 : 8)),             // defense
+          (num == 1 ? 2.0f : (num == 2 ? 2.5f : 3.0f)),    // speed
+          (num == 1 ? 20.0f : (num == 2 ? 20.0f : 25.0f)), // range
+          "SlimeDamage"),
+      slimenumber(num)
+
 {
     loadAnimations();
 }
@@ -47,7 +51,11 @@ void Slime::loadAnimations()
         hurtData.frameCount = 5;
         hurtData.frameWidth = 64;
         hurtData.frameHeight = 64;
-    } else if (slimenumber == 2) {
+
+    }
+    else if (slimenumber == 2)
+    {
+
         idleSheet.load(path + "idle/Slime2_Idle_with_shadow.png");
         walkSheet.load(path + "walk/Slime2_Walk_with_shadow.png");
         attackSheet.load(path + "attack/Slime2_Attack_with_shadow.png");
@@ -69,7 +77,10 @@ void Slime::loadAnimations()
         hurtData.frameCount = 5;
         hurtData.frameWidth = 64;
         hurtData.frameHeight = 64;
-    } else // slime 3
+
+    }
+    else // slime 3
+
     {
         idleSheet.load(path + "idle/Slime3_Idle_with_shadow.png");
         walkSheet.load(path + "walk/Slime3_Walk_with_shadow.png");

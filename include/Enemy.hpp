@@ -6,17 +6,18 @@
 #include <QObject>
 #include <QPixmap>
 #include <QTimer>
-
+#include <string>
 
 struct Position
 {
     float x, y;
-    Position(float x = 0.0f, float y = 0.0f): x(x), y(y){}
+    Position(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
 };
 
-struct EnemyDirection{
+struct EnemyDirection
+{
     float x, y;
-    EnemyDirection(float x = 0.0f, float y = 0.0f): x(x), y(y){}
+    EnemyDirection(float x = 0.0f, float y = 0.0f) : x(x), y(y) {}
 };
 struct AnimData
 {
@@ -27,7 +28,14 @@ struct AnimData
     int frameHeight;
 };
 
-enum class EnemyState { Idle, Walking, Attacking, Hurt, Dead };
+enum class EnemyState
+{
+    Idle,
+    Walking,
+    Attacking,
+    Hurt,
+    Dead
+};
 
 class BaseEnemy : public QObject, public QGraphicsPixmapItem
 {
@@ -41,6 +49,7 @@ protected:
     float speed;
     int attack;
     int defense;
+    std::string damageSound;
 
     AnimData idleData;
     AnimData walkData;
@@ -48,12 +57,11 @@ protected:
     AnimData deadData;
     AnimData hurtData;
 
-    Player* player;
+    Player *player;
 
     void setEnemyState(EnemyState newState);
     int currentFrame = 0;
     int currentRow = 0;
-
 
     EnemyState currentState = EnemyState::Idle;
 
@@ -67,11 +75,11 @@ protected:
     int waitCounter = 0;
     int attackTimer = 0;
     int attackDuration = 10; // ~1 second
-
+    QTimer *aiTimer;
 
 public:
-    BaseEnemy(int hp, int atk, int def, float spd = 1.0f,float range=40.0f);
-    void setPlayer(Player*p);
+    BaseEnemy(int hp, int atk, int def, float spd = 1.0f, float range = 40.0f, std::string damagePath = "SlimeDamage");
+    void setPlayer(Player *p);
     bool isalive();
     bool isdead();
 
@@ -79,14 +87,12 @@ public:
 
     void moveEnemy();
     virtual void updateAnimation();
-    void detectandmove(Player*);
+    void detectandmove(Player *);
 signals:
     void enemyDied();
 
 public slots:
     void update();
 };
-
-
 
 #endif

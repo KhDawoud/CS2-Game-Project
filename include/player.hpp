@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QTimer>
 
-
 class Map;
 class House_Interior;
 
@@ -34,6 +33,7 @@ public:
     float getStamina() { return stamina; };
     float getMana() { return mana; };
     void setMap(Map *m) { gameMap = m; }
+    void takeDamage(float damage);
 
 public slots:
     void updateAnimation();
@@ -97,6 +97,11 @@ private:
         emit statsChanged();
     };
     QRectF getPlayerHitbox(QPointF pos) const;
+
     bool checkCollision(const QRectF &hitbox, Map *map, House_Interior *interior) const;
+
+    //bool checkCollision(const QRectF &hitbox, Map *map) const;
+    void performAttack();
+
 };
 #endif // PLAYER_HPP

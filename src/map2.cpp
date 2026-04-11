@@ -180,10 +180,12 @@ void Map::LoadMapFromCSV(const QString &filePath)
 
     mapData.clear();
     QTextStream in(&file);
-    while (!in.atEnd()) {
+    while (!in.atEnd())
+    {
         QStringList values = in.readLine().split(',');
         std::vector<int> row;
-        for (const QString &val : values) {
+        for (const QString &val : values)
+        {
             row.push_back(val.trimmed().toInt());
         }
         mapData.push_back(row);
@@ -195,8 +197,10 @@ void Map::DrawMapAndGenerateBaseCollisions()
 {
     collision_map.assign(MAP_ROWS, std::vector<int>(MAP_COLS, 0));
 
-    for (int i = 0; i < MAP_ROWS; i++) {
-        for (int j = 0; j < MAP_COLS; j++) {
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
             QGraphicsPixmapItem *base = new QGraphicsPixmapItem(baseTiles[0]);
             base->setPos(j * TILE_SIZE, i * TILE_SIZE);
             base->setZValue(-100.0);
@@ -204,7 +208,8 @@ void Map::DrawMapAndGenerateBaseCollisions()
 
             int tileId = mapData[i][j];
 
-            if (tileId != 0 && baseTiles.find(tileId) != baseTiles.end()) {
+            if (tileId != 0 && baseTiles.find(tileId) != baseTiles.end())
+            {
                 QGraphicsPixmapItem *tile = new QGraphicsPixmapItem(baseTiles[tileId]);
                 tile->setPos(j * TILE_SIZE, i * TILE_SIZE);
                 tile->setZValue(-100.0);
@@ -223,7 +228,8 @@ void Map::DrawFieldDecorations()
             if (mapData[i][j] != 0 && mapData[i][j] != 99)
                 continue; // only goes on plain grass
 
-            if (QRandomGenerator::global()->bounded(100) < 30) {
+            if (QRandomGenerator::global()->bounded(100) < 30)
+            {
                 int randomIndex = QRandomGenerator::global()->bounded(
                     static_cast<int>(nonCollidableDecoPool.size()));
 
@@ -270,7 +276,8 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
     int placed = 0;
     int maxAttempts = count * 30;
 
-    while (placed < count && attempts < maxAttempts) {
+    while (placed < count && attempts < maxAttempts)
+    {
         attempts++;
         int randomRow = QRandomGenerator::global()->bounded(MAP_ROWS);
         int randomCol = QRandomGenerator::global()->bounded(MAP_COLS);
@@ -279,10 +286,11 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
         int templateIndex = QRandomGenerator::global()->bounded(minIndex, maxIndex + 1);
         const CollidableTemplate &tmpl = collidableTemplates[templateIndex];
 
-        int widthInTiles = std::ceil((double) tmpl.texture.width() / TILE_SIZE);
-        int heightInTiles = std::ceil((double) tmpl.texture.height() / TILE_SIZE);
+        int widthInTiles = std::ceil((double)tmpl.texture.width() / TILE_SIZE);
+        int heightInTiles = std::ceil((double)tmpl.texture.height() / TILE_SIZE);
 
-        if (randomRow + heightInTiles > MAP_ROWS || randomCol + widthInTiles > MAP_COLS) {
+        if (randomRow + heightInTiles > MAP_ROWS || randomCol + widthInTiles > MAP_COLS)
+        {
             continue;
         }
 
@@ -294,9 +302,12 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
         int checkStartCol = std::max(0, randomCol - spacing);
         int checkEndCol = std::min(MAP_COLS, randomCol + widthInTiles + spacing);
 
-        for (int r = checkStartRow; r < checkEndRow; r++) {
-            for (int c = checkStartCol; c < checkEndCol; c++) {
-                if (mapData[r][c] != 0 && mapData[r][c] != 99) {
+        for (int r = checkStartRow; r < checkEndRow; r++)
+        {
+            for (int c = checkStartCol; c < checkEndCol; c++)
+            {
+                if (mapData[r][c] != 0 && mapData[r][c] != 99)
+                {
                     canPlace = false;
                     break;
                 }
@@ -319,15 +330,18 @@ void Map::DistributeRandomCollidables(int count, int minIndex, int maxIndex, int
                                                  spacing * TILE_SIZE);
 
         QList<QGraphicsItem *> itemsInArea = items(spacingRect);
-        for (QGraphicsItem *item : itemsInArea) {
+        for (QGraphicsItem *item : itemsInArea)
+        {
             // no overlapping
-            if (item->zValue() > -50.0) {
+            if (item->zValue() > -50.0)
+            {
                 canPlace = false;
                 break;
             }
         }
 
-        if (canPlace) {
+        if (canPlace)
+        {
             PlaceCollidable(randomRow, randomCol, templateIndex);
             placed++;
         }
@@ -378,7 +392,7 @@ void Map::PlaceMapStandardTiles()
     PlaceCollidable(23.2, 13, 14); // CutDownLogs
     PlaceCollidable(23.2, 12, 17); // Axe
     PlaceCollidable(14.3, 17, 18); // Barrel
-    //PlaceCollidable(14, 9, 18); // Jo
+    // PlaceCollidable(14, 9, 18); // Jo
 
     // Campfire Area 2
     PlaceCollidable(28, 10, 20);     // CampLog1
@@ -555,8 +569,10 @@ void Map::PlaceMapStandardTiles()
 // to help us create the map
 void Map::DrawDebugGridCoordinates()
 {
-    for (int i = 0; i < MAP_ROWS; i++) {
-        for (int j = 0; j < MAP_COLS; j++) {
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
             QString coordText = QString("%1,%2").arg(i).arg(j);
             QGraphicsSimpleTextItem *textItem = new QGraphicsSimpleTextItem(coordText);
             textItem->setPos((j * TILE_SIZE) + 2, (i * TILE_SIZE) + 2);
@@ -576,18 +592,21 @@ void Map::NonCollidablePlaceEntity(float startRow,
                                    const QPixmap &image,
                                    qreal zValue)
 {
-    int widthInTiles = std::ceil((double) image.width() / TILE_SIZE);
-    int heightInTiles = std::ceil((double) image.height() / TILE_SIZE);
+    int widthInTiles = std::ceil((double)image.width() / TILE_SIZE);
+    int heightInTiles = std::ceil((double)image.height() / TILE_SIZE);
 
     QGraphicsPixmapItem *entity = new QGraphicsPixmapItem(image);
     entity->setPos(startCol * TILE_SIZE, startRow * TILE_SIZE);
     entity->setZValue(zValue);
     addItem(entity);
 
-    for (int i = startRow; i < startRow + heightInTiles; i++) {
-        for (int j = startCol; j < startCol + widthInTiles; j++) {
+    for (int i = startRow; i < startRow + heightInTiles; i++)
+    {
+        for (int j = startCol; j < startCol + widthInTiles; j++)
+        {
             // IMPORTANT: Check bounds for EVERY tile to prevent crashes
-            if (i >= 0 && i < MAP_ROWS && j >= 0 && j < MAP_COLS) {
+            if (i >= 0 && i < MAP_ROWS && j >= 0 && j < MAP_COLS)
+            {
                 mapData[i][j] = 99;
             }
         }
@@ -599,7 +618,8 @@ void Map::AddEnemysRandomly(int count, int spacing)
     int attempts = 0;
     int maxAttempts = count * 100;
 
-    while (placed < count && attempts < maxAttempts) {
+    while (placed < count && attempts < maxAttempts)
+    {
         attempts++;
         int randomRow = QRandomGenerator::global()->bounded(5, 28);
         int randomCol = QRandomGenerator::global()->bounded(5, 33);
@@ -607,9 +627,31 @@ void Map::AddEnemysRandomly(int count, int spacing)
         int tileValue = mapData[randomRow][randomCol];
         bool canPlace = (tileValue == 0 || tileValue == 99);
 
-        if (canPlace) {
+        if (canPlace)
+        {
+            float spawnX = randomCol * TILE_SIZE;
+            float spawnY = randomRow * TILE_SIZE;
+
+            // make a hitbox roughly the size of the enemy and make sure it wouldnt be in the same
+            // place as any other hitbox in activeCollidableObjects
+            QRectF spawnRect(spawnX, spawnY, TILE_SIZE / 3, TILE_SIZE / 3);
+
+            for (const auto &obj : activeCollidableObjects)
+            {
+                if (spawnRect.intersects(obj.worldHitbox))
+                {
+                    canPlace = false;
+                    break;
+                }
+            }
+        }
+
+        if (canPlace)
+        {
             int randnum = QRandomGenerator::global()->bounded(100);
-            if (randnum < 30) {
+
+            if (randnum < 25)
+            {
                 Slime *slime1 = new Slime();
                 slime1->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
                 addItem(slime1);
@@ -617,7 +659,11 @@ void Map::AddEnemysRandomly(int count, int spacing)
                 mapData[randomRow][randomCol] = 98;
                 placed++;
                 connect(slime1, &Slime::enemyDied, this, &Map::updateEnemyCount);
-            } else if (randnum < 50) {
+
+            }
+            else if (randnum < 40)
+            {
+
                 Slime *slime2 = new Slime(2);
                 slime2->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
                 slime2->setPlayer(player);
@@ -625,7 +671,11 @@ void Map::AddEnemysRandomly(int count, int spacing)
                 mapData[randomRow][randomCol] = 98;
                 placed++;
                 connect(slime2, &Slime::enemyDied, this, &Map::updateEnemyCount);
-            } else if (randnum < 60) {
+
+            }
+            else if (randnum < 50)
+            {
+
                 Slime *slime3 = new Slime(3);
                 slime3->setPos(randomCol * TILE_SIZE, randomRow * TILE_SIZE);
                 slime3->setPlayer(player);
@@ -664,7 +714,8 @@ void Map::updateEnemyCount()
     currentEnemyCount--;
     emit requestBarUpdate(currentEnemyCount);
 
-    if (currentEnemyCount <= 0) {
+    if (currentEnemyCount <= 0)
+    {
         // here we will add what happens when we win
     }
 }
