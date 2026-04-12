@@ -10,7 +10,6 @@
 #include "campfire.hpp"
 #include "characterstats.hpp"
 
-
 constexpr int MAP_ROWS = 35;
 constexpr int MAP_COLS = 40;
 constexpr int TILE_SIZE = 32;
@@ -37,7 +36,7 @@ private:
     std::vector<CollidableTemplate> collidableTemplates;
     std::vector<PlacedObject> activeCollidableObjects;
     std::vector<Campfire *> activeCampfires;
-    Player* player;
+    Player *player;
     CharacterStats *stats;
     QPixmap Tent4;
     QPixmap topgatel;
@@ -59,21 +58,22 @@ public:
 
     void DrawFieldDecorations();
     void DistributeRandomCollidables(int count, int minIndex, int maxIndex, int spacing);
-    void NonCollidablePlaceEntity(float, float,const QPixmap&,qreal);
+    void NonCollidablePlaceEntity(float, float, const QPixmap &, qreal);
     void PlaceCollidable(float startRow, float startCol, int templateIndex);
     void AddCampfire(float startRow, float startCol);
-    void AddEnemysRandomly(int count,int spacing);
+    void AddEnemysRandomly(int count, int spacing);
     void AddPlayerandStats();
-    Player* getPlayer();
-    CharacterStats* getStats();
+    Player *getPlayer();
+    CharacterStats *getStats();
     bool isTileCollidable(int row, int col) const;
     const std::vector<PlacedObject> &getCollidableObjects() const { return activeCollidableObjects; }
     int getCurrentEnimies();
-    //void keyPressEvent(QKeyEvent *event) override;
+    // void keyPressEvent(QKeyEvent *event) override;
 public slots:
     void updateEnemyCount();
 signals:
     void requestBarUpdate(int currentCount);
+    void levelCleared();
 };
 
 #endif // MAP_H

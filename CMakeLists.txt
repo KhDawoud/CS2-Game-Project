@@ -28,6 +28,7 @@ qt_add_executable(QtTest
     src/campfire.cpp
     #src/house_interior.cpp
     src/house_interior-2.cpp
+    src/levelcleared.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)

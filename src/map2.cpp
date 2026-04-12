@@ -223,8 +223,10 @@ void Map::DrawMapAndGenerateBaseCollisions()
 
 void Map::DrawFieldDecorations()
 {
-    for (int i = 0; i < MAP_ROWS; i++) {
-        for (int j = 0; j < MAP_COLS; j++) {
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
             if (mapData[i][j] != 0 && mapData[i][j] != 99)
                 continue; // only goes on plain grass
 
@@ -659,7 +661,6 @@ void Map::AddEnemysRandomly(int count, int spacing)
                 mapData[randomRow][randomCol] = 98;
                 placed++;
                 connect(slime1, &Slime::enemyDied, this, &Map::updateEnemyCount);
-
             }
             else if (randnum < 40)
             {
@@ -671,7 +672,6 @@ void Map::AddEnemysRandomly(int count, int spacing)
                 mapData[randomRow][randomCol] = 98;
                 placed++;
                 connect(slime2, &Slime::enemyDied, this, &Map::updateEnemyCount);
-
             }
             else if (randnum < 50)
             {
@@ -716,7 +716,7 @@ void Map::updateEnemyCount()
 
     if (currentEnemyCount <= 0)
     {
-        // here we will add what happens when we win
+        emit levelCleared();
     }
 }
 int Map::getCurrentEnimies()

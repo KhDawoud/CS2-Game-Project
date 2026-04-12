@@ -4,6 +4,7 @@
 #include <QProgressBar>
 #include "map2.hpp"
 #include "pausewindow.hpp"
+#include "levelcleared.hpp"
 
 GameView::GameView(Map *scene, House_Interior *interior, Player *player)
 
@@ -37,6 +38,10 @@ GameView::GameView(Map *scene, House_Interior *interior, Player *player)
     progressBar->setValue(_overworld->getCurrentEnimies());
     connect(_overworld, &Map::requestBarUpdate, progressBar, &QProgressBar::setValue);
     connect(this, &GameView::isoverworld, progressBar, &QProgressBar::setVisible);
+    connect(_overworld, &::Map::levelCleared, [this]()
+            {
+        LevelCleared window(this);
+        window.exec(); });
 
     showFullScreen();
 }
@@ -71,7 +76,6 @@ void GameView::keyPressEvent(QKeyEvent *event)
         if ((this->scene() == _overworld) && (currentRow >= 13 && currentRow <= 14) && (currentCol >= 8 && currentCol <= 8.5))
         {
 
-
             // 3. Remove player from Overworld and move to Interior
             _overworld->removeItem(_player);
             this->setScene(_interior);
@@ -88,7 +92,6 @@ void GameView::keyPressEvent(QKeyEvent *event)
             this->resetTransform();
             this->scale(4.5, 4.5);
         }
-
 
         else if ((this->scene() == _interior) && (currentRow >= 7 && currentRow <= 7.5) && (currentCol >= 10 && currentCol <= 11))
         {
