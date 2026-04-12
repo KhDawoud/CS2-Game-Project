@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <QRandomGenerator>
 #include "slime.hpp"
+#include "AudioManager.hpp"
 #include <cmath>
 
 Map::Map()
@@ -716,6 +717,7 @@ void Map::updateEnemyCount()
 
     if (currentEnemyCount <= 0)
     {
+        AudioManager::instance().playSound("LevelCleared");
         emit levelCleared();
     }
 }

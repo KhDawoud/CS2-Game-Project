@@ -61,6 +61,11 @@ private:
         slimeDamage->setSource(QUrl("qrc:/resources/sound-effects/SlimeDamage.wav"));
         slimeDamage->setVolume(0.5f);
         soundTable["SlimeDamage"] = slimeDamage;
+
+        QSoundEffect *levelCleared = new QSoundEffect(this);
+        levelCleared->setSource(QUrl("qrc:/resources/sound-effects/LevelCleared.wav"));
+        levelCleared->setVolume(1.0f);
+        soundTable["LevelCleared"] = levelCleared;
     }
 
     std::unordered_map<std::string, QSoundEffect *> soundTable;
