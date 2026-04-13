@@ -66,6 +66,11 @@ private:
         levelCleared->setSource(QUrl("qrc:/resources/sound-effects/LevelCleared.wav"));
         levelCleared->setVolume(1.0f);
         soundTable["LevelCleared"] = levelCleared;
+
+        QSoundEffect *heal = new QSoundEffect(this);
+        heal->setSource(QUrl("qrc:/resources/sound-effects/Heal.wav"));
+        heal->setVolume(0.7f);
+        soundTable["Heal"] = heal;
     }
 
     std::unordered_map<std::string, QSoundEffect *> soundTable;

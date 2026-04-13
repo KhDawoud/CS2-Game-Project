@@ -16,7 +16,7 @@ Player::Player()
     staminaRegenTimer = new QTimer(this);
     connect(staminaRegenTimer, &QTimer::timeout, [this]()
             { regenStamina(staminaRegenRate); });
-    staminaRegenTimer->start(500);
+    staminaRegenTimer->start(400);
 
     currentState = PlayerState::Walking;
     currentDirection = Direction::Right;
@@ -289,8 +289,7 @@ void Player::keyPressEvent(QKeyEvent *event)
         return;
     }
 
-    if (key == Qt::Key_W || key == Qt::Key_A || key == Qt::Key_S || key == Qt::Key_D
-        || key == Qt::Key_Up || key == Qt::Key_Down || key == Qt::Key_Left || key == Qt::Key_Right)
+    if (key == Qt::Key_W || key == Qt::Key_A || key == Qt::Key_S || key == Qt::Key_D || key == Qt::Key_Up || key == Qt::Key_Down || key == Qt::Key_Left || key == Qt::Key_Right)
     {
         if (!activeKeys.contains(key))
             activeKeys.append(key);
@@ -321,12 +320,13 @@ bool Player::checkCollision(const QRectF &hitbox, Map *map, House_Interior *inte
 
     float tileSize = 32.0f;
 
-    int leftCol   = static_cast<int>(std::floor(hitbox.left()   / tileSize));
-    int rightCol  = static_cast<int>(std::floor(hitbox.right()  / tileSize));
-    int topRow    = static_cast<int>(std::floor(hitbox.top()    / tileSize));
+    int leftCol = static_cast<int>(std::floor(hitbox.left() / tileSize));
+    int rightCol = static_cast<int>(std::floor(hitbox.right() / tileSize));
+    int topRow = static_cast<int>(std::floor(hitbox.top() / tileSize));
     int bottomRow = static_cast<int>(std::floor(hitbox.bottom() / tileSize));
 
-    if (map) {
+    if (map)
+    {
         for (int r = topRow; r <= bottomRow; ++r)
             for (int c = leftCol; c <= rightCol; ++c)
                 if (map->isTileCollidable(r, c))
@@ -336,7 +336,8 @@ bool Player::checkCollision(const QRectF &hitbox, Map *map, House_Interior *inte
             if (hitbox.intersects(obj.worldHitbox))
                 return true;
     }
-    else if (interior) {
+    else if (interior)
+    {
         for (int r = topRow; r <= bottomRow; ++r)
             for (int c = leftCol; c <= rightCol; ++c)
                 if (interior->isTileCollidable(r, c))
@@ -374,4 +375,12 @@ void Player::performAttack()
         if (enemy && !enemy->isdead())
             enemy->TakeDamage(10);
     }
+}
+
+void Player::Heal(float amount)
+{
+    health += amount;
+    health = (health > 100) ? 100 : health;
+    AudioManager::instance().playSound("Heal");
+    emit statsChanged();
 }

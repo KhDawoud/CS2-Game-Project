@@ -29,6 +29,7 @@ qt_add_executable(QtTest
     #src/house_interior.cpp
     src/house_interior-2.cpp
     src/levelcleared.cpp
+    src/Heart.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -99,6 +100,7 @@ qt_add_resources(QtTest "images"
         "resources/sound-effects/GameOver.wav"
         "resources/sound-effects/SlimeDamage.wav"
         "resources/sound-effects/LevelCleared.wav"
+        "resources/sound-effects/Heal.wav"
         "resources/map-data/level-1.csv"
         "resources/map-data/level-1-updated.csv"
         "resources/enemy/idle/Slime1_Idle_with_shadow.png"
@@ -116,6 +118,7 @@ qt_add_resources(QtTest "images"
         "resources/enemy/attack/Slime3_Attack_with_shadow.png"
         "resources/enemy/dead/Slime3_Death_with_shadow.png"
         "resources/enemy/hurt/Slime3_Hurt_with_shadow.png"
+        "resources/heart/heal_heart2.png"
 
         "resources/ui-elements/character_panel.png"
         "resources/map-assets/Tree_Emerald_2.png"

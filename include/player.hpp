@@ -34,6 +34,8 @@ public:
     float getMana() { return mana; };
     void setMap(Map *m) { gameMap = m; }
     void takeDamage(float damage);
+    void Heal(float amount);
+    QRectF getPlayerHitbox(QPointF pos) const;
 
 public slots:
     void updateAnimation();
@@ -96,12 +98,10 @@ private:
         stamina = std::min(100.0f, stamina + amount);
         emit statsChanged();
     };
-    QRectF getPlayerHitbox(QPointF pos) const;
 
     bool checkCollision(const QRectF &hitbox, Map *map, House_Interior *interior) const;
 
-    //bool checkCollision(const QRectF &hitbox, Map *map) const;
+    // bool checkCollision(const QRectF &hitbox, Map *map) const;
     void performAttack();
-
 };
 #endif // PLAYER_HPP

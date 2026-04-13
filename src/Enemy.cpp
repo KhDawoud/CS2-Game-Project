@@ -2,9 +2,12 @@
 #include <QDebug>
 #include <QTimer>
 #include <QTransform>
+#include <QRandomGenerator>
+#include <QGraphicsScene>
 #include <string>
 #include "player.hpp"
 #include "AudioManager.hpp"
+#include "Heart.hpp"
 
 using namespace std;
 
@@ -84,7 +87,6 @@ void BaseEnemy::TakeDamage(int amount)
         health = 0;
         currentState = EnemyState::Dead;
         currentFrame = 0;
-        emit enemyDied();
     }
 }
 
@@ -165,8 +167,19 @@ void BaseEnemy::update()
         // Check if we have reached the final frame of the death sheet
         if (currentFrame >= deadData.frameCount - 1)
         {
+            aiTimer->stop();
             this->hide();
             this->setEnabled(false);
+
+            // 30% chance for a heart to be dropped
+            if (QRandomGenerator::global()->bounded(100) < 30)
+            {
+                float centerX = this->x() + (this->boundingRect().width() / 2.0f);
+                float centerY = this->y() + (this->boundingRect().height() / 2.0f);
+                Heart *droppedHeart = new Heart(centerX, centerY, player);
+                this->scene()->addItem(droppedHeart);
+            }
+            emit enemyDied();
         }
         return;
     }
@@ -202,7 +215,6 @@ void BaseEnemy::update()
             currentRow = (dy > 0) ? 0 : 1;
         }
     }
-
 
     // changed it a bit so it doesn't move while attacking and so attack and hurt animations
     // cycle faster than walking and idle
