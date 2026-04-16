@@ -7,7 +7,7 @@
 #include "AudioManager.hpp"
 #include <cmath>
 
-Map::Map()
+Map::Map(Player *player1)
 {
     ImageLoader();
     LoadMapFromCSV(":resources/map-data/level-1-updated.csv");
@@ -18,21 +18,16 @@ Map::Map()
     PlaceMapStandardTiles();
     // add grass and stones (non-collidable)
     DrawFieldDecorations();
-    AddPlayerandStats();
-
+    //assigns player so that it can be used with enimies
+    player = player1;
     // place 40 collidable objects randomly with 1 block of spacing
     DistributeRandomCollidables(40, 8, 13, 1);
-    AddEnemysRandomly(15, 10);
+    AddEnemysRandomly(15);
 }
 
 void Map::ImageLoader()
 {
-    // I fixed basically all the hitboxes
-
-    // ==========================================
-    // 1. BASE TILES (Loaded from CSV)
-    // ==========================================
-
+    //loads all the needed images
     baseTiles[0].load(":resources/map-assets/grass.png");
 
     // Paths (Walkable)
@@ -46,9 +41,7 @@ void Map::ImageLoader()
     baseTiles[9].load(":resources/map-assets/left-up.png");
     baseTiles[37].load(":resources/map-assets/right-down.png");
 
-    // ==========================================
     // 2. NON-COLLIDABLE DECORATIONS (Field Pool)
-    // ==========================================
     nonCollidableDecoPool.push_back(QPixmap(":resources/map-assets/grass1.png"));
     nonCollidableDecoPool.push_back(QPixmap(":resources/map-assets/grass2.png"));
     nonCollidableDecoPool.push_back(QPixmap(":resources/map-assets/grass3.png"));
@@ -58,9 +51,7 @@ void Map::ImageLoader()
     nonCollidableDecoPool.push_back(QPixmap(":resources/map-assets/stone1.png"));
     nonCollidableDecoPool.push_back(QPixmap(":resources/map-assets/stone2.png"));
 
-    // ==========================================
     // 3. COLLIDABLE DECORATIONS (Templates)
-    // ==========================================
 
     // Buildings [Indices 0 - 7]
     collidableTemplates.push_back(
@@ -129,9 +120,7 @@ void Map::ImageLoader()
     sidegate2.load(":resources/map-assets/sidegate2");
     sidegate3.load(":resources/map-assets/sidegate3");
 
-    // ==========================================
-    // 4. FORMER CSV WALLS AND GATES [Indices 28+]
-    // ==========================================
+    // 4. Walls and Gates [Indices 28+]
     collidableTemplates.push_back(
         {QPixmap(":resources/map-assets/wallt"),
          QRectF(0, 30, 32, 2)}); // these have no hitbox since theyre high up
@@ -197,7 +186,7 @@ void Map::LoadMapFromCSV(const QString &filePath)
 void Map::DrawMapAndGenerateBaseCollisions()
 {
     collision_map.assign(MAP_ROWS, std::vector<int>(MAP_COLS, 0));
-
+    //adds grass and paths
     for (int i = 0; i < MAP_ROWS; i++)
     {
         for (int j = 0; j < MAP_COLS; j++)
@@ -216,8 +205,6 @@ void Map::DrawMapAndGenerateBaseCollisions()
                 tile->setZValue(-100.0);
                 addItem(tile);
             }
-
-            // for now in this level everything is walkable so no collision map
         }
     }
 }
@@ -230,7 +217,7 @@ void Map::DrawFieldDecorations()
         {
             if (mapData[i][j] != 0 && mapData[i][j] != 99)
                 continue; // only goes on plain grass
-
+            //generating a randum number that acts as the spawn percentage
             if (QRandomGenerator::global()->bounded(100) < 30)
             {
                 int randomIndex = QRandomGenerator::global()->bounded(
@@ -373,7 +360,6 @@ bool Map::isTileCollidable(int row, int col) const
 
 void Map::PlaceMapStandardTiles()
 {
-    // cleaned up the issues but we can still decorate the map more
 
     PlaceCollidable(10.5, 7, 0); // House1
     PlaceCollidable(19.8, 7, 2); // House3
@@ -395,7 +381,6 @@ void Map::PlaceMapStandardTiles()
     PlaceCollidable(23.2, 13, 14); // CutDownLogs
     PlaceCollidable(23.2, 12, 17); // Axe
     PlaceCollidable(14.3, 17, 18); // Barrel
-    // PlaceCollidable(14, 9, 18); // Jo
 
     // Campfire Area 2
     PlaceCollidable(28, 10, 20);     // CampLog1
@@ -590,6 +575,7 @@ void Map::DrawDebugGridCoordinates()
         }
     }
 }
+//adds an entity that doesn't have any collisions
 void Map::NonCollidablePlaceEntity(float startRow,
                                    float startCol,
                                    const QPixmap &image,
@@ -607,7 +593,6 @@ void Map::NonCollidablePlaceEntity(float startRow,
     {
         for (int j = startCol; j < startCol + widthInTiles; j++)
         {
-            // IMPORTANT: Check bounds for EVERY tile to prevent crashes
             if (i >= 0 && i < MAP_ROWS && j >= 0 && j < MAP_COLS)
             {
                 mapData[i][j] = 99;
@@ -615,7 +600,8 @@ void Map::NonCollidablePlaceEntity(float startRow,
         }
     }
 }
-void Map::AddEnemysRandomly(int count, int spacing)
+//adds enimies at positions that dont have a collideable
+void Map::AddEnemysRandomly(int count)
 {
     int placed = 0;
     int attempts = 0;
@@ -689,27 +675,7 @@ void Map::AddEnemysRandomly(int count, int spacing)
     }
     currentEnemyCount = placed;
 }
-void Map::AddPlayerandStats()
-{
-    player = new Player();
-    player->setPos(40 * 7, 35 * 28);
-    player->setMap(this);
-    addItem(player);
-
-    stats = new CharacterStats();
-    stats->setPlayer(player);
-    stats->setZValue(1000);
-    addItem(stats);
-    QObject::connect(player, &Player::statsChanged, stats, &CharacterStats::updateBars);
-}
-Player *Map::getPlayer()
-{
-    return player;
-}
-CharacterStats *Map::getStats()
-{
-    return stats;
-}
+//slot thats is called when enimies die and it emits a signal to the progress bar
 void Map::updateEnemyCount()
 {
     currentEnemyCount--;
@@ -725,19 +691,4 @@ int Map::getCurrentEnimies()
 {
     return currentEnemyCount;
 }
-// Use this to test that the bar changes when the slime dies
-// void Map::keyPressEvent(QKeyEvent *event) {
-//     if (event->key() == Qt::Key_K) {
-//         // Find all Slimes in the scene
-//         QList<QGraphicsItem*> allItems = items();
-//         for (QGraphicsItem* item : allItems) {
-//             Slime* slime = dynamic_cast<Slime*>(item);
-//             if (slime) {
-//                 emit slime->enemyDied(); // Manually trigger the signal
-//                 slime->deleteLater(); //remove it from screen too
-//                 break;
-//             }
-//         }
-//     }
-//     QGraphicsScene::keyPressEvent(event);
-// }
+

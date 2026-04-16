@@ -9,6 +9,8 @@ class LevelIntro : public QDialog
 {
 public:
     LevelIntro(QWidget *);
+protected:
+    void paintEvent(QPaintEvent *event) override;
 };
 
 #endif // LEVELINTRO_H

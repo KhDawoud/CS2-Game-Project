@@ -9,6 +9,8 @@ class pausewindow: public QDialog
 {
 public:
     pausewindow(QWidget*);
+protected:
+    void paintEvent(QPaintEvent *event) override;
 };
 
 #endif // PAUSEWINDOW_H

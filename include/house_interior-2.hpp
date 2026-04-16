@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <QTimer>
+#include "characterstats.hpp"
 
 constexpr int HOUSE_ROWS = 10;
 constexpr int HOUSE_COLS = 16;
@@ -28,7 +29,7 @@ struct HousePlacedObject
 class House_Interior : public QGraphicsScene
 {
 public:
-    House_Interior();
+    House_Interior(Player *player1);
 
     void LoadMapFromCSV(const QString &filePath);
     void ImageLoader();
@@ -49,6 +50,7 @@ public:
     { return activeCollidableObjects; }
 
 private:
+    Player *player;
     // ── Tile data ─────────────────────────────────────────────────────────────
     std::vector<std::vector<int>>    map;           // raw CSV data
     std::vector<std::vector<int>>    collision_map; // 1 = blocked, 0 = free

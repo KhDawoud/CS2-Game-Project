@@ -9,17 +9,17 @@
 
 GameView::GameView(Map *scene, House_Interior *interior, Player *player)
 
-    : QGraphicsView(scene), _overworld(scene), _interior(interior), _player(player)
+    : QGraphicsView(interior), _overworld(scene), _interior(interior), _player(player)
 
 {
     setAlignment(Qt::AlignCenter);
-
     scale(3.0, 3.0);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     _player->setScale(1.2);
     centerOn(player);
 
+    //a progress bar that decreases as the number of enemies decreases
     QProgressBar *progressBar = new QProgressBar(this);
     progressBar->setGeometry((scene->width() - 200) / 2, 20, 400, 25);
 
@@ -39,11 +39,21 @@ GameView::GameView(Map *scene, House_Interior *interior, Player *player)
     progressBar->setValue(_overworld->getCurrentEnimies());
     connect(_overworld, &Map::requestBarUpdate, progressBar, &QProgressBar::setValue);
     connect(this, &GameView::isoverworld, progressBar, &QProgressBar::setVisible);
+
     connect(_overworld, &::Map::levelCleared, [this]()
             {
-        LevelCleared window(this);
-        window.exec(); });
+        LevelCleared clearedwindow(this);
+        clearedwindow.exec();
+    });
 
+    //creates the intro pop up when the game starts
+    QTimer::singleShot(0, this, [this]() {
+        LevelIntro introwindow(this);
+        introwindow.exec();
+        this->setGraphicsEffect(nullptr);;
+    });
+
+    emit isoverworld(false);
     showFullScreen();
 }
 
@@ -57,24 +67,9 @@ void GameView::keyPressEvent(QKeyEvent *event)
         dim->setStrength(0.7); // 70% dark
         this->setGraphicsEffect(dim);
 
-        // Create the popup
         pausewindow window(this);
 
-        // This stops the game (blocks) until the user clicks a button
-        window.exec();
-        this->setGraphicsEffect(nullptr);
-    }
-    else if (event->key() == Qt::Key_B)
-    {
-        QGraphicsColorizeEffect *dim = new QGraphicsColorizeEffect();
-        dim->setColor(Qt::black);
-        dim->setStrength(0.7); // 70% dark
-        this->setGraphicsEffect(dim);
-
-        // Create the popup
-        LevelIntro window(this);
-
-        // This stops the game (blocks) until the user clicks a button
+        // This pauses the game until the user clicks a button
         window.exec();
         this->setGraphicsEffect(nullptr);
     }

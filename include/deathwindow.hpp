@@ -9,6 +9,8 @@ class DeathWindow : public QDialog
 {
 public:
     DeathWindow(QWidget *);
+protected:
+    void paintEvent(QPaintEvent *event) override;
 };
 
 #endif // DEATHWINDOW_H

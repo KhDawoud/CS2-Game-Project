@@ -9,6 +9,8 @@ class LevelCleared : public QDialog
 {
 public:
     LevelCleared(QWidget *);
+protected:
+    void paintEvent(QPaintEvent *event) override;
 };
 
 #endif // LEVELCLEARED_H

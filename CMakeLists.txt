@@ -188,6 +188,7 @@ qt_add_resources(QtTest "images"
         "resources/house_interior/Using/side_of_wall_2.png"
         "resources/house_interior/Using/entrance.png"
         "resources/house_interior/CSV/house_interior.csv"
+        "resources/ui-elements/window.png"
 )
 
 target_link_libraries(QtTest

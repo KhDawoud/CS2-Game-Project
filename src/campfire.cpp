@@ -12,9 +12,10 @@ Campfire::Campfire()
 }
 void Campfire::UpdateAnimation()
 {
+    //changes frames to update the animatin
     int x = currentframe * FrameWidth;
     setPixmap(framesheet.copy(x, 0, FrameWidth, framesheet.height()));
-    currentframe = (currentframe + 1) % framecount;
+    currentframe = (currentframe + 1) % framecount; //frames don't exceed frame count
 }
 int Campfire::getwidth()
 {

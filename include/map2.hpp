@@ -36,8 +36,6 @@ private:
     std::vector<CollidableTemplate> collidableTemplates;
     std::vector<PlacedObject> activeCollidableObjects;
     std::vector<Campfire *> activeCampfires;
-    Player *player;
-    CharacterStats *stats;
     QPixmap Tent4;
     QPixmap topgatel;
     QPixmap topgater;
@@ -45,10 +43,11 @@ private:
     QPixmap bottomgater;
     QPixmap sidegate2;
     QPixmap sidegate3;
+    Player *player;
     int currentEnemyCount;
 
 public:
-    Map();
+    Map(Player *player1);
 
     void DrawDebugGridCoordinates();
     void LoadMapFromCSV(const QString &filePath);
@@ -61,10 +60,7 @@ public:
     void NonCollidablePlaceEntity(float, float, const QPixmap &, qreal);
     void PlaceCollidable(float startRow, float startCol, int templateIndex);
     void AddCampfire(float startRow, float startCol);
-    void AddEnemysRandomly(int count, int spacing);
-    void AddPlayerandStats();
-    Player *getPlayer();
-    CharacterStats *getStats();
+    void AddEnemysRandomly(int count);
     bool isTileCollidable(int row, int col) const;
     const std::vector<PlacedObject> &getCollidableObjects() const { return activeCollidableObjects; }
     int getCurrentEnimies();
