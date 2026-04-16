@@ -5,6 +5,7 @@
 #include "map2.hpp"
 #include "pausewindow.hpp"
 #include "levelcleared.hpp"
+#include "levelintro.hpp"
 
 GameView::GameView(Map *scene, House_Interior *interior, Player *player)
 
@@ -58,6 +59,20 @@ void GameView::keyPressEvent(QKeyEvent *event)
 
         // Create the popup
         pausewindow window(this);
+
+        // This stops the game (blocks) until the user clicks a button
+        window.exec();
+        this->setGraphicsEffect(nullptr);
+    }
+    else if (event->key() == Qt::Key_B)
+    {
+        QGraphicsColorizeEffect *dim = new QGraphicsColorizeEffect();
+        dim->setColor(Qt::black);
+        dim->setStrength(0.7); // 70% dark
+        this->setGraphicsEffect(dim);
+
+        // Create the popup
+        LevelIntro window(this);
 
         // This stops the game (blocks) until the user clicks a button
         window.exec();

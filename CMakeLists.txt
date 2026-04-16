@@ -30,6 +30,7 @@ qt_add_executable(QtTest
     src/house_interior-2.cpp
     src/levelcleared.cpp
     src/Heart.cpp
+    src/levelintro.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
