@@ -12,7 +12,9 @@
 using namespace std;
 
 BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range, std::string damagePath)
-{
+{//here is the constructor for each enemy
+
+
     health = hp;
     maxHealth = hp;
     attack = atk;
@@ -22,17 +24,19 @@ BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range, std::stri
     Dir.y = 0;
     attackRange = range;
     damageSound = damagePath;
-
+    // made timer for the animations inorder to run the update function each 100ms
     aiTimer = new QTimer(this);
     connect(aiTimer, &QTimer::timeout, this, &BaseEnemy::update);
     aiTimer->start(100); //
 }
+//here i am just setting player to be able to connect both for attacking
 void BaseEnemy::setPlayer(Player *p)
 {
     player = p;
 }
 void BaseEnemy::detectandmove(Player *player)
-{
+{ // finding the difference in distance between player and
+    //enemy so if less than attack sets movement direction
     float diffX = player->x() - this->x();
     float diffY = player->y() - this->y();
 
@@ -68,19 +72,19 @@ bool BaseEnemy::isdead()
 }
 
 void BaseEnemy::TakeDamage(int amount)
-{
+{   // if enemy is already dead or in hurt process dont take damage and return
     if (currentState == EnemyState::Dead || currentState == EnemyState::Hurt)
         return;
-
+//otherwise
     health -= amount;
 
     if (health > 0)
     {
         currentState = EnemyState::Hurt;
         currentFrame = 0;
-        waitCounter = hurtData.frameCount; // Changed to match animation length
+        waitCounter = hurtData.frameCount;  //  match animation length so ensuring it doesnt move until hurt finishes
         AudioManager::instance().playSound(damageSound);
-        aiTimer->setInterval(70); // making the attack animation a bit faster
+        aiTimer->setInterval(70); // making the attack animation faster
     }
     else
     {
@@ -91,7 +95,7 @@ void BaseEnemy::TakeDamage(int amount)
 }
 
 void BaseEnemy::updateAnimation()
-{
+{ //here just cropping and frames correctly from spritesheets depending on enemystate
     AnimData *currentData = nullptr;
     QPixmap *currentSheet = nullptr;
 
@@ -128,7 +132,7 @@ void BaseEnemy::updateAnimation()
 
     this->setPixmap(currentSheet->copy(xCrop, yCrop, frameW, frameH));
 
-    // Logic: Only loop if NOT dead. If dead, stay on the last frame.
+    //  Only loop if NOT dead. If dead, stay on the last frame.
     if (currentState == EnemyState::Dead)
     {
         if (currentFrame < currentData->frameCount - 1)
@@ -137,13 +141,13 @@ void BaseEnemy::updateAnimation()
         }
     }
     else
-    {
+    {// Normal states loop their animations
         currentFrame = (currentFrame + 1) % currentData->frameCount;
     }
 }
 
 void BaseEnemy::moveEnemy()
-{
+{ //move enemy logic and here we just make sure when moves diagonally it is not faster
     float currentSpeed = speed;
 
     if (Dir.x != 0 && Dir.y != 0)
@@ -188,7 +192,7 @@ void BaseEnemy::update()
     {
         updateAnimation();
         waitCounter--;
-
+      // once finish hurt we go back to idle state
         if (waitCounter <= 0)
         {
             currentState = EnemyState::Idle;
@@ -216,7 +220,7 @@ void BaseEnemy::update()
         }
     }
 
-    // changed it a bit so it doesn't move while attacking and so attack and hurt animations
+    // enemy doesn't move while attacking and so attack and hurt animations
     // cycle faster than walking and idle
     if (currentState == EnemyState::Attacking)
     {
