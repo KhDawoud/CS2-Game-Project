@@ -64,15 +64,6 @@ DeathWindow::DeathWindow(QWidget *parent)
 void DeathWindow::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-
-    // Load your PNG
     QPixmap background(":resources/ui-elements/window.png");
-
-    // Draw it to fill the entire 500x300 area
-    if (!background.isNull()) {
-        painter.drawPixmap(0, 0, width(), height(), background);
-    } else {
-        // Optional: Draw a solid color if the image fails to load
-        painter.fillRect(rect(), QColor(40, 40, 40, 200));
-    }
+    painter.drawPixmap(0, 0, width(), height(), background);
 }
