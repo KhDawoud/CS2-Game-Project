@@ -12,8 +12,7 @@
 using namespace std;
 
 BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range, std::string damagePath)
-{//here is the constructor for each enemy
-
+{ // here is the constructor for each enemy
 
     health = hp;
     maxHealth = hp;
@@ -29,14 +28,14 @@ BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range, std::stri
     connect(aiTimer, &QTimer::timeout, this, &BaseEnemy::update);
     aiTimer->start(100); //
 }
-//here i am just setting player to be able to connect both for attacking
+// here i am just setting player to be able to connect both for attacking
 void BaseEnemy::setPlayer(Player *p)
 {
     player = p;
 }
 void BaseEnemy::detectandmove(Player *player)
 { // finding the difference in distance between player and
-    //enemy so if less than attack sets movement direction
+    // enemy so if less than attack sets movement direction
     float diffX = player->x() - this->x();
     float diffY = player->y() - this->y();
 
@@ -72,17 +71,17 @@ bool BaseEnemy::isdead()
 }
 
 void BaseEnemy::TakeDamage(int amount)
-{   // if enemy is already dead or in hurt process dont take damage and return
+{ // if enemy is already dead or in hurt process dont take damage and return
     if (currentState == EnemyState::Dead || currentState == EnemyState::Hurt)
         return;
-//otherwise
+    // otherwise
     health -= amount;
 
     if (health > 0)
     {
         currentState = EnemyState::Hurt;
         currentFrame = 0;
-        waitCounter = hurtData.frameCount;  //  match animation length so ensuring it doesnt move until hurt finishes
+        waitCounter = hurtData.frameCount; //  match animation length so ensuring it doesnt move until hurt finishes
         AudioManager::instance().playSound(damageSound);
         aiTimer->setInterval(70); // making the attack animation faster
     }
@@ -95,7 +94,7 @@ void BaseEnemy::TakeDamage(int amount)
 }
 
 void BaseEnemy::updateAnimation()
-{ //here just cropping and frames correctly from spritesheets depending on enemystate
+{ // here just cropping and frames correctly from spritesheets depending on enemystate
     AnimData *currentData = nullptr;
     QPixmap *currentSheet = nullptr;
 
@@ -141,13 +140,13 @@ void BaseEnemy::updateAnimation()
         }
     }
     else
-    {// Normal states loop their animations
+    { // Normal states loop their animations
         currentFrame = (currentFrame + 1) % currentData->frameCount;
     }
 }
 
 void BaseEnemy::moveEnemy()
-{ //move enemy logic and here we just make sure when moves diagonally it is not faster
+{ // move enemy logic and here we just make sure when moves diagonally it is not faster
     float currentSpeed = speed;
 
     if (Dir.x != 0 && Dir.y != 0)
@@ -176,7 +175,7 @@ void BaseEnemy::update()
             this->setEnabled(false);
 
             // 30% chance for a heart to be dropped
-            if (QRandomGenerator::global()->bounded(100) < 30)
+            if (QRandomGenerator::global()->bounded(100) < 100)
             {
                 float centerX = this->x() + (this->boundingRect().width() / 2.0f);
                 float centerY = this->y() + (this->boundingRect().height() / 2.0f);
@@ -192,7 +191,7 @@ void BaseEnemy::update()
     {
         updateAnimation();
         waitCounter--;
-      // once finish hurt we go back to idle state
+        // once finish hurt we go back to idle state
         if (waitCounter <= 0)
         {
             currentState = EnemyState::Idle;

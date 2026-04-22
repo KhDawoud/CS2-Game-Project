@@ -18,7 +18,7 @@ Map::Map(Player *player1)
     PlaceMapStandardTiles();
     // add grass and stones (non-collidable)
     DrawFieldDecorations();
-    //assigns player so that it can be used with enimies
+    // assigns player so that it can be used with enimies
     player = player1;
     // place 40 collidable objects randomly with 1 block of spacing
     DistributeRandomCollidables(40, 8, 13, 1);
@@ -27,7 +27,7 @@ Map::Map(Player *player1)
 
 void Map::ImageLoader()
 {
-    //loads all the needed images
+    // loads all the needed images
     baseTiles[0].load(":resources/map-assets/grass.png");
 
     // Paths (Walkable)
@@ -186,7 +186,7 @@ void Map::LoadMapFromCSV(const QString &filePath)
 void Map::DrawMapAndGenerateBaseCollisions()
 {
     collision_map.assign(MAP_ROWS, std::vector<int>(MAP_COLS, 0));
-    //adds grass and paths
+    // adds grass and paths
     for (int i = 0; i < MAP_ROWS; i++)
     {
         for (int j = 0; j < MAP_COLS; j++)
@@ -217,7 +217,7 @@ void Map::DrawFieldDecorations()
         {
             if (mapData[i][j] != 0 && mapData[i][j] != 99)
                 continue; // only goes on plain grass
-            //generating a randum number that acts as the spawn percentage
+            // generating a randum number that acts as the spawn percentage
             if (QRandomGenerator::global()->bounded(100) < 30)
             {
                 int randomIndex = QRandomGenerator::global()->bounded(
@@ -575,7 +575,7 @@ void Map::DrawDebugGridCoordinates()
         }
     }
 }
-//adds an entity that doesn't have any collisions
+// adds an entity that doesn't have any collisions
 void Map::NonCollidablePlaceEntity(float startRow,
                                    float startCol,
                                    const QPixmap &image,
@@ -600,7 +600,7 @@ void Map::NonCollidablePlaceEntity(float startRow,
         }
     }
 }
-//adds enimies at positions that dont have a collideable
+// adds enimies at positions that dont have a collideable
 void Map::AddEnemysRandomly(int count)
 {
     int placed = 0;
@@ -675,7 +675,7 @@ void Map::AddEnemysRandomly(int count)
     }
     currentEnemyCount = placed;
 }
-//slot thats is called when enimies die and it emits a signal to the progress bar
+// slot thats is called when enimies die and it emits a signal to the progress bar
 void Map::updateEnemyCount()
 {
     currentEnemyCount--;
@@ -691,4 +691,3 @@ int Map::getCurrentEnimies()
 {
     return currentEnemyCount;
 }
-

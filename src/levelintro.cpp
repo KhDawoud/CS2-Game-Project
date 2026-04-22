@@ -23,7 +23,7 @@ LevelIntro::LevelIntro(QWidget *parent)
         QFont buttonFont(pixel, 14);
 
         QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setSpacing(20);                     // Space between buttons
+        layout->setSpacing(20); // Space between buttons
 
         QLabel *label1 = new QLabel("WELCOME TO DEBUG AND DRAGONS", this);
         label1->setFont(largeFont);

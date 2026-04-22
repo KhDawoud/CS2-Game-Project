@@ -120,6 +120,7 @@ qt_add_resources(QtTest "images"
         "resources/enemy/dead/Slime3_Death_with_shadow.png"
         "resources/enemy/hurt/Slime3_Hurt_with_shadow.png"
         "resources/heart/heal_heart2.png"
+        "resources/heart/heart_shadow.png"
 
         "resources/ui-elements/character_panel.png"
         "resources/map-assets/Tree_Emerald_2.png"

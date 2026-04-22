@@ -24,6 +24,9 @@ private:
     QTimer *lifespanTimer;
 
     QPixmap spriteSheet;
+    QPixmap shadowSpriteSheet;
+    QGraphicsPixmapItem *shadow;
+
     float startY;
     float bobTime;
 
