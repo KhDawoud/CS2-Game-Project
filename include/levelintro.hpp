@@ -1,14 +1,20 @@
 #ifndef LEVELINTRO_H
 #define LEVELINTRO_H
-#include <QDialog>
+
+#include <QWidget>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
-#include <QApplication>
-class LevelIntro : public QDialog
+
+class LevelIntro : public QWidget
 {
+    Q_OBJECT
 public:
-    LevelIntro(QWidget *);
+    explicit LevelIntro(QWidget *parent = nullptr);
+
+signals:
+    void introFinished();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 };

@@ -17,7 +17,7 @@ Heart::Heart(float x, float y, Player *p, QGraphicsItem *parent)
     this->setPixmap(spriteSheet);
     this->setPos(x, y);
 
-    shadow->setPos(x - 2.5, y + 10);
+    shadow->setPos(x - 2.5, y + 8);
 
     this->setZValue(50);
     shadow->setZValue(49);
@@ -46,7 +46,7 @@ void Heart::updateTick()
     }
 
     bobTime += 0.05f;
-    float newY = startY + (std::sin(bobTime) * 5.0f);
+    float newY = startY + (std::sin(bobTime) * 4.0f);
 
     this->setPos(this->x(), newY);
 

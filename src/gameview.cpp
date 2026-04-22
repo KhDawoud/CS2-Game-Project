@@ -19,7 +19,7 @@ GameView::GameView(Map *scene, House_Interior *interior, Player *player)
     _player->setScale(1.2);
     centerOn(player);
 
-    //a progress bar that decreases as the number of enemies decreases
+    // a progress bar that decreases as the number of enemies decreases
     QProgressBar *progressBar = new QProgressBar(this);
     progressBar->setGeometry((scene->width() - 200) / 2, 20, 400, 25);
 
@@ -43,15 +43,15 @@ GameView::GameView(Map *scene, House_Interior *interior, Player *player)
     connect(_overworld, &::Map::levelCleared, [this]()
             {
         LevelCleared clearedwindow(this);
-        clearedwindow.exec();
-    });
+        clearedwindow.exec(); });
 
-    //creates the intro pop up when the game starts
-    QTimer::singleShot(0, this, [this]() {
-        LevelIntro introwindow(this);
-        introwindow.exec();
-        this->setGraphicsEffect(nullptr);;
-    });
+    // creates the intro pop up when the game starts
+    QTimer::singleShot(0, this, [this]()
+                       {
+                           LevelIntro *intro = new LevelIntro(this);
+                           intro->raise();
+                           intro->show();
+                       });
 
     emit isoverworld(false);
     showFullScreen();

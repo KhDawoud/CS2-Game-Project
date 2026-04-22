@@ -175,7 +175,7 @@ void BaseEnemy::update()
             this->setEnabled(false);
 
             // 30% chance for a heart to be dropped
-            if (QRandomGenerator::global()->bounded(100) < 100)
+            if (QRandomGenerator::global()->bounded(100) < 30)
             {
                 float centerX = this->x() + (this->boundingRect().width() / 2.0f);
                 float centerY = this->y() + (this->boundingRect().height() / 2.0f);
