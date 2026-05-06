@@ -9,13 +9,14 @@
 #include "house_interior-2.hpp"
 #include "map2.hpp"
 #include "characterstats.hpp"
+#include "characters.hpp"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     AudioManager::instance();
 
-    Player* player = new Player();
+    Characters* player = new Characters(1);
 
     CharacterStats* stats = new CharacterStats();
     stats->setPlayer(player);

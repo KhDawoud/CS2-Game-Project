@@ -28,7 +28,7 @@ class Player : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-    Player();
+    Player(int);
     float getHealth() { return health; };
     float getStamina() { return stamina; };
     float getMana() { return mana; };
@@ -36,6 +36,7 @@ public:
     void takeDamage(float damage);
     void Heal(float amount);
     QRectF getPlayerHitbox(QPointF pos) const;
+    int getcharacternum();
 
 public slots:
     void updateAnimation();
@@ -45,6 +46,44 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
     void keyReleaseEvent(QKeyEvent *event) override;
+
+    float health;
+    float stamina;
+    float mana;
+
+    QPixmap walkSheet;
+    QPixmap idleSheet;
+    QPixmap attackSheet;
+    QPixmap damagedSheet;
+    QPixmap deadSheet;
+
+    int walkFrameWidth;
+    int walkFrameHeight;
+    int walkFrameWidthCount;
+
+    int idleFrameWidth;
+    int idleFrameHeight;
+    int idleFrameWidthCount;
+    int idleFrameUpCount;
+
+    int attackFrameWidth;
+    int attackFrameHeight;
+    int attackFrameWidthCount;
+
+    int damagedFrameWidth;
+    int damagedFrameHeight;
+    int damagedFrameWidthCount;
+
+    int deadFrameWidth;
+    int deadFrameHeight;
+    int deadFrameWidthCount;
+
+    int maxFrames;
+    int characternum;
+    int currentFrame;
+    int animationfactor;
+    int rowMap[4];
+    int damage;
 
 signals:
     void positionChanged(QGraphicsItem *playerPtr); // The announcement
@@ -56,39 +95,14 @@ private:
     Map *gameMap = nullptr;
     float staminaRegenRate;
     QTimer *staminaRegenTimer;
-    float health;
-    float stamina;
-    float mana;
 
     QTimer *animTimer;
     QTimer *idleTimer;
 
     PlayerState currentState;
     Direction currentDirection;
-    int currentFrame;
 
-    QPixmap walkSheet;
-    QPixmap idleSheet;
-    QPixmap attackSheet;
-    QPixmap damagedSheet;
-    QPixmap deadSheet;
-
-    int walkFrameWidth;
-    int walkFrameHeight;
-
-    int idleFrameWidth;
-    int idleFrameHeight;
-
-    int attackFrameWidth;
-    int attackFrameHeight;
-
-    int damagedFrameWidth;
-    int damagedFrameHeight;
-
-    int deadFrameWidth;
-    int deadFrameHeight;
-
-    int maxFrames;
+    void paint();
 
     QList<Qt::Key> activeKeys;
 

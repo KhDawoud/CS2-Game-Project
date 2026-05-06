@@ -6,11 +6,8 @@
 #include <cmath>
 #include "Enemy.hpp"
 
-Player::Player()
+Player::Player(int charnum): characternum(charnum)
 {
-    health = 100;
-    stamina = 100;
-    mana = 100;
 
     staminaRegenRate = 5;
     staminaRegenTimer = new QTimer(this);
@@ -22,26 +19,6 @@ Player::Player()
     currentDirection = Direction::Right;
     currentFrame = 0;
 
-    walkSheet.load(":resources/player/running/swordsman_1_run.png");
-    idleSheet.load(":resources/player/idling/swordsman_1_idle.png");
-    attackSheet.load(":resources/player/attacking/swordsman_1_attack.png");
-    damagedSheet.load(":resources/player/damaged/swordsman_1_damaged.png");
-    deadSheet.load(":resources/player/dead/swordsman_1_dead.png");
-
-    walkFrameWidth = walkSheet.width() / 8;
-    walkFrameHeight = walkSheet.height() / 4;
-
-    idleFrameWidth = idleSheet.width() / 12;
-    idleFrameHeight = idleSheet.height() / 4;
-
-    attackFrameWidth = attackSheet.width() / 8;
-    attackFrameHeight = attackSheet.height() / 4;
-
-    damagedFrameWidth = damagedSheet.width() / 5;
-    damagedFrameHeight = damagedSheet.height() / 4;
-
-    deadFrameWidth = deadSheet.width() / 7;
-    deadFrameHeight = deadSheet.height() / 4;
 
     animTimer = new QTimer(this);
     connect(animTimer, &QTimer::timeout, this, &Player::updateAnimation);
@@ -58,6 +35,11 @@ Player::Player()
     setFlag(QGraphicsItem::ItemIsFocusable);
     setFocus();
     setZValue(2);
+
+    rowMap[(int)Direction::Up]    = 3;
+    rowMap[(int)Direction::Down]  = 0;
+    rowMap[(int)Direction::Left]  = 1;
+    rowMap[(int)Direction::Right] = 2;
 }
 
 void Player::setAnimationState(PlayerState newState)
@@ -74,11 +56,11 @@ void Player::setAnimationState(PlayerState newState)
     }
     else if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged)
     {
-        animTimer->start(70);
+        animTimer->start(70*animationfactor);
     }
     else
     {
-        animTimer->start(100);
+        animTimer->start(100*animationfactor);
     }
 
     updateAnimation();
@@ -92,14 +74,14 @@ void Player::updateAnimation()
 
     if (currentState == PlayerState::Idle)
     {
-        maxFrames = (currentDirection == Direction::Up) ? 4 : 12;
+        maxFrames = (currentDirection == Direction::Up) ? idleFrameUpCount : idleFrameWidthCount;
         currentFrameWidth = idleFrameWidth;
         currentFrameHeight = idleFrameHeight;
         sheetToDraw = &idleSheet;
     }
     else if (currentState == PlayerState::Attacking)
     {
-        maxFrames = 8;
+        maxFrames = attackFrameWidthCount;
         currentFrameWidth = attackFrameWidth;
         currentFrameHeight = attackFrameHeight;
         sheetToDraw = &attackSheet;
@@ -110,7 +92,7 @@ void Player::updateAnimation()
     }
     else if (currentState == PlayerState::Damaged)
     {
-        maxFrames = 5;
+        maxFrames = damagedFrameWidthCount;
         currentFrameWidth = damagedFrameWidth;
         currentFrameHeight = damagedFrameHeight;
         sheetToDraw = &damagedSheet;
@@ -121,7 +103,7 @@ void Player::updateAnimation()
     }
     else if (currentState == PlayerState::Dead)
     {
-        maxFrames = 7;
+        maxFrames = deadFrameWidthCount;
         currentFrameWidth = deadFrameWidth;
         currentFrameHeight = deadFrameHeight;
         sheetToDraw = &deadSheet;
@@ -132,7 +114,7 @@ void Player::updateAnimation()
     }
     else
     {
-        maxFrames = 8;
+        maxFrames = walkFrameWidthCount;
         currentFrameWidth = walkFrameWidth;
         currentFrameHeight = walkFrameHeight;
         sheetToDraw = &walkSheet;
@@ -143,7 +125,7 @@ void Player::updateAnimation()
         }
     }
 
-    int row = static_cast<int>(currentDirection);
+    int row = static_cast<int>(rowMap[(int)currentDirection]);
     setPixmap(sheetToDraw->copy(currentFrame * currentFrameWidth,
                                 row * currentFrameHeight,
                                 currentFrameWidth,
@@ -235,6 +217,19 @@ void Player::movePlayer()
     QRectF actualHitbox = getPlayerHitbox(pos());
     setZValue(actualHitbox.bottom());
 
+    if (!debugHitboxItem && scene())
+    {
+        debugHitboxItem = new QGraphicsRectItem();
+        debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
+        debugHitboxItem->setPen(QPen(Qt::blue));
+        debugHitboxItem->setZValue(10000);
+        scene()->addItem(debugHitboxItem);
+    }
+    if (debugHitboxItem)
+    {
+        debugHitboxItem->setRect(actualHitbox);
+    }
+
     emit positionChanged(this);
 }
 
@@ -305,11 +300,13 @@ void Player::keyReleaseEvent(QKeyEvent *event)
 
 QRectF Player::getPlayerHitbox(QPointF pos) const
 {
-    float width = walkFrameWidth * scale();
-    float hitboxWidth = 12.0f;
-    float hitboxHeight = 13.0f;
-    float offsetX = (width - hitboxWidth) / 2.0f;
-    float offsetY = 42.0f;
+    float hitboxWidth, hitboxHeight, offsetX, offsetY;
+        hitboxWidth = 15.0f;
+        hitboxHeight = 15.0f;
+        offsetX = 30.0f;
+        offsetY = 40.0f;
+
+
     return QRectF(pos.x() + offsetX, pos.y() + offsetY, hitboxWidth, hitboxHeight);
 }
 
@@ -373,7 +370,7 @@ void Player::performAttack()
     {
         BaseEnemy *enemy = dynamic_cast<BaseEnemy *>(item);
         if (enemy && !enemy->isdead())
-            enemy->TakeDamage(10);
+            enemy->TakeDamage(damage);
     }
 }
 
@@ -384,3 +381,11 @@ void Player::Heal(float amount)
     AudioManager::instance().playSound("Heal");
     emit statsChanged();
 }
+
+int Player::getcharacternum(){
+    return characternum;
+}
+
+
+
+
