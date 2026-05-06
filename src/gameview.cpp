@@ -6,14 +6,15 @@
 #include "pausewindow.hpp"
 #include "levelcleared.hpp"
 #include "levelintro.hpp"
+#include "Enemy.hpp"
 
-GameView::GameView(Map *scene, House_Interior *interior, Player *player)
+GameView::GameView(Map *scene, House_Interior *interior, Characters *player)
 
     : QGraphicsView(interior), _overworld(scene), _interior(interior), _player(player)
 
 {
     setAlignment(Qt::AlignCenter);
-    scale(3.0, 3.0);
+    scale(4.5, 4.5);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     _player->setScale(1.2);
@@ -51,6 +52,9 @@ GameView::GameView(Map *scene, House_Interior *interior, Player *player)
                            LevelIntro *intro = new LevelIntro(this);
                            intro->raise();
                            intro->show();
+                           connect(intro, &LevelIntro::introFinished, this, [this]() {
+                               this->centerOn(_player);
+                           });
                        });
 
     emit isoverworld(false);
@@ -76,25 +80,19 @@ void GameView::keyPressEvent(QKeyEvent *event)
     // Switch Map Option
     else if (event->key() == Qt::Key_E)
     {
-        // 1. Get current tile position (Flipped logic)
 
         int currentRow = _player->y() / 32;
         int currentCol = _player->x() / 32;
 
-        // 2. Check if player is standing at the door in overworld
-
         if ((this->scene() == _overworld) && (currentRow >= 13 && currentRow <= 14) && (currentCol >= 8 && currentCol <= 8.5))
         {
 
-            // 3. Remove player from Overworld and move to Interior
             _overworld->removeItem(_player);
             this->setScene(_interior);
             emit isoverworld(false);
             _interior->addItem(_player);
             _player->setScale(1.2f);
             _player->setFocus();
-
-            // 4. Set player spawn point inside the house
             _player->setPos(10.83 * 32, 7.25 * 32);
 
             this->centerOn(_player);
@@ -113,13 +111,28 @@ void GameView::keyPressEvent(QKeyEvent *event)
             _player->setScale(1.2f);
             _player->setFocus();
 
-            // 4. Set player spawn point inside the house
             _player->setPos(8.3 * 32, 14.5 * 32);
 
             this->centerOn(_player);
             this->resetTransform();
             this->scale(3.0, 3.0);
         }
+    }else if (event->key() == Qt::Key_1)
+    {
+        if(_player->getcharacternum() == 1) return;
+        _player->swtichto(1);
+        _player->setScale(1.2f);
+
+    }else if (event->key() == Qt::Key_2)
+    {
+        if(_player->getcharacternum() == 2) return;
+        _player->swtichto(2);
+        _player->setScale(1.2f);
+    }else if (event->key() == Qt::Key_3)
+    {
+        if(_player->getcharacternum() == 3) return;
+        _player->swtichto(3);
+        _player->setScale(1.2f);
     }
     else
     {
@@ -127,3 +140,5 @@ void GameView::keyPressEvent(QKeyEvent *event)
         QGraphicsView::keyPressEvent(event);
     }
 }
+
+

@@ -161,6 +161,12 @@ void BaseEnemy::moveEnemy()
 }
 void BaseEnemy::update()
 {
+    if (!scene()) return;
+
+    if (scene()->views().isEmpty()) {
+        return;
+    }
+
     if (!player)
         return;
 

@@ -24,7 +24,7 @@ LevelCleared::LevelCleared(QWidget *parent)
         QFont buttonFont(pixel, 14);
 
         QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setContentsMargins(100, 100, 100, 100); // Add padding around edges
+        layout->setContentsMargins(50, 100, 50, 100); // Add padding around edges
         layout->setSpacing(20);                         // Space between buttons
 
         // 3. Large Label

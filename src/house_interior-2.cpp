@@ -9,14 +9,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Constructor
 // ─────────────────────────────────────────────────────────────────────────────
-House_Interior::House_Interior(Player *player1)
+House_Interior::House_Interior(Player *player1): player(player1)
 {
     LoadMapFromCSV(":resources/house_interior/CSV/house_interior.csv");
     ImageLoader();   // fills collidableTemplates + nonCollidableDecoPool
     DrawMap();       // draws CSV base tiles
-    player = player1;
     addItem(player);
-    player->setPos(16* 11, 10 * 4);
+    player->setPos(16*11, 10*4);
     // ── NON-COLLIDABLE: Carpets & entrance mat ────────────────────────────────
     // These are purely visual – they use NonCollidablePlaceEntity so they never
     // block movement and are not added to activeCollidableObjects.
@@ -355,13 +354,13 @@ void House_Interior::PlaceCollidable(float startRow, float startCol, int templat
     if (!tmpl.localHitbox.isEmpty())
         activeCollidableObjects.push_back({worldHitbox});
 
-    // ── Debug: uncomment to see hitboxes drawn in red ────────────────────────
-    // QGraphicsRectItem *debugBox = new QGraphicsRectItem(worldHitbox);
-    // debugBox->setBrush(QBrush(QColor(255, 0, 0, 100)));
-    // debugBox->setPen(QPen(Qt::red));
-    // debugBox->setZValue(10000);
-    // addItem(debugBox);
-}
+//    ── Debug: uncomment to see hitboxes drawn in red ────────────────────────
+//     QGraphicsRectItem *debugBox = new QGraphicsRectItem(worldHitbox);
+//     debugBox->setBrush(QBrush(QColor(255, 0, 0, 100)));
+//     debugBox->setPen(QPen(Qt::red));
+//     debugBox->setZValue(10000);
+//     addItem(debugBox);
+ }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // NonCollidablePlaceEntity  –  mirrors Map::NonCollidablePlaceEntity
