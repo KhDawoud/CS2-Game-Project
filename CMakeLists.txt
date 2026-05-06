@@ -31,6 +31,7 @@ qt_add_executable(QtTest
     src/levelcleared.cpp
     src/Heart.cpp
     src/levelintro.cpp
+    src/characters.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -43,6 +44,15 @@ qt_add_resources(QtTest "images"
         "resources/player/running/swordsman_1_run.png"
         "resources/player/damaged/swordsman_1_damaged.png"
         "resources/player/dead/swordsman_1_dead.png"
+        "resources/player/attacking/Wizard-attack-spritesheet.png"
+        "resources/player/idling/Wizard-idle-spritesheet.png"
+        "resources/player/running/Wizard-walk-spritesheet.png"
+        "resources/player/damaged/Wizard-hurt-spritesheet.png"
+        "resources/player/attacking/Vampires3_Attack_with_shadow.png"
+        "resources/player/idling/Vampires3_Idle_with_shadow.png"
+        "resources/player/running/Vampires3_Run_with_shadow.png"
+        "resources/player/damaged/Vampires3_Hurt_with_shadow.png"
+        "resources/player/dead/Vampires3_Death_with_shadow.png"
         "resources/map-assets/grass.png"
         "resources/map-assets/left.png"
         "resources/map-assets/right.png"
