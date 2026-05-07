@@ -23,6 +23,10 @@ enum class Direction
     Left = 1,
     Down = 0
 };
+struct Fireball {
+    QGraphicsPixmapItem* item;
+    QPointF direction;
+};
 
 class Player : public QObject, public QGraphicsPixmapItem
 {
@@ -94,7 +98,9 @@ private:
     QGraphicsRectItem *debugHitboxItem = nullptr;
     Map *gameMap = nullptr;
     float staminaRegenRate;
+    float manaRegenRate;
     QTimer *staminaRegenTimer;
+    QTimer *manaRegenTimer;
 
     QTimer *animTimer;
     QTimer *idleTimer;
@@ -113,9 +119,17 @@ private:
         emit statsChanged();
     };
 
+    void regenMana(float amount)
+    {
+        mana = std::min(100.0f, mana + amount);
+        emit statsChanged();
+    };
+
     bool checkCollision(const QRectF &hitbox, Map *map, House_Interior *interior) const;
 
     // bool checkCollision(const QRectF &hitbox, Map *map) const;
     void performAttack();
+    void shootFireball();
+    bool hasSpawnedFireball;
 };
 #endif // PLAYER_HPP

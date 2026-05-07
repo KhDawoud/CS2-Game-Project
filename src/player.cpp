@@ -5,15 +5,24 @@
 #include "house_interior-2.hpp"
 #include <cmath>
 #include "Enemy.hpp"
+#include "projectile.hpp"
 
 Player::Player(int charnum): characternum(charnum)
 {
-
+    health = 100;
+    stamina = 100;
+    mana = 100;
     staminaRegenRate = 5;
+    manaRegenRate =2;
     staminaRegenTimer = new QTimer(this);
     connect(staminaRegenTimer, &QTimer::timeout, [this]()
             { regenStamina(staminaRegenRate); });
     staminaRegenTimer->start(400);
+
+    manaRegenTimer = new QTimer(this);
+    connect(manaRegenTimer, &QTimer::timeout, [this]()
+            { regenMana(manaRegenRate); });
+    manaRegenTimer->start(400);
 
     currentState = PlayerState::Walking;
     currentDirection = Direction::Right;
@@ -85,9 +94,14 @@ void Player::updateAnimation()
         currentFrameWidth = attackFrameWidth;
         currentFrameHeight = attackFrameHeight;
         sheetToDraw = &attackSheet;
-        if (currentFrame == 0)
+        if (currentFrame == 0 && characternum !=2)
         {
             AudioManager::instance().playSound("SwordSwing");
+        }
+        if(currentFrame == 3 && characternum ==2 ){
+            performAttack();
+            AudioManager::instance().playSound("Fireball");
+            hasSpawnedFireball = true;
         }
     }
     else if (currentState == PlayerState::Damaged)
@@ -153,6 +167,7 @@ void Player::updateAnimation()
         {
             idleTimer->start(1000);
             setAnimationState(PlayerState::Idle);
+            hasSpawnedFireball = false;
         }
     }
 }
@@ -272,13 +287,22 @@ void Player::keyPressEvent(QKeyEvent *event)
         if (currentState != PlayerState::Attacking)
         {
             idleTimer->stop();
-            if (stamina >= 20)
-            {
-                setAnimationState(PlayerState::Attacking);
-                stamina -= 20;
-                performAttack();
-                emit statsChanged();
-                return;
+            if(stamina >=20){
+                if(mana >= 20 && characternum==2){
+                    setAnimationState(PlayerState::Attacking);
+                    stamina -= 20;
+                    mana -=20;
+                    emit statsChanged();
+                    return;
+                }
+                else if(characternum!=2)
+                {
+                    setAnimationState(PlayerState::Attacking);
+                    stamina -= 20;
+                    performAttack();
+                    emit statsChanged();
+                    return;
+                }
             }
         }
         return;
@@ -352,18 +376,19 @@ void Player::performAttack()
 {
     if (!scene())
         return;
+    if(characternum !=2){
 
-    QRectF pBox = getPlayerHitbox(pos());
-    QRectF attackRect;
+        QRectF pBox = getPlayerHitbox(pos());
+        QRectF attackRect;
 
-    if (currentDirection == Direction::Right)
-        attackRect = QRectF(pBox.right(), pBox.center().y() - 20, 20, 40);
-    else if (currentDirection == Direction::Left)
-        attackRect = QRectF(pBox.left() - 20, pBox.center().y() - 20, 20, 40);
-    else if (currentDirection == Direction::Up)
-        attackRect = QRectF(pBox.center().x() - 20, pBox.top() - 20, 40, 20);
-    else if (currentDirection == Direction::Down)
-        attackRect = QRectF(pBox.center().x() - 20, pBox.bottom(), 40, 20);
+        if (currentDirection == Direction::Right)
+            attackRect = QRectF(pBox.right(), pBox.center().y() - 20, 20, 40);
+        else if (currentDirection == Direction::Left)
+            attackRect = QRectF(pBox.left() - 20, pBox.center().y() - 20, 20, 40);
+        else if (currentDirection == Direction::Up)
+            attackRect = QRectF(pBox.center().x() - 20, pBox.top() - 20, 40, 20);
+        else if (currentDirection == Direction::Down)
+            attackRect = QRectF(pBox.center().x() - 20, pBox.bottom(), 40, 20);
 
     QList<QGraphicsItem *> hitItems = scene()->items(attackRect);
     for (QGraphicsItem *item : hitItems)
@@ -371,6 +396,9 @@ void Player::performAttack()
         BaseEnemy *enemy = dynamic_cast<BaseEnemy *>(item);
         if (enemy && !enemy->isdead())
             enemy->TakeDamage(damage);
+    }
+    }else{
+        shootFireball();
     }
 }
 
@@ -384,6 +412,33 @@ void Player::Heal(float amount)
 
 int Player::getcharacternum(){
     return characternum;
+}
+
+void Player::shootFireball() {
+    QPointF playerCenter = this->sceneBoundingRect().center();
+
+    QPointF shootDir(0, 0);
+    qreal forwardOffset = 20.0; // How far in front of the player to spawn
+
+    if (currentDirection == Direction::Right) {
+        shootDir = QPointF(1, 0);
+    }
+    else if (currentDirection == Direction::Left) {
+        shootDir = QPointF(-1, 0);
+    }
+    else if (currentDirection == Direction::Up) {
+        shootDir = QPointF(0, -1);
+    }
+    else if (currentDirection == Direction::Down) {
+        shootDir = QPointF(0, 1);
+    }
+
+    QPointF spawnPos = playerCenter + (shootDir * forwardOffset);
+
+    Map *map = dynamic_cast<Map *>(scene());
+    House_Interior *interior = dynamic_cast<House_Interior *>(scene());
+    Projectile *fireball = new Projectile(spawnPos, shootDir, map, interior);
+    this->scene()->addItem(fireball);
 }
 
 

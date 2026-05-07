@@ -10,9 +10,6 @@ Characters::Characters(int num): Player(num){
     }
 }
 void Characters::loadSwordsman(){
-    health = 100;
-    stamina = 100;
-    mana = 100;
     damage = 10;
     animationfactor=1;
 
@@ -46,9 +43,6 @@ void Characters::loadSwordsman(){
 }
 
 void Characters::loadWizard(){
-    health = 100;
-    stamina = 80;
-    mana = 120;
     damage = 20;
     animationfactor = 2;
 
@@ -81,9 +75,6 @@ void Characters::loadWizard(){
 
 }
 void Characters::loadVampire(){
-    health = 100;
-    stamina = 80;
-    mana = 120;
     damage = 30;
     animationfactor = 1;
 

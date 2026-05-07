@@ -32,6 +32,7 @@ qt_add_executable(QtTest
     src/Heart.cpp
     src/levelintro.cpp
     src/characters.cpp
+    src/projectile.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -200,6 +201,8 @@ qt_add_resources(QtTest "images"
         "resources/house_interior/Using/entrance.png"
         "resources/house_interior/CSV/house_interior.csv"
         "resources/ui-elements/window.png"
+        "resources/player/Fireball.png"
+        "resources/sound-effects/Fireball.wav"
 )
 
 target_link_libraries(QtTest
