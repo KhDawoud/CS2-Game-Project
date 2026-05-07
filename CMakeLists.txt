@@ -33,6 +33,7 @@ qt_add_executable(QtTest
     src/Heart.cpp
     src/levelintro.cpp
     src/characters.cpp
+    src/projectile.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -54,6 +55,10 @@ qt_add_resources(QtTest "images"
         "resources/player/running/Vampires3_Run_with_shadow.png"
         "resources/player/damaged/Vampires3_Hurt_with_shadow.png"
         "resources/player/dead/Vampires3_Death_with_shadow.png"
+        "resources/player/attacking/skeleton-attacksheet.png"
+        "resources/player/damaged/skeleton-hurtsheet.png"
+        "resources/player/idling/skeleton-idlesheet.png"
+        "resources/player/running/skeleton-walksheet.png"
         "resources/map-assets/grass.png"
         "resources/map-assets/left.png"
         "resources/map-assets/right.png"
@@ -202,6 +207,9 @@ qt_add_resources(QtTest "images"
         "resources/house_interior/Using/entrance.png"
         "resources/map-data/house.json"
         "resources/ui-elements/window.png"
+        "resources/player/Fireball.png"
+        "resources/player/Circle_explosion1-sheet.png"
+        "resources/sound-effects/Fireball.wav"
 )
 
 target_link_libraries(QtTest

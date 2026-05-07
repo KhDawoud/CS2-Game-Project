@@ -71,6 +71,11 @@ private:
         heal->setSource(QUrl("qrc:/resources/sound-effects/Heal.wav"));
         heal->setVolume(0.7f);
         soundTable["Heal"] = heal;
+
+        QSoundEffect *Fireball = new QSoundEffect(this);
+        Fireball->setSource(QUrl("qrc:/resources/sound-effects/Fireball.wav"));
+        Fireball->setVolume(0.7f);
+        soundTable["Fireball"] = Fireball;
     }
 
     std::unordered_map<std::string, QSoundEffect *> soundTable;

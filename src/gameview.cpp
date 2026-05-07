@@ -104,12 +104,24 @@ void GameView::keyPressEvent(QKeyEvent *event)
     }
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_3)
     {
-        int target = event->key() - Qt::Key_0;
-        if (_player->getcharacternum() != target)
-        {
-            _player->swtichto(target);
-            _player->setScale(1.2f);
-        }
+        if(_player->getcharacternum() == 1) return;
+        _player->swtichto(1);
+        _player->setScale(1.2f);
+
+    }else if (event->key() == Qt::Key_2)
+    {
+        if(_player->getcharacternum() == 2) return;
+        _player->swtichto(2);
+        _player->setScale(1.2f);
+    }else if (event->key() == Qt::Key_3)
+    {
+        if(_player->getcharacternum() == 3) return;
+        _player->swtichto(3);
+        _player->setScale(1.2f);
+    }else if (event->key() == Qt::Key_4){
+        if(_player->getcharacternum() == 4) return;
+        _player->swtichto(4);
+        _player->setScale(1.2f);
     }
     else
     {
