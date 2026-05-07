@@ -130,12 +130,6 @@ private:
         emit statsChanged();
     };
 
-    void regenMana(float amount)
-    {
-        mana = std::min(100.0f, mana + amount);
-        emit statsChanged();
-    };
-
     bool checkCollision(const QRectF &hitbox, MapLoader *map) const;
     void performAttack();
     void shootFireball();

@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     AudioManager::instance();
 
-    Characters *player = new Characters(1);
+    Characters *player = new Characters(2);
 
     CharacterStats *stats = new CharacterStats();
     stats->setPlayer(player);

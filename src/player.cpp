@@ -12,7 +12,7 @@ Player::Player(int charnum) : characternum(charnum)
     stamina = 100;
     mana = 100;
     staminaRegenRate = 5;
-    manaRegenRate =2;
+    manaRegenRate = 2;
     staminaRegenTimer = new QTimer(this);
     connect(staminaRegenTimer, &QTimer::timeout, [this]()
             { regenStamina(staminaRegenRate); });
@@ -51,11 +51,14 @@ Player::Player(int charnum) : characternum(charnum)
 
 void Player::setAnimationState(PlayerState newState)
 {
-    if (currentState == newState) {
-        if (currentState == PlayerState::Walking) {
+    if (currentState == newState)
+    {
+        if (currentState == PlayerState::Walking)
+        {
             int targetDelay = isSprinting ? (100 * animationfactor / 2) : (100 * animationfactor);
 
-            if (animTimer->interval() != targetDelay) {
+            if (animTimer->interval() != targetDelay)
+            {
                 animTimer->start(targetDelay);
             }
         }
@@ -75,8 +78,8 @@ void Player::setAnimationState(PlayerState newState)
     }
     else
     {
-        int animationDelay = isSprinting ? 50: 100;
-        animTimer->start(animationfactor*animationDelay);
+        int animationDelay = isSprinting ? 50 : 100;
+        animTimer->start(animationfactor * animationDelay);
     }
 
     updateAnimation();
@@ -101,11 +104,12 @@ void Player::updateAnimation()
         currentFrameWidth = attackFrameWidth;
         currentFrameHeight = attackFrameHeight;
         sheetToDraw = &attackSheet;
-        if (currentFrame == 0 && characternum !=2)
+        if (currentFrame == 0 && characternum != 2)
         {
             AudioManager::instance().playSound("SwordSwing");
         }
-        if(currentFrame == 3 && characternum ==2 ){
+        if (currentFrame == 3 && characternum == 2)
+        {
             performAttack();
             AudioManager::instance().playSound("Fireball");
             hasSpawnedFireball = true;
@@ -215,28 +219,35 @@ void Player::movePlayer()
         currentDirection = (dx > 0) ? Direction::Right : Direction::Left;
     else if (dy != 0)
         currentDirection = (dy > 0) ? Direction::Down : Direction::Up;
-    if (oldDirection != currentDirection) {
+    if (oldDirection != currentDirection)
+    {
         updateAnimation();
     }
 
     bool previouslySprinting = isSprinting;
-    if (isShiftPressed && stamina > 0 && (dx!=0 || dy!=0)) {
+    if (isShiftPressed && stamina > 0 && (dx != 0 || dy != 0))
+    {
         isSprinting = true;
         staminaRegenTimer->stop();
         stamina -= 0.5;
-        if (stamina < 0) stamina = 0;
+        if (stamina < 0)
+            stamina = 0;
 
         emit statsChanged();
-    } else {
+    }
+    else
+    {
         isSprinting = false;
     }
-    if (isSprinting != previouslySprinting && currentState == PlayerState::Walking) {
+    if (isSprinting != previouslySprinting && currentState == PlayerState::Walking)
+    {
         int animationDelay = isSprinting ? animationfactor / 2 : animationfactor;
         animTimer->start(100 * animationDelay);
     }
 
     float speed = (dx != 0 && dy != 0) ? 1.414f : 2.0f;
-    if (isSprinting) {
+    if (isSprinting)
+    {
         speed *= sprintMultiplier;
     }
 
@@ -305,7 +316,8 @@ void Player::keyPressEvent(QKeyEvent *event)
     if (event->isAutoRepeat() || currentState == PlayerState::Dead)
         return;
 
-    if (event->key() == Qt::Key_Shift) {
+    if (event->key() == Qt::Key_Shift)
+    {
         isShiftPressed = true;
     }
     Qt::Key key = static_cast<Qt::Key>(event->key());
@@ -324,15 +336,17 @@ void Player::keyPressEvent(QKeyEvent *event)
         if (currentState != PlayerState::Attacking)
         {
             idleTimer->stop();
-            if(stamina >=20){
-                if(mana >= 20 && characternum==2){
+            if (stamina >= 20)
+            {
+                if (mana >= 20 && characternum == 2)
+                {
                     setAnimationState(PlayerState::Attacking);
                     stamina -= 20;
-                    mana -=20;
+                    mana -= 20;
                     emit statsChanged();
                     return;
                 }
-                else if(characternum!=2)
+                else if (characternum != 2)
                 {
                     setAnimationState(PlayerState::Attacking);
                     stamina -= 20;
@@ -357,7 +371,8 @@ void Player::keyReleaseEvent(QKeyEvent *event)
     if (event->isAutoRepeat())
         return;
     activeKeys.removeAll(static_cast<Qt::Key>(event->key()));
-    if (event->key() == Qt::Key_Shift) {
+    if (event->key() == Qt::Key_Shift)
+    {
         isShiftPressed = false;
         isSprinting = false;
         staminaRegenTimer->start(400);
@@ -415,7 +430,8 @@ void Player::performAttack()
 {
     if (!scene())
         return;
-    if(characternum !=2){
+    if (characternum != 2)
+    {
 
         QRectF pBox = getPlayerHitbox(pos());
         QRectF attackRect;
@@ -429,14 +445,16 @@ void Player::performAttack()
         else if (currentDirection == Direction::Down)
             attackRect = QRectF(pBox.center().x() - 20, pBox.bottom(), 40, 20);
 
-    QList<QGraphicsItem *> hitItems = scene()->items(attackRect);
-    for (QGraphicsItem *item : hitItems)
-    {
-        BaseEnemy *enemy = dynamic_cast<BaseEnemy *>(item);
-        if (enemy && !enemy->isdead())
-            enemy->TakeDamage(damage);
+        QList<QGraphicsItem *> hitItems = scene()->items(attackRect);
+        for (QGraphicsItem *item : hitItems)
+        {
+            BaseEnemy *enemy = dynamic_cast<BaseEnemy *>(item);
+            if (enemy && !enemy->isdead())
+                enemy->TakeDamage(damage);
+        }
     }
-    }else{
+    else
+    {
         shootFireball();
     }
 }
@@ -454,33 +472,33 @@ int Player::getcharacternum()
     return characternum;
 }
 
-void Player::shootFireball() {
+void Player::shootFireball()
+{
     QPointF playerCenter = this->sceneBoundingRect().center();
 
     QPointF shootDir(0, 0);
     qreal forwardOffset = 20.0; // How far in front of the player to spawn
 
-    if (currentDirection == Direction::Right) {
+    if (currentDirection == Direction::Right)
+    {
         shootDir = QPointF(1, 0);
     }
-    else if (currentDirection == Direction::Left) {
+    else if (currentDirection == Direction::Left)
+    {
         shootDir = QPointF(-1, 0);
     }
-    else if (currentDirection == Direction::Up) {
+    else if (currentDirection == Direction::Up)
+    {
         shootDir = QPointF(0, -1);
     }
-    else if (currentDirection == Direction::Down) {
+    else if (currentDirection == Direction::Down)
+    {
         shootDir = QPointF(0, 1);
     }
 
     QPointF spawnPos = playerCenter + (shootDir * forwardOffset);
 
-    Map *map = dynamic_cast<Map *>(scene());
-    House_Interior *interior = dynamic_cast<House_Interior *>(scene());
-    Projectile *fireball = new Projectile(spawnPos, shootDir, map, interior);
+    MapLoader *currentMap = qobject_cast<MapLoader *>(scene());
+    Projectile *fireball = new Projectile(spawnPos, shootDir, currentMap);
     this->scene()->addItem(fireball);
 }
-
-
-
-

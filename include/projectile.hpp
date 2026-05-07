@@ -7,11 +7,13 @@
 #include <QGraphicsScene>
 #include "Enemy.hpp"
 
+class MapLoader;
 
-class Projectile : public QObject, public QGraphicsPixmapItem {
+class Projectile : public QObject, public QGraphicsPixmapItem
+{
     Q_OBJECT
 public:
-    Projectile(QPointF startPos, QPointF direction, Map* Map1, House_Interior* Map2);
+    Projectile(QPointF startPos, QPointF direction, MapLoader *map);
 
 private slots:
     void move();
@@ -24,8 +26,7 @@ private:
     int maxFrames = 5;
     QPointF startPoint;
     qreal maxRange = 100.0;
-    Map* gamemap;
-    House_Interior* housemap;
+    MapLoader *currentMap;
     bool isExploding = false;
     int explosionFrame = 0;
     int explosionCounter = 0;
@@ -33,7 +34,6 @@ private:
 
     void startExplosion();
     void updateAnimation();
-
 };
 
 #endif // PROJECTILE_HPP
