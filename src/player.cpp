@@ -1,12 +1,11 @@
 #include "player.hpp"
 #include <QKeyEvent>
 #include "AudioManager.hpp"
-#include "map2.hpp"
-#include "house_interior-2.hpp"
+#include "maploader.hpp"
 #include <cmath>
 #include "Enemy.hpp"
 
-Player::Player(int charnum): characternum(charnum)
+Player::Player(int charnum) : characternum(charnum)
 {
 
     staminaRegenRate = 5;
@@ -18,7 +17,6 @@ Player::Player(int charnum): characternum(charnum)
     currentState = PlayerState::Walking;
     currentDirection = Direction::Right;
     currentFrame = 0;
-
 
     animTimer = new QTimer(this);
     connect(animTimer, &QTimer::timeout, this, &Player::updateAnimation);
@@ -36,9 +34,9 @@ Player::Player(int charnum): characternum(charnum)
     setFocus();
     setZValue(2);
 
-    rowMap[(int)Direction::Up]    = 3;
-    rowMap[(int)Direction::Down]  = 0;
-    rowMap[(int)Direction::Left]  = 1;
+    rowMap[(int)Direction::Up] = 3;
+    rowMap[(int)Direction::Down] = 0;
+    rowMap[(int)Direction::Left] = 1;
     rowMap[(int)Direction::Right] = 2;
 }
 
@@ -56,11 +54,11 @@ void Player::setAnimationState(PlayerState newState)
     }
     else if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged)
     {
-        animTimer->start(70*animationfactor);
+        animTimer->start(70 * animationfactor);
     }
     else
     {
-        animTimer->start(100*animationfactor);
+        animTimer->start(100 * animationfactor);
     }
 
     updateAnimation();
@@ -195,40 +193,43 @@ void Player::movePlayer()
 
     float speed = (dx != 0 && dy != 0) ? 1.414f : 2.0f;
 
-    Map *map = dynamic_cast<Map *>(scene());
-    House_Interior *interior = dynamic_cast<House_Interior *>(scene());
+    MapLoader *currentMap = qobject_cast<MapLoader *>(scene());
 
     float newX = x() + (dx * speed);
     float newY = y() + (dy * speed);
 
-    if (dx != 0)
+    if (currentMap)
     {
-        QRectF predictedHitboxX = getPlayerHitbox(QPointF(newX, y()));
-        if (!checkCollision(predictedHitboxX, map, interior))
-            setX(newX);
-    }
-    if (dy != 0)
-    {
-        QRectF predictedHitboxY = getPlayerHitbox(QPointF(x(), newY));
-        if (!checkCollision(predictedHitboxY, map, interior))
-            setY(newY);
+        if (dx != 0)
+        {
+            QRectF predictedHitboxX = getPlayerHitbox(QPointF(newX, y()));
+            if (!checkCollision(predictedHitboxX, currentMap))
+                setX(newX);
+        }
+        if (dy != 0)
+        {
+            QRectF predictedHitboxY = getPlayerHitbox(QPointF(x(), newY));
+            if (!checkCollision(predictedHitboxY, currentMap))
+                setY(newY);
+        }
     }
 
     QRectF actualHitbox = getPlayerHitbox(pos());
     setZValue(actualHitbox.bottom());
 
-    if (!debugHitboxItem && scene())
-    {
-        debugHitboxItem = new QGraphicsRectItem();
-        debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
-        debugHitboxItem->setPen(QPen(Qt::blue));
-        debugHitboxItem->setZValue(10000);
-        scene()->addItem(debugHitboxItem);
-    }
-    if (debugHitboxItem)
-    {
-        debugHitboxItem->setRect(actualHitbox);
-    }
+    // uncomment to see player hitbox
+    // if (!debugHitboxItem && scene())
+    // {
+    //     debugHitboxItem = new QGraphicsRectItem();
+    //     debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
+    //     debugHitboxItem->setPen(QPen(Qt::blue));
+    //     debugHitboxItem->setZValue(10000);
+    //     scene()->addItem(debugHitboxItem);
+    // }
+    // if (debugHitboxItem)
+    // {
+    //     debugHitboxItem->setRect(actualHitbox);
+    // }
 
     emit positionChanged(this);
 }
@@ -301,48 +302,45 @@ void Player::keyReleaseEvent(QKeyEvent *event)
 QRectF Player::getPlayerHitbox(QPointF pos) const
 {
     float hitboxWidth, hitboxHeight, offsetX, offsetY;
-        hitboxWidth = 15.0f;
-        hitboxHeight = 15.0f;
-        offsetX = 30.0f;
-        offsetY = 40.0f;
-
+    hitboxWidth = 15.0f;
+    hitboxHeight = 15.0f;
+    offsetX = 30.0f;
+    offsetY = 40.0f;
 
     return QRectF(pos.x() + offsetX, pos.y() + offsetY, hitboxWidth, hitboxHeight);
 }
 
-bool Player::checkCollision(const QRectF &hitbox, Map *map, House_Interior *interior) const
+bool Player::checkCollision(const QRectF &hitbox, MapLoader *map) const
 {
     if (hitbox.left() < 0 || hitbox.top() < 0)
         return true;
 
-    float tileSize = 32.0f;
-
+    float tileSize = static_cast<float>(map->tileSize());
     int leftCol = static_cast<int>(std::floor(hitbox.left() / tileSize));
     int rightCol = static_cast<int>(std::floor(hitbox.right() / tileSize));
     int topRow = static_cast<int>(std::floor(hitbox.top() / tileSize));
     int bottomRow = static_cast<int>(std::floor(hitbox.bottom() / tileSize));
 
-    if (map)
+    // check collidable tiles you are currently on
+    for (int r = topRow; r <= bottomRow; ++r)
     {
-        for (int r = topRow; r <= bottomRow; ++r)
-            for (int c = leftCol; c <= rightCol; ++c)
-                if (map->isTileCollidable(r, c))
-                    return true;
-
-        for (const auto &obj : map->getCollidableObjects())
-            if (hitbox.intersects(obj.worldHitbox))
+        for (int c = leftCol; c <= rightCol; ++c)
+        {
+            if (map->isTileCollidable(r, c))
+            {
                 return true;
+            }
+        }
     }
-    else if (interior)
-    {
-        for (int r = topRow; r <= bottomRow; ++r)
-            for (int c = leftCol; c <= rightCol; ++c)
-                if (interior->isTileCollidable(r, c))
-                    return true;
 
-        for (const auto &obj : interior->getCollidableObjects())
-            if (hitbox.intersects(obj.worldHitbox))
-                return true;
+    // check active hitboxes
+    const auto &objects = map->getActiveCollidables();
+    for (const auto &obj : objects)
+    {
+        if (hitbox.intersects(obj.worldHitbox))
+        {
+            return true;
+        }
     }
 
     return false;
@@ -382,10 +380,7 @@ void Player::Heal(float amount)
     emit statsChanged();
 }
 
-int Player::getcharacternum(){
+int Player::getcharacternum()
+{
     return characternum;
 }
-
-
-
-

@@ -18,7 +18,7 @@ qt_add_executable(QtTest
     main.cpp
     ${HEADERS}
     src/player.cpp
-    src/map2.cpp
+    #src/map2.cpp
     src/maploader.cpp
     src/Enemy.cpp
     src/slime.cpp
@@ -28,7 +28,7 @@ qt_add_executable(QtTest
     src/deathwindow.cpp
     src/campfire.cpp
     #src/house_interior.cpp
-    src/house_interior-2.cpp
+    #src/house_interior-2.cpp
     src/levelcleared.cpp
     src/Heart.cpp
     src/levelintro.cpp
@@ -200,7 +200,7 @@ qt_add_resources(QtTest "images"
         "resources/house_interior/Using-Deco/round_table.png"
         "resources/house_interior/Using/side_of_wall_2.png"
         "resources/house_interior/Using/entrance.png"
-        "resources/house_interior/CSV/house_interior.csv"
+        "resources/map-data/house.json"
         "resources/ui-elements/window.png"
 )
 

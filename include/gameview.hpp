@@ -1,25 +1,33 @@
 #ifndef GAMEVIEW_HPP
 #define GAMEVIEW_HPP
+
 #include <QGraphicsView>
+#include <QProgressBar>
+#include "maploader.hpp"
 #include "characters.hpp"
-#include "map.hpp"
-#include "house_interior-2.hpp"
 
-
-class GameView: public QGraphicsView
+class GameView : public QGraphicsView
 {
     Q_OBJECT
+
 public:
-    GameView(Map*, House_Interior*, Characters*);
-    void keyPressEvent(QKeyEvent *event) override;
+    GameView(MapLoader *overworld, MapLoader *interior, Characters *player);
+
 signals:
-    void isoverworld(bool);
+    void isoverworld(bool toggle);
+
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
-    Map* _overworld;
-    House_Interior* _interior;
-    Characters* _player;
-};
+    void switchToInterior();
+    void switchToOverworld();
 
+    MapLoader *_overworld;
+    MapLoader *_interior;
+    Characters *_player;
+
+    QProgressBar *_progressBar; 
+};
 
 #endif // GAMEVIEW_HPP

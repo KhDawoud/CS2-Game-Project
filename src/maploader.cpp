@@ -15,13 +15,10 @@
 #include <QDebug>
 #include <cmath>
 
-// ── Initialize Static Members ─────────────────────────────────────────────────
-QHash<int, QPixmap> MapLoader::baseTileRegistry;
+// this hashmap stores all our assets for all maps and we load them only once
 QHash<QString, CollidableTemplate> MapLoader::templateRegistry;
-std::vector<QPixmap> MapLoader::decoPool;
 bool MapLoader::assetsLoaded = false;
 
-// ─────────────────────────────────────────────────────────────────────────────
 MapLoader::MapLoader(const QString &jsonPath, Player *player, QObject *parent)
     : QGraphicsScene(parent), player(player)
 {
@@ -29,7 +26,7 @@ MapLoader::MapLoader(const QString &jsonPath, Player *player, QObject *parent)
     loadFromJson(jsonPath);
 }
 
-// ── Top-level JSON driver ─────────────────────────────────────────────────────
+// extract all our actual map data
 void MapLoader::loadFromJson(const QString &path)
 {
     QFile file(path);
@@ -41,23 +38,40 @@ void MapLoader::loadFromJson(const QString &path)
     QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
     file.close();
 
-    // 1. Meta (Map dimensions and collision rules)
     QJsonObject meta = root["meta"].toObject();
     MAP_ROWS = meta["rows"].toInt(MAP_ROWS);
     MAP_COLS = meta["cols"].toInt(MAP_COLS);
     TILE_SIZE = meta["tileSize"].toInt(TILE_SIZE);
 
-    // Parse solid tiles specific to this map (Solves the "0 is grass vs void" bug)
+    // solid tiles are our unwalkable tiles (zay el black space fel house)
     QJsonArray solidArr = meta["solidTiles"].toArray();
     for (const QJsonValue &val : solidArr)
     {
         solidTileIDs.insert(val.toInt());
     }
 
-    // 2. Base tile layer
+    // get the textures for everything
+    backgroundTileId = meta["backgroundTileId"].toInt(0);
+    hasFieldDecorations = meta["hasFieldDecorations"].toBool(false);
+
+    QJsonObject tilesObj = meta["tiles"].toObject();
+    for (auto it = tilesObj.begin(); it != tilesObj.end(); ++it)
+    {
+        int id = it.key().toInt();
+        baseTileRegistry[id] = QPixmap(it.value().toString());
+    }
+
+    QJsonArray decoArr = meta["decorationPool"].toArray();
+    for (const QJsonValue &v : decoArr)
+    {
+        decoPool.push_back(QPixmap(v.toString()));
+    }
+
     QJsonArray rows = root["tileLayer"].toObject()["data"].toArray();
 
     mapData.clear();
+
+    // create the collison map we use in player
     collisionMap.assign(MAP_ROWS, std::vector<int>(MAP_COLS, 0));
 
     // get map vector from json
@@ -80,101 +94,176 @@ void MapLoader::loadFromJson(const QString &path)
         mapData.push_back(rowVec);
     }
     drawBaseTiles();
+
+    // place our specifc collideables
+    placeStaticObjects(root["staticObjects"].toArray());
     drawFieldDecorations();
 
-    // 3. Hand-authored static objects
-    placeStaticObjects(root["staticObjects"].toArray());
-
-    // 4. Procedural passes
+    // place our random collidables
     if (root.contains("randomCollidables") && !root["randomCollidables"].isNull())
+    {
         distributeRandomCollidables(root["randomCollidables"].toObject());
+    }
 
     if (root.contains("enemySpawns") && !root["enemySpawns"].isNull())
+    {
         spawnEnemies(root["enemySpawns"].toObject());
+    }
+
+    // spawn player when u load in specified spot (scene is still null)
+    if (player && player->scene() == nullptr)
+    {
+        QJsonObject spawn = meta["playerSpawn"].toObject();
+
+        if (!spawn.isEmpty())
+        {
+            float row = spawn["row"].toDouble();
+            float col = spawn["col"].toDouble();
+
+            spawnPlayer(player, row, col);
+        }
+    }
 }
 
-// ── Asset loading ─────────────────────────────────────────────────────────────
 void MapLoader::loadAssets()
 {
     if (assetsLoaded)
-        return; // Prevent memory leak on map switch
-
-    // Base tiles
-    baseTileRegistry[0] = QPixmap(":resources/map-assets/grass.png");
-    baseTileRegistry[2] = QPixmap(":resources/map-assets/up.png");
-    baseTileRegistry[3] = QPixmap(":resources/map-assets/down.png");
-    baseTileRegistry[4] = QPixmap(":resources/map-assets/left.png");
-    baseTileRegistry[5] = QPixmap(":resources/map-assets/right.png");
-    baseTileRegistry[6] = QPixmap(":resources/map-assets/center.png");
-    baseTileRegistry[7] = QPixmap(":resources/map-assets/up-right.png");
-    baseTileRegistry[8] = QPixmap(":resources/map-assets/right-up.png");
-    baseTileRegistry[9] = QPixmap(":resources/map-assets/left-up.png");
-    baseTileRegistry[37] = QPixmap(":resources/map-assets/right-down.png");
-
-    // Non-collidable decoration pool
-    decoPool = {
-        QPixmap(":resources/map-assets/grass1.png"),
-        QPixmap(":resources/map-assets/grass2.png"),
-        QPixmap(":resources/map-assets/grass3.png"),
-        QPixmap(":resources/map-assets/stone1.png"),
-        QPixmap(":resources/map-assets/stone2.png")};
+        return;
 
     auto reg = [&](const QString &id, const QString &path, QRectF hitbox)
     {
         templateRegistry[id] = {id, QPixmap(path), hitbox};
     };
 
-    // --- OVERWORLD ASSETS ---
+    // would be good to organise these at some point
     reg("house1", ":resources/map-assets/house1.png", {10, 77, 137, 70});
     reg("house2", ":resources/map-assets/house2.png", {12, 45, 99, 65});
     reg("house3", ":resources/map-assets/house3.png", {10, 70, 140, 60});
+    reg("house4", ":resources/map-assets/house4.png", {23, 70, 102, 88});
+
+    reg("tent2", ":resources/map-assets/tent2.png", {10, 30, 52, 31});
+    reg("tent3", ":resources/map-assets/tent3.png", {2, 30, 60, 33});
     reg("tent1", ":resources/map-assets/tent1.png", {3, 26, 63, 39});
     reg("tent4", ":resources/map-assets/tent4.png", {0, 32, 60, 32});
     reg("tree1", ":resources/map-assets/TreeBasic1.png", {57, 77, 16, 24});
     reg("log1", ":resources/map-assets/LogBasic1.png", {15, 17, 19, 17});
+    reg("tree2", ":resources/map-assets/TreeBasic2.png", {26, 43, 13, 19});
+    reg("tree3", ":resources/map-assets/TreeBasic3.png", {27, 38, 12, 12});
+    reg("tree4", ":resources/map-assets/TreeBasic4.png", {58, 74, 11, 21});
+
+    reg("log2", ":resources/map-assets/LogBasic2.png", {23, 26, 21, 10});
     reg("cart", ":resources/map-assets/cart.png", {4, 7, 40, 20});
     reg("camplog1", ":resources/map-assets/camplog1.png", {6, 6, 16, 17});
+    reg("cutdownlogs", ":resources/map-assets/cutdownlogs.png", {6, 5, 10, 16});
+    reg("axe", ":resources/map-assets/axe.png", {1, 10, 11, 8});
+    reg("barrel", ":resources/map-assets/barrel.png", {0, 0, 20, 22});
+    reg("camplog2", ":resources/map-assets/camplog2.png", {3, 4, 39, 8});
+    reg("bottomgatel", ":resources/map-assets/bottomgatel.png", {0, 0, 1, 30});
+    reg("bottomgater", ":resources/map-assets/bottomgater.png", {31, 5, 1, 30});
 
-    // Gates
+    reg("sidegate2", ":resources/map-assets/sidegate2.png", {16, 0, 9, 23});
+    reg("sidegate3", ":resources/map-assets/sidegate3.png", {19, 0, 6, 32});
+    reg("wallt", ":resources/map-assets/wallt.png", {0, 30, 32, 2});
+    reg("wallt2", ":resources/map-assets/wallt2.png", {0, 30, 32, 2});
+    reg("wallt3", ":resources/map-assets/wallt3.png", {0, 30, 32, 2});
+
+    reg("walltb1", ":resources/map-assets/walltb1.png", {0, 0, 31, 26});
+    reg("walltb2", ":resources/map-assets/walltb2.png", {0, 0, 32, 27});
+    reg("walltb3", ":resources/map-assets/walltb3.png", {0, 0, 32, 28});
+
     reg("topgatel", ":resources/map-assets/topgatel.png", {0, 0, 32, 8});
     reg("topgater", ":resources/map-assets/topgater.png", {0, 0, 30, 7});
 
-    // --- INTERIOR ASSETS ---
-    reg("bed", ":resources/house_interior/bed.png", {5, 10, 20, 40});
-    reg("nightstand", ":resources/house_interior/nightstand.png", {2, 5, 20, 20});
-    reg("dining_table", ":resources/house_interior/dining_table.png", {10, 20, 70, 40});
-    reg("bookcase", ":resources/house_interior/bookcase.png", {0, 20, 30, 12});
-    reg("stairs", ":resources/house_interior/stairs.png", {0, 0, 0, 0}); // 0 hitbox
-    reg("window", ":resources/house_interior/window.png", {0, 0, 0, 0}); // 0 hitbox
+    reg("bed", ":resources/house_interior/Using-Deco/bed.png", {0, 0, 20, 32});
+    reg("nightstand", ":resources/house_interior/Using-Deco/nightstand.png", {5, 8, 4, 12});
+    reg("dining_table", ":resources/house_interior/Using-Deco/dining_table.png", {0, 16, 32, 22});
+    reg("bookcase", ":resources/house_interior/Using-Deco/bookcase.png", {4, 20, 64, 32});
+    reg("stairs", ":resources/house_interior/Using-Deco/stairs.png", {0, 0, 0, 0}); 
+    reg("window", ":resources/house_interior/Using-Deco/window.png", {0, 0, 0, 0});
 
-    // Carpets (Non-collidable)
-    reg("purple_carpet", ":resources/house_interior/purple_carpet.png", {0, 0, 0, 0});
-    reg("red_carpet_rect", ":resources/house_interior/red_carpet_rect.png", {0, 0, 0, 0});
+    reg("purple_carpet", ":resources/house_interior/Using-Deco/purple_carpet_circle.png", {0, 0, 0, 0});
+    reg("red_carpet_rect", ":resources/house_interior/Using-Deco/red_carpet_rect.png", {0, 0, 0, 0});
+
+    reg("sidewallr1", ":resources/map-assets/Tile2_17.png", {6, 0, 10, 32});
+    reg("sidewallr2", ":resources/map-assets/sidewallr2.png", {6, 0, 10, 32});
+
+    reg("sidewalll1", ":resources/map-assets/Tile2_30.png", {15, 0, 10, 32});
+    reg("sidewalll2", ":resources/map-assets/sidewalll2.png", {16, 0, 10, 32});
+
+    reg("walltr", ":resources/map-assets/walltr.png", {0, 31, 27, 1});
+    reg("walltrb", ":resources/map-assets/walltrb.png", {6, 8, 21, 24});
+
+    reg("walltl", ":resources/map-assets/walltl.png", {5, 30, 27, 2});
+    reg("walltlb", ":resources/map-assets/walltlb.png", {6, 0, 24, 32});
+
+    reg("wallbr", ":resources/map-assets/wallbr.png", {13, 0, 14, 32});
+    reg("wallbrb", ":resources/map-assets/wallbrb.png", {0, 0, 27, 27});
+
+    reg("sidegate1", ":resources/map-assets/sidegate1.png", {16, 0, 10, 32});
+    reg("sidegate4", ":resources/map-assets/sidegate4.png", {16, 0, 10, 32});
+
+    reg("brokenlt", ":resources/map-assets/brokenlt.png", {6, 0, 10, 32});
+    reg("brokenlb", ":resources/map-assets/brokenlb.png", {6, 0, 6, 27});
+
+    reg("brokent", ":resources/map-assets/brokent.png", {21, 9, 9, 23});
+    reg("brokenb", ":resources/map-assets/brokenb.png", {4, 10, 28, 23});
+
+    reg("brokenlog1", ":resources/map-assets/brokenlog1.png", {15, 8, 6, 24});
+    reg("brokenlog2", ":resources/map-assets/brokenlog2.png", {10, 0, 8, 20});
+
+    reg("remains1", ":resources/map-assets/remains1.png", {1, 15, 19, 13});
+    reg("remains2", ":resources/map-assets/remains2.png", {11, 12, 11, 17});
+    reg("remains3", ":resources/map-assets/remains3.png", {8, 9, 14, 11});
+    reg("couch_side", ":resources/house_interior/Using-Deco/couch_side_profile.png", {10, 22, 24, 16});
+    reg("cupboard_full", ":resources/house_interior/Using-Deco/cupboard_full.png", {0, 16, 50, 32});
+    reg("cupboard_empty", ":resources/house_interior/Using-Deco/cupboard_empty.png", {0, 16, 42, 32});
+    reg("wooden_crates", ":resources/house_interior/Using-Deco/wooden_crates.png", {9, 10, 10, 10});
+    reg("round_table", ":resources/house_interior/Using-Deco/round_table.png", {4, 12, 34, 20});
+    reg("sword_holder", ":resources/house_interior/Using-Deco/sword_holder.png", {0, 8, 60, 24});
+    reg("potion_table", ":resources/house_interior/Using-Deco/potion_table.png", {2, 16, 28, 13});
+    reg("wooden_barrel", ":resources/house_interior/Using-Deco/wooden_barrel.png", {4, 8, 30, 117});
+    reg("wall_middle", ":resources/house_interior/Using/wall_middle.png", {0, 20, 36, 25});
+    reg("wall_left", ":resources/house_interior/Using/wall_left.png", {0, 20, 36, 15});
+    reg("wall_right", ":resources/house_interior/Using/wall_right.png", {-4, 20, 36, 15});
+    reg("wall_right_turn", ":resources/house_interior/Using/wall_right_turn.png", {0, 0, 1, 32});
+    reg("wall_left_turn", ":resources/house_interior/Using/wall_left_turn.png", {30, 0, 2, 32});
+    reg("side_wall", ":resources/house_interior/Using/side_of_wall.png", {32, 0, 1, 130});
+    reg("side_wall_2", ":resources/house_interior/Using/side_of_wall_2.png", {32, 20, 1, 96});
+
+    reg("red_carpet_oval", ":resources/house_interior/Using-Deco/red_carpet_oval_2.png", {0, 0, 0, 0});
+    reg("red_carpet_rect_2", ":resources/house_interior/Using-Deco/red_carpet_rectangle_2.png", {0, 0, 0, 0});
+    reg("entrance_mat", ":resources/house_interior/Using/entrance.png", {0, 0, 0, 0});
+    reg("wall_no_door", ":resources/house_interior/Using/wall_no_door.png", {0, 0, 0, 0});
+    reg("banana", ":resources/house_interior/Using-Deco/banana.png", {0, 0, 0, 0});
+    reg("garlic", ":resources/house_interior/Using-Deco/garlic.png", {0, 0, 0, 0});
+    reg("coal", ":resources/house_interior/Using-Deco/coal.png", {0, 0, 0, 0});
 
     assetsLoaded = true;
 }
 
-
 void MapLoader::drawBaseTiles()
 {
-    const QPixmap &grassPx = baseTileRegistry[0]; // Assuming 0 is grass background
+    const QPixmap &bgPx = baseTileRegistry.value(backgroundTileId); // get the "base" tile for this map
     for (int i = 0; i < MAP_ROWS; i++)
     {
         for (int j = 0; j < MAP_COLS; j++)
         {
-            // Background
-            auto *base = new QGraphicsPixmapItem(grassPx);
+            auto *base = new QGraphicsPixmapItem(bgPx);
             base->setPos(j * TILE_SIZE, i * TILE_SIZE);
             base->setZValue(-100.0);
             addItem(base);
 
-            // Overlay Tile
             int id = mapData[i][j];
             if (id != 0 && baseTileRegistry.contains(id))
             {
                 auto *tile = new QGraphicsPixmapItem(baseTileRegistry[id]);
                 tile->setPos(j * TILE_SIZE, i * TILE_SIZE);
-                tile->setZValue(-100.0);
+                if (id >= 2 && id <= 9)
+                    tile->setZValue(0); // floor
+                else if (id >= 10 && id <= 12)
+                    tile->setZValue(1); // walls
+                else
+                    tile->setZValue(-100.0);
                 addItem(tile);
             }
         }
@@ -183,6 +272,10 @@ void MapLoader::drawBaseTiles()
 
 void MapLoader::drawFieldDecorations()
 {
+    if (!hasFieldDecorations || decoPool.empty())
+    {
+        return;
+    }
     for (int i = 0; i < MAP_ROWS; i++)
     {
         for (int j = 0; j < MAP_COLS; j++)
@@ -202,7 +295,7 @@ void MapLoader::drawFieldDecorations()
     }
 }
 
-// ── Static object dispatch ────────────────────────────────────────────────────
+
 void MapLoader::placeStaticObjects(const QJsonArray &objects)
 {
     for (const QJsonValue &val : objects)
@@ -227,7 +320,6 @@ void MapLoader::placeStaticObjects(const QJsonArray &objects)
     }
 }
 
-// ── Placement helpers ─────────────────────────────────────────────────────────
 void MapLoader::placeCollidable(float row, float col, const QString &templateId)
 {
     if (!templateRegistry.contains(templateId))
@@ -245,7 +337,7 @@ void MapLoader::placeCollidable(float row, float col, const QString &templateId)
     item->setZValue(worldHitbox.bottom());
     addItem(item);
 
-    // Only add to activeCollidables if it actually has a hitbox
+    // active collidables is where every single currently active hitbox is so its how we define collision
     if (tmpl.hitbox.width() > 0 && tmpl.hitbox.height() > 0)
     {
         activeCollidables.push_back({worldHitbox});
@@ -265,7 +357,7 @@ void MapLoader::placeNonCollidable(float row, float col, const QString &assetId,
     item->setZValue(zValue);
     addItem(item);
 
-    // Mask underlying grid so procedural items don't overlap
+    // 99 means dont place anything else here
     int wTiles = std::ceil((double)px.width() / TILE_SIZE);
     int hTiles = std::ceil((double)px.height() / TILE_SIZE);
     for (int i = (int)row; i < (int)row + hTiles; i++)
@@ -274,6 +366,7 @@ void MapLoader::placeNonCollidable(float row, float col, const QString &assetId,
                 mapData[i][j] = 99;
 }
 
+// eventually thisll be "addAnimatedObject"
 void MapLoader::addCampfire(float row, float col)
 {
     auto *cf = new Campfire();
@@ -286,7 +379,7 @@ void MapLoader::addCampfire(float row, float col)
 void MapLoader::spawnPlayer(Player *p, float row, float col)
 {
     this->player = p;
-    // Remove from old scene if necessary
+    // remove from old scene if necessary
     if (player->scene())
     {
         player->scene()->removeItem(player);
@@ -296,7 +389,6 @@ void MapLoader::spawnPlayer(Player *p, float row, float col)
     player->setZValue(player->y() + player->pixmap().height());
 }
 
-// ── Random collidable distribution ───────────────────────────────────────────
 void MapLoader::distributeRandomCollidables(const QJsonObject &cfg)
 {
     QJsonArray idArray = cfg["templateIds"].toArray();
@@ -363,7 +455,6 @@ void MapLoader::distributeRandomCollidables(const QJsonObject &cfg)
     }
 }
 
-// ── Enemy spawning ────────────────────────────────────────────────────────────
 void MapLoader::spawnEnemies(const QJsonObject &cfg)
 {
     int count = cfg["count"].toInt(15);
@@ -435,7 +526,6 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
     currentEnemyCount = placed;
 }
 
-// ── Signals & queries ─────────────────────────────────────────────────────────
 void MapLoader::onEnemyDied()
 {
     currentEnemyCount--;
@@ -452,4 +542,9 @@ bool MapLoader::isTileCollidable(int row, int col) const
     if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS)
         return true;
     return collisionMap[row][col] == 1;
+}
+
+int MapLoader::getCurrentEnemyCount()
+{
+    return currentEnemyCount;
 }

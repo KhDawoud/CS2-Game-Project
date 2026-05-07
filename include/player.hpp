@@ -3,6 +3,7 @@
 #include <QGraphicsPixmapItem>
 #include <QObject>
 #include <QTimer>
+#include "maploader.hpp"
 
 class Map;
 class House_Interior;
@@ -113,9 +114,7 @@ private:
         emit statsChanged();
     };
 
-    bool checkCollision(const QRectF &hitbox, Map *map, House_Interior *interior) const;
-
-    // bool checkCollision(const QRectF &hitbox, Map *map) const;
+    bool checkCollision(const QRectF &hitbox, MapLoader *map) const;
     void performAttack();
 };
 #endif // PLAYER_HPP
