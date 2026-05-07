@@ -53,8 +53,16 @@ Player::Player(int charnum): characternum(charnum)
 
 void Player::setAnimationState(PlayerState newState)
 {
-    if (currentState == newState)
+    if (currentState == newState) {
+        if (currentState == PlayerState::Walking) {
+            int targetDelay = isSprinting ? (100 * animationfactor / 2) : (100 * animationfactor);
+
+            if (animTimer->interval() != targetDelay) {
+                animTimer->start(targetDelay);
+            }
+        }
         return;
+    }
 
     currentState = newState;
     currentFrame = 0;
@@ -69,7 +77,8 @@ void Player::setAnimationState(PlayerState newState)
     }
     else
     {
-        animTimer->start(100*animationfactor);
+        int animationDelay = isSprinting ? 50: 100;
+        animTimer->start(animationfactor*animationDelay);
     }
 
     updateAnimation();
@@ -203,12 +212,35 @@ void Player::movePlayer()
     }
     setAnimationState(PlayerState::Walking);
 
+    Direction oldDirection = currentDirection;
     if (dx != 0)
         currentDirection = (dx > 0) ? Direction::Right : Direction::Left;
     else if (dy != 0)
         currentDirection = (dy > 0) ? Direction::Down : Direction::Up;
+    if (oldDirection != currentDirection) {
+        updateAnimation();
+    }
+
+    bool previouslySprinting = isSprinting;
+    if (isShiftPressed && stamina > 0 && (dx!=0 || dy!=0)) {
+        isSprinting = true;
+        staminaRegenTimer->stop();
+        stamina -= 0.5;
+        if (stamina < 0) stamina = 0;
+
+        emit statsChanged();
+    } else {
+        isSprinting = false;
+    }
+    if (isSprinting != previouslySprinting && currentState == PlayerState::Walking) {
+        int animationDelay = isSprinting ? animationfactor / 2 : animationfactor;
+        animTimer->start(100 * animationDelay);
+    }
 
     float speed = (dx != 0 && dy != 0) ? 1.414f : 2.0f;
+    if (isSprinting) {
+        speed *= sprintMultiplier;
+    }
 
     Map *map = dynamic_cast<Map *>(scene());
     House_Interior *interior = dynamic_cast<House_Interior *>(scene());
@@ -258,6 +290,10 @@ void Player::keyPressEvent(QKeyEvent *event)
 {
     if (event->isAutoRepeat() || currentState == PlayerState::Dead)
         return;
+
+    if (event->key() == Qt::Key_Shift) {
+        isShiftPressed = true;
+    }
     Qt::Key key = static_cast<Qt::Key>(event->key());
 
     if (key == Qt::Key_P)
@@ -307,6 +343,11 @@ void Player::keyReleaseEvent(QKeyEvent *event)
     if (event->isAutoRepeat())
         return;
     activeKeys.removeAll(static_cast<Qt::Key>(event->key()));
+    if (event->key() == Qt::Key_Shift) {
+        isShiftPressed = false;
+        isSprinting = false;
+        staminaRegenTimer->start(400);
+    }
 }
 
 QRectF Player::getPlayerHitbox(QPointF pos) const

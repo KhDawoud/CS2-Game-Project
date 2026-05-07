@@ -102,10 +102,9 @@ void Projectile::startExplosion() {
     explosionFrame = 0;
     explosionCounter = 0;
 
-    setRotation(0); // Ensure the explosion faces "up"
-    setScale(0.5);  // Optional: make the explosion bigger than the fireball
+    setRotation(0);
+    setScale(0.5);
 
-    // Set the first frame immediately
     int fw = explosionSheet.width() / 10;
     setPixmap(explosionSheet.copy(0, 0, fw, explosionSheet.height()));
     setOffset(-fw / 2, -explosionSheet.height() / 2);
@@ -122,14 +121,13 @@ void Projectile::updateAnimation() {
     explosionFrame++;
 
     if (explosionFrame >= 10) {
-        this->deleteLater(); // Finally remove from scene after last frame
+        this->deleteLater();
         return;
     }
 
     int fw = explosionSheet.width() / 10;
     int fh = explosionSheet.height();
 
-    // Shift the "window" of the copy function to the next frame
     setPixmap(explosionSheet.copy(explosionFrame * fw, 0, fw, fh));
     setOffset(-fw / 2, -fh / 2);
 }

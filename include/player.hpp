@@ -89,6 +89,9 @@ protected:
     int rowMap[4];
     int damage;
 
+    qreal sprintMultiplier = 1.5;
+    bool isSprinting = false;
+
 signals:
     void positionChanged(QGraphicsItem *playerPtr); // The announcement
     void statsChanged();
@@ -131,5 +134,6 @@ private:
     void performAttack();
     void shootFireball();
     bool hasSpawnedFireball;
+    bool isShiftPressed;
 };
 #endif // PLAYER_HPP
