@@ -19,6 +19,7 @@ qt_add_executable(QtTest
     ${HEADERS}
     src/player.cpp
     src/map2.cpp
+    src/maploader.cpp
     src/Enemy.cpp
     src/slime.cpp
     src/characterstats.cpp
@@ -114,6 +115,7 @@ qt_add_resources(QtTest "images"
         "resources/sound-effects/Heal.wav"
         "resources/map-data/level-1.csv"
         "resources/map-data/level-1-updated.csv"
+        "resources/map-data/level-1.json"
         "resources/enemy/idle/Slime1_Idle_with_shadow.png"
         "resources/enemy/walk/Slime1_Walk_with_shadow.png"
         "resources/enemy/attack/Slime1_Attack_with_shadow.png"

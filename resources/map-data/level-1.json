@@ -1,0 +1,239 @@
+{
+    "meta": {
+        "name": "Level 1",
+        "rows": 35,
+        "cols": 40,
+        "tileSize": 32,
+        "solidTiles": [],
+        "playerSpawn": {
+            "row": 4,
+            "col": 11
+        }
+    },
+    "tileLayer": {
+        "source": "level-1-updated.csv"
+    },
+    "staticObjects": [
+        {
+            "type": "collidable",
+            "row": 10.5,
+            "col": 7,
+            "templateId": "house1"
+        },
+        {
+            "type": "collidable",
+            "row": 19.8,
+            "col": 7,
+            "templateId": "house3"
+        },
+        {
+            "type": "collidable",
+            "row": 20,
+            "col": 22,
+            "templateId": "house4"
+        },
+        {
+            "type": "collidable",
+            "row": 22,
+            "col": 17,
+            "templateId": "tent3"
+        },
+        {
+            "type": "collidable",
+            "row": 26,
+            "col": 16,
+            "templateId": "tent1"
+        },
+        {
+            "type": "nonCollidable",
+            "row": 13,
+            "col": 16,
+            "assetId": "tent4",
+            "zValue": 1000
+        },
+        {
+            "type": "nonCollidable",
+            "row": 29,
+            "col": 14,
+            "assetId": "topgatel",
+            "zValue": 1000
+        },
+        {
+            "type": "nonCollidable",
+            "row": 29,
+            "col": 15,
+            "assetId": "topgater",
+            "zValue": 1000
+        },
+        {
+            "type": "nonCollidable",
+            "row": 30,
+            "col": 14,
+            "assetId": "bottomgatel",
+            "zValue": 1000
+        },
+        {
+            "type": "nonCollidable",
+            "row": 30,
+            "col": 15,
+            "assetId": "bottomgater",
+            "zValue": 1000
+        },
+        {
+            "type": "nonCollidable",
+            "row": 10,
+            "col": 34,
+            "assetId": "sidegate2",
+            "zValue": 1000
+        },
+        {
+            "type": "nonCollidable",
+            "row": 11,
+            "col": 34,
+            "assetId": "sidegate3",
+            "zValue": 1000
+        },
+        {
+            "type": "collidable",
+            "row": 14,
+            "col": 12,
+            "templateId": "cart"
+        },
+        {
+            "type": "collidable",
+            "row": 23.2,
+            "col": 13,
+            "templateId": "cutdownlogs"
+        },
+        {
+            "type": "collidable",
+            "row": 23.2,
+            "col": 12,
+            "templateId": "axe"
+        },
+        {
+            "type": "collidable",
+            "row": 14.3,
+            "col": 17,
+            "templateId": "barrel"
+        },
+        {
+            "type": "collidable",
+            "row": 28,
+            "col": 10,
+            "templateId": "camplog1"
+        },
+        {
+            "type": "collidable",
+            "row": 28.5,
+            "col": 11.3,
+            "templateId": "camplog2"
+        },
+        {
+            "type": "campfire",
+            "row": 27,
+            "col": 11
+        },
+        {
+            "type": "collidable",
+            "row": 20,
+            "col": 28,
+            "templateId": "camplog1"
+        },
+        {
+            "type": "collidable",
+            "row": 20.5,
+            "col": 29.3,
+            "templateId": "camplog2"
+        },
+        {
+            "type": "campfire",
+            "row": 19,
+            "col": 29
+        },
+        {
+            "type": "collidable",
+            "row": 3,
+            "col": 4,
+            "templateId": "topgatel"
+        },
+        {
+            "type": "collidable",
+            "row": 3,
+            "col": 5,
+            "templateId": "wallt"
+        },
+        {
+            "type": "collidable",
+            "row": 3,
+            "col": 6,
+            "templateId": "wallt2"
+        },
+        {
+            "type": "collidable",
+            "row": 3,
+            "col": 7,
+            "templateId": "wallt3"
+        },
+        {
+            "type": "collidable",
+            "row": 4,
+            "col": 4,
+            "templateId": "topgater"
+        },
+        {
+            "type": "collidable",
+            "row": 4,
+            "col": 5,
+            "templateId": "walltb1"
+        },
+        {
+            "type": "collidable",
+            "row": 4,
+            "col": 6,
+            "templateId": "walltb2"
+        },
+        {
+            "type": "collidable",
+            "row": 4,
+            "col": 7,
+            "templateId": "walltb3"
+        }
+    ],
+    "randomCollidables": {
+        "count": 40,
+        "spacing": 1,
+        "templateIds": [
+            "tree1",
+            "tree2",
+            "tree3",
+            "tree4",
+            "log1",
+            "log2"
+        ]
+    },
+    "enemySpawns": {
+        "count": 15,
+        "rowMin": 5,
+        "rowMax": 28,
+        "colMin": 5,
+        "colMax": 33,
+        "types": [
+            {
+                "id": "slime1",
+                "variant": 1,
+                "weight": 25
+            },
+            {
+                "id": "slime2",
+                "variant": 2,
+                "weight": 15
+            },
+            {
+                "id": "slime3",
+                "variant": 3,
+                "weight": 10
+            }
+        ]
+    }
+}
