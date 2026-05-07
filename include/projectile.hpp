@@ -26,6 +26,13 @@ private:
     qreal maxRange = 100.0;
     Map* gamemap;
     House_Interior* housemap;
+    bool isExploding = false;
+    int explosionFrame = 0;
+    int explosionCounter = 0;
+    QPixmap explosionSheet;
+
+    void startExplosion();
+    void updateAnimation();
 
 };
 

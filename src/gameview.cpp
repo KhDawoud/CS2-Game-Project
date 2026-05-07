@@ -133,6 +133,10 @@ void GameView::keyPressEvent(QKeyEvent *event)
         if(_player->getcharacternum() == 3) return;
         _player->swtichto(3);
         _player->setScale(1.2f);
+    }else if (event->key() == Qt::Key_4){
+        if(_player->getcharacternum() == 4) return;
+        _player->swtichto(4);
+        _player->setScale(1.2f);
     }
     else
     {

@@ -232,19 +232,6 @@ void Player::movePlayer()
     QRectF actualHitbox = getPlayerHitbox(pos());
     setZValue(actualHitbox.bottom());
 
-    if (!debugHitboxItem && scene())
-    {
-        debugHitboxItem = new QGraphicsRectItem();
-        debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
-        debugHitboxItem->setPen(QPen(Qt::blue));
-        debugHitboxItem->setZValue(10000);
-        scene()->addItem(debugHitboxItem);
-    }
-    if (debugHitboxItem)
-    {
-        debugHitboxItem->setRect(actualHitbox);
-    }
-
     emit positionChanged(this);
 }
 

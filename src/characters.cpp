@@ -7,6 +7,8 @@ Characters::Characters(int num): Player(num){
         loadWizard();
     }else if(num==3){
         loadVampire();
+    }else if(num==4){
+        loadSkeleton();
     }
 }
 void Characters::loadSwordsman(){
@@ -39,6 +41,11 @@ void Characters::loadSwordsman(){
     deadFrameWidthCount = 7;
     deadFrameWidth = deadSheet.width() / 7;
     deadFrameHeight = deadSheet.height() / 4;
+
+    rowMap[(int)Direction::Up]    = 3;
+    rowMap[(int)Direction::Down]  = 0;
+    rowMap[(int)Direction::Left]  = 1;
+    rowMap[(int)Direction::Right] = 2;
 
 }
 
@@ -73,6 +80,11 @@ void Characters::loadWizard(){
     deadFrameWidth = deadSheet.width() / 7;
     deadFrameHeight = deadSheet.height() / 4;
 
+    rowMap[(int)Direction::Up]    = 3;
+    rowMap[(int)Direction::Down]  = 0;
+    rowMap[(int)Direction::Left]  = 1;
+    rowMap[(int)Direction::Right] = 2;
+
 }
 void Characters::loadVampire(){
     damage = 30;
@@ -82,7 +94,7 @@ void Characters::loadVampire(){
     idleSheet.load(":resources/player/idling/Vampires3_Idle_with_shadow.png");
     attackSheet.load(":resources/player/attacking/Vampires3_Attack_with_shadow.png");
     damagedSheet.load(":resources/player/damaged/Vampires3_Hurt_with_shadow.png");
-    deadSheet.load(":resources/player/dead/Vampires3_Death_with_shadow.png"); //for now
+    deadSheet.load(":resources/player/dead/Vampires3_Death_with_shadow.png");
 
     walkFrameWidthCount = 8;
     walkFrameWidth = walkSheet.width() / 8;
@@ -97,6 +109,7 @@ void Characters::loadVampire(){
     attackFrameWidth = attackSheet.width() / 12;
     attackFrameHeight = attackSheet.height() / 4;
 
+    damagedFrameWidthCount = 4;
     damagedFrameWidth = damagedSheet.width() / 4;
     damagedFrameHeight = damagedSheet.height() / 4;
 
@@ -104,28 +117,60 @@ void Characters::loadVampire(){
     deadFrameWidth = deadSheet.width() / 11;
     deadFrameHeight = deadSheet.height() / 4;
 
+    rowMap[(int)Direction::Up]    = 1;
+    rowMap[(int)Direction::Down]  = 0;
+    rowMap[(int)Direction::Left]  = 2;
+    rowMap[(int)Direction::Right] = 3;
+
+}
+void Characters::loadSkeleton(){
+    damage = 30;
+    animationfactor = 1;
+
+    walkSheet.load(":resources/player/running/skeleton-walksheet.png");
+    idleSheet.load(":resources/player/idling/skeleton-idlesheet.png");
+    attackSheet.load(":resources/player/attacking/skeleton-attacksheet.png");
+    damagedSheet.load(":resources/player/damaged/skeleton-hurtsheet.png");
+    deadSheet.load(":resources/player/dead/swordsman_1_dead.png"); //for now
+
+    walkFrameWidthCount = 6;
+    walkFrameWidth = walkSheet.width() / 6;
+    walkFrameHeight = walkSheet.height() / 4;
+
+    idleFrameWidthCount =6;
+    idleFrameWidth = idleSheet.width() / 6;
+    idleFrameHeight = idleSheet.height() / 4;
+    idleFrameUpCount=6;
+
+    attackFrameWidthCount = 6;
+    attackFrameWidth = attackSheet.width() / 6;
+    attackFrameHeight = attackSheet.height() / 4;
+
+    damagedFrameWidthCount = 5;
+    damagedFrameWidth = damagedSheet.width() / 5;
+    damagedFrameHeight = damagedSheet.height() / 4;
+
+    deadFrameWidthCount = 7;
+    deadFrameWidth = deadSheet.width() / 7;
+    deadFrameHeight = deadSheet.height() / 4;
+
+    rowMap[(int)Direction::Up]    = 3;
+    rowMap[(int)Direction::Down]  = 0;
+    rowMap[(int)Direction::Left]  = 1;
+    rowMap[(int)Direction::Right] = 2;
+
 }
 
 void Characters::swtichto(int num){
     this->characternum = num;
     if (num == 1) {
         loadSwordsman();
-        rowMap[(int)Direction::Up]    = 3;
-        rowMap[(int)Direction::Down]  = 0;
-        rowMap[(int)Direction::Left]  = 1;
-        rowMap[(int)Direction::Right] = 2;
     }else if(num==2){
         loadWizard();
-        rowMap[(int)Direction::Up]    = 3;
-        rowMap[(int)Direction::Down]  = 0;
-        rowMap[(int)Direction::Left]  = 1;
-        rowMap[(int)Direction::Right] = 2;
     }else if(num==3){
         loadVampire();
-        rowMap[(int)Direction::Up]    = 1;
-        rowMap[(int)Direction::Down]  = 0;
-        rowMap[(int)Direction::Left]  = 2;
-        rowMap[(int)Direction::Right] = 3;
+    }else if(num==4){
+        loadSkeleton();
     }
     currentFrame = 0;
 }

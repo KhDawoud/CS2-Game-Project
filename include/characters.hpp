@@ -8,6 +8,7 @@ private:
     void loadSwordsman();
     void loadWizard();
     void loadVampire();
+    void loadSkeleton();
 public:
     Characters(int);
     void swtichto(int);
