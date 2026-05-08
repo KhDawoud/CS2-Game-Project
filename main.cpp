@@ -1,6 +1,9 @@
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QGraphicsTextItem>
+#include <QFont>
+#include <QPainter>
 #include <QTimer>
 #include <slime.hpp>
 #include "AudioManager.hpp"
@@ -9,13 +12,31 @@
 #include "maploader.hpp"
 #include "characterstats.hpp"
 #include "characters.hpp"
+#include "traps.hpp"
+
+
+static QGraphicsTextItem *makeLabel(const QString &text, qreal x, qreal y)
+{
+    auto *t = new QGraphicsTextItem(text);
+    t->setDefaultTextColor(Qt::white);
+    QFont f; f.setPointSize(10); f.setBold(true);
+    t->setFont(f);
+    t->setPos(x, y);
+    t->setZValue(500);
+    return t;
+}
+
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     AudioManager::instance();
 
-    Characters *player = new Characters(2);
+
+
+
+
+    Characters* player = new Characters(1);
 
     CharacterStats *stats = new CharacterStats();
     stats->setPlayer(player);
@@ -78,4 +99,5 @@ int main(int argc, char *argv[])
         deathScreen->exec(); });
 
     return a.exec();
+
 }

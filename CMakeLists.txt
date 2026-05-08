@@ -27,6 +27,7 @@ qt_add_executable(QtTest
     src/pausewindow.cpp
     src/deathwindow.cpp
     src/campfire.cpp
+    src/traps.cpp
     #src/house_interior.cpp
     #src/house_interior-2.cpp
     src/levelcleared.cpp
@@ -176,6 +177,13 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/barrel.png"
         "resources/map-assets/hut.png"
         "resources/map-assets/campfire.png"
+        "resources/traps/fire_trap.png"
+        "resources/traps/fire_trap1.png"
+        "resources/traps/fire_trap2.png"
+        "resources/traps/fire_trap3.png"
+        "resources/traps/trap1.png"
+        "resources/traps/trap2.png"
+        "resources/traps/trap3.png"
         "resources/map-assets/camplog1.png"
         "resources/map-assets/camplog2.png"
         "resources/house_interior/Using/black_image.png"
