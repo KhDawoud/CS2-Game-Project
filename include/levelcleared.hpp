@@ -1,16 +1,12 @@
 #ifndef LEVELCLEARED_H
 #define LEVELCLEARED_H
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QApplication>
-class LevelCleared : public QDialog
+#include "basewindow.hpp"
+class LevelCleared : public BaseWindow
 {
 public:
-    LevelCleared(QWidget *);
+    LevelCleared(QWidget *,int);
 protected:
-    void paintEvent(QPaintEvent *event) override;
+    int CurrentLevel;
 };
 
 #endif // LEVELCLEARED_H

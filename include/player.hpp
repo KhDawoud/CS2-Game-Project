@@ -29,6 +29,18 @@ struct Fireball
     QGraphicsPixmapItem *item;
     QPointF direction;
 };
+struct Stats{
+    int oldhealth;
+    int oldstamina;
+    int oldmana;
+    int oldstaminaregenrate;
+    int oldmanaregenrate;
+    int health;
+    int stamina;
+    int mana;
+    int staminaregenrate;
+    int manaregenrate;
+};
 
 class Player : public QObject, public QGraphicsPixmapItem
 {
@@ -43,6 +55,8 @@ public:
     void Heal(float amount);
     QRectF getPlayerHitbox(QPointF pos) const;
     int getcharacternum();
+    Stats getStats(){return playerstats;}
+    int getLevelsCompleted(){return levelscleared;}
 
 public slots:
     void updateAnimation();
@@ -57,6 +71,10 @@ protected:
     float health;
     float stamina;
     float mana;
+    Stats playerstats;
+
+    float staminaRegenRate;
+    float manaRegenRate;
 
     QPixmap walkSheet;
     QPixmap idleSheet;
@@ -104,8 +122,6 @@ signals:
 private:
     QGraphicsRectItem *debugHitboxItem = nullptr;
     Map *gameMap = nullptr;
-    float staminaRegenRate;
-    float manaRegenRate;
     QTimer *staminaRegenTimer;
     QTimer *manaRegenTimer;
 
@@ -137,5 +153,11 @@ private:
     void shootFireball();
     bool hasSpawnedFireball;
     bool isShiftPressed;
+
+    bool isDashing = false;
+    float dashSpeed = 15.0f;
+    int dashDuration = 0;
+    int dashCooldown = 0;
+    QPointF dashDirection;
 };
 #endif // PLAYER_HPP

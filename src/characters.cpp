@@ -179,6 +179,24 @@ void Characters::swtichto(int num){
 }
 void Characters::handleLevelCleared(){
     levelscleared++;
+    playerstats.oldhealth = health;
+    playerstats.oldmana = mana;
+    playerstats.oldstamina = stamina;
+    playerstats.oldstaminaregenrate = staminaRegenRate;
+    playerstats.oldmanaregenrate = staminaRegenRate;
+
+    health= 100 +levelscleared*20;
+    mana=100 +levelscleared*20;
+    stamina= 100 +levelscleared*20;
+    staminaRegenRate = 5 +levelscleared*2;
+    manaRegenRate = 2 +levelscleared*2;
+
+    playerstats.health = health;
+    playerstats.mana = mana;
+    playerstats.stamina = stamina;
+    playerstats.staminaregenrate = staminaRegenRate;
+    playerstats.manaregenrate = staminaRegenRate;
+
     if(characternum==1){
         loadSwordsman();
     }

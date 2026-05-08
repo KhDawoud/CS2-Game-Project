@@ -26,7 +26,7 @@ private:
     MapLoader *_interior;
     Characters *_player;
 
-    QProgressBar *_progressBar; 
+    QProgressBar *_progressBar;
 };
 
 #endif // GAMEVIEW_HPP

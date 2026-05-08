@@ -1,60 +1,33 @@
 #include "pausewindow.hpp"
-#include <QFont>
-#include <QFontDatabase>
-#include <QPainter>
+#include "QApplication"
 
-pausewindow::pausewindow(QWidget *parent)
-    : QDialog(parent)
-{
-    int fontId = QFontDatabase::addApplicationFont(":resources/fonts/pixelfont.ttf");
+pausewindow::pausewindow(QWidget *parent) : BaseWindow(parent) {
+    setWindowTitle("Exit Menu");
+    setFixedSize(500,300);
 
-    if (fontId != -1) {
-        //sets pixel as a the custom fint we got
-        QString pixel = QFontDatabase::applicationFontFamilies(fontId).at(0);
+    QFont largeFont(pixelFontFamily, 18, QFont::Bold);
+    QFont buttonFont(pixelFontFamily, 14);
 
-        // the window look
-        setFixedSize(500, 300);
-        setWindowTitle("Exit Menu");
-        setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-        setAttribute(Qt::WA_TranslucentBackground);
+    QLabel *label = new QLabel("Do you want to quit?", this);
+    label->setFont(largeFont);
+    label->setAlignment(Qt::AlignCenter);
+    label->setStyleSheet("color: black;");
 
+    QPushButton *resumeBtn = new QPushButton("RESUME GAME", this);
+    QPushButton *quitBtn = new QPushButton("QUIT TO DESKTOP", this);
 
-        QFont largeFont(pixel, 18, QFont::Bold);
-        QFont buttonFont(pixel, 14);
+    resumeBtn->setFont(buttonFont);
+    resumeBtn->setStyleSheet("background-color: #4CAF50; color: black; border-radius: 10px;");
+    resumeBtn->setMinimumHeight(60);
 
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setSpacing(20);                     // Space between buttons
+    quitBtn->setFont(buttonFont);
+    quitBtn->setStyleSheet("background-color: #f44336; color: black; border-radius: 10px;");
+    quitBtn->setMinimumHeight(60);
 
+    mainLayout->addWidget(label);
+    mainLayout->addWidget(resumeBtn);
+    mainLayout->addWidget(quitBtn);
 
-        QLabel *label = new QLabel("Do you want to quit the game?", this);
-        label->setFont(largeFont);
-        label->setAlignment(Qt::AlignCenter);
-        label->setStyleSheet("color: black;");
-
-        QPushButton *resumeBtn = new QPushButton("RESUME GAME", this);
-        QPushButton *quitBtn = new QPushButton("QUIT TO DESKTOP", this);
-
-        resumeBtn->setFont(buttonFont);
-        quitBtn->setFont(buttonFont);
-
-        resumeBtn->setMinimumHeight(60);
-        quitBtn->setMinimumHeight(60);
-
-        resumeBtn->setStyleSheet("background-color: #4CAF50; color: black; border-radius: 10px;");
-        quitBtn->setStyleSheet("background-color: #f44336; color: black; border-radius: 10px;");
-
-        layout->setContentsMargins(50, 50, 50, 50);
-        layout->addWidget(label);
-        layout->addWidget(resumeBtn);
-        layout->addWidget(quitBtn);
-
-        connect(quitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
-        connect(resumeBtn, &QPushButton::clicked, this, &QDialog::accept);
-    }
-}
-void pausewindow::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    QPixmap background(":resources/ui-elements/window.png");
-    painter.drawPixmap(0, 0, width(), height(), background);
+    connect(quitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
+    connect(resumeBtn, &QPushButton::clicked, this, &QDialog::accept);
 }

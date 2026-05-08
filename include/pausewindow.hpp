@@ -1,16 +1,10 @@
 #ifndef PAUSEWINDOW_H
 #define PAUSEWINDOW_H
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QLabel>
-#include <QApplication>
-class pausewindow: public QDialog
+#include "basewindow.hpp"
+class pausewindow: public BaseWindow
 {
 public:
     pausewindow(QWidget*);
-protected:
-    void paintEvent(QPaintEvent *event) override;
 };
 
 #endif // PAUSEWINDOW_H

@@ -185,8 +185,44 @@ void Player::updateAnimation()
 
 void Player::movePlayer()
 {
-    if (currentState == PlayerState::Attacking || currentState == PlayerState::Damaged || currentState == PlayerState::Dead)
+    if (currentState == PlayerState::Damaged || currentState == PlayerState::Dead)
         return;
+
+    if (isDashing) {
+        if (dashDuration > 0) {
+            float speed = 4.0f + (dashDuration * 0.5f);
+            float newX = x() + (dashDirection.x() * speed);
+            float newY = y() + (dashDirection.y() * speed);
+            MapLoader *currentMap = qobject_cast<MapLoader *>(scene());
+
+            if (currentMap) {
+                if (!checkCollision(getPlayerHitbox(QPointF(newX, y())), currentMap)) setX(newX);
+                if (!checkCollision(getPlayerHitbox(QPointF(x(), newY)), currentMap)) setY(newY);
+            }
+
+            QGraphicsPixmapItem* ghost = new QGraphicsPixmapItem(this->pixmap());
+            ghost->setPos(this->pos());
+            ghost->setZValue(this->zValue() - 1);
+            ghost->setOpacity(0.4);
+            if (scene()) scene()->addItem(ghost);
+
+            QTimer::singleShot(200, [ghost]() {
+                if (ghost && ghost->scene()) {
+                    ghost->scene()->removeItem(ghost);
+                    delete ghost;
+                }
+            });
+
+            dashDuration--;
+            emit positionChanged(this);
+        } else {
+            isDashing = false;
+        }
+    }
+
+    if (dashCooldown > 0) dashCooldown--;
+
+    if (currentState == PlayerState::Attacking) return;
 
     float dx = 0, dy = 0;
     if (activeKeys.contains(Qt::Key_W) || activeKeys.contains(Qt::Key_Up))
@@ -213,6 +249,7 @@ void Player::movePlayer()
         idleTimer->stop();
     }
     setAnimationState(PlayerState::Walking);
+
 
     Direction oldDirection = currentDirection;
     if (dx != 0)
@@ -363,6 +400,30 @@ void Player::keyPressEvent(QKeyEvent *event)
     {
         if (!activeKeys.contains(key))
             activeKeys.append(key);
+    }
+    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana>=30) {
+        isDashing = true;
+        dashDuration = 8;
+        dashCooldown = 50;
+        stamina -= 30;
+        mana -=30;
+
+        float ddx = 0, ddy = 0;
+        if (activeKeys.contains(Qt::Key_W) || activeKeys.contains(Qt::Key_Up)) ddy -= 1;
+        if (activeKeys.contains(Qt::Key_S) || activeKeys.contains(Qt::Key_Down)) ddy += 1;
+        if (activeKeys.contains(Qt::Key_A) || activeKeys.contains(Qt::Key_Left)) ddx -= 1;
+        if (activeKeys.contains(Qt::Key_D) || activeKeys.contains(Qt::Key_Right)) ddx += 1;
+
+        if (ddx == 0 && ddy == 0) {
+            if (currentDirection == Direction::Up) ddy = -1;
+            else if (currentDirection == Direction::Down) ddy = 1;
+            else if (currentDirection == Direction::Left) ddx = -1;
+            else if (currentDirection == Direction::Right) ddx = 1;
+        }
+        dashDirection = QPointF(ddx, ddy);
+
+        emit statsChanged();
+        AudioManager::instance().playSound("Dash");
     }
 }
 

@@ -5,6 +5,7 @@
 #include "pausewindow.hpp"
 #include "levelcleared.hpp"
 #include "levelintro.hpp"
+#include "statsupgrade.hpp"
 
 GameView::GameView(MapLoader *overworld, MapLoader *interior, Characters *player)
     : QGraphicsView(player->scene()
@@ -57,12 +58,14 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, Characters *player
     connect(this, &GameView::isoverworld, _progressBar, &QProgressBar::setVisible);
 
     connect(_overworld, &MapLoader::levelCleared, this, [this]() {
-        auto* clearedwindow = new LevelCleared(this);
-        clearedwindow->setAttribute(Qt::WA_DeleteOnClose);
-        connect(clearedwindow, &QDialog::accepted, this, [this]() {
-            this->switchToInterior();
+        auto* vWindow = new LevelCleared(this, _player->getLevelsCompleted());
+
+        connect(vWindow, &QDialog::accepted, this, [this]() {
+            auto* sWindow = new Statsupgrade(this, _player->getStats(), _player->getLevelsCompleted());
+            connect(sWindow, &QDialog::accepted, this, &GameView::switchToInterior);
+            sWindow->show();
         });
-        clearedwindow->open();
+        vWindow->show();
     });
 
     QTimer::singleShot(0, this, [this]()

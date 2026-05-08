@@ -76,6 +76,11 @@ private:
         Fireball->setSource(QUrl("qrc:/resources/sound-effects/Fireball.wav"));
         Fireball->setVolume(0.7f);
         soundTable["Fireball"] = Fireball;
+
+        QSoundEffect *Dash = new QSoundEffect(this);
+        Dash->setSource(QUrl("qrc:/resources/sound-effects/Dash.wav"));
+        Dash->setVolume(0.7f);
+        soundTable["Dash"] = Dash;
     }
 
     std::unordered_map<std::string, QSoundEffect *> soundTable;
