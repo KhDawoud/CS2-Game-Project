@@ -478,7 +478,7 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
         return;
 
     int placed = 0, attempts = 0, maxAttempts = count * 100;
-    while (placed < 1 && attempts < maxAttempts)
+    while (placed < count && attempts < maxAttempts)
     {
         attempts++;
         int r = QRandomGenerator::global()->bounded(rowMin, rowMax);
