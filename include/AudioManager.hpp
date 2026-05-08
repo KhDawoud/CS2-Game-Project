@@ -30,6 +30,18 @@ public:
             qWarning() << "Sound key not found:" << QString::fromStdString(key);
         }
     }
+    void stopSound(const std::string &key)
+    {
+        auto it = soundTable.find(key);
+        if (it != soundTable.end())
+        {
+            it->second->stop();
+        }
+        else
+        {
+            qWarning() << "Sound key not found for stopping:" << QString::fromStdString(key);
+        }
+    }
 
     AudioManager(const AudioManager &) = delete;
     AudioManager &operator=(const AudioManager &) = delete;
@@ -81,6 +93,11 @@ private:
         Dash->setSource(QUrl("qrc:/resources/sound-effects/Dash.wav"));
         Dash->setVolume(0.7f);
         soundTable["Dash"] = Dash;
+
+        QSoundEffect *Lightning = new QSoundEffect(this);
+        Lightning->setSource(QUrl("qrc:/resources/sound-effects/lightning-hold.wav"));
+        Lightning->setVolume(0.7f);
+        soundTable["Lightning"] = Lightning;
     }
 
     std::unordered_map<std::string, QSoundEffect *> soundTable;

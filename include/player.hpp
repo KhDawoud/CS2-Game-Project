@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QTimer>
 #include "maploader.hpp"
+#include "lightningattack.hpp"
 
 class Map;
 class House_Interior;
@@ -152,6 +153,7 @@ private:
     void performAttack();
     void shootFireball();
     bool hasSpawnedFireball;
+    bool isUsingLightning;
     bool isShiftPressed;
 
     bool isDashing = false;
@@ -159,5 +161,6 @@ private:
     int dashDuration = 0;
     int dashCooldown = 0;
     QPointF dashDirection;
+    LightningAttack* lightning;
 };
 #endif // PLAYER_HPP

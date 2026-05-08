@@ -37,6 +37,7 @@ qt_add_executable(QtTest
     src/projectile.cpp
     src/basewindow.cpp
     src/statsupgrade.cpp
+    src/lightningattack.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -231,6 +232,8 @@ qt_add_resources(QtTest "images"
         "resources/player/Circle_explosion1-sheet.png"
         "resources/sound-effects/Fireball.wav"
         "resources/sound-effects/Dash.wav"
+        "resources/player/Lightning-sheet.png"
+        "resources/sound-effects/lightning-hold.wav"
 )
 
 target_link_libraries(QtTest
