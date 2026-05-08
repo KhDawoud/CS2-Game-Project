@@ -4,16 +4,12 @@
 #include <QGraphicsScene>
 #include <QtGlobal>
 #include <QTransform>
-
-// ===========================================================================
-// Shared helper
-// ===========================================================================
+#include <QTimer>
 
 static QRectF playerDamageBox(Player *player)
 {
     QRectF box = player->sceneBoundingRect();
 
-    // Smaller body box so empty sprite space / head / hair doesn't count.
     box.adjust(box.width() * 0.25,
                box.height() * 0.25,
                -box.width() * 0.25,
@@ -36,7 +32,9 @@ SpikeTrap::SpikeTrap(QGraphicsItem *parent)
     canDamage(true),
     animationTimer(new QTimer(this)),
     damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this))
+    cooldownTimer(new QTimer(this)),
+    pauseTimer(new QTimer(this)),
+    isPaused(false)
 {
     framesheet.load(":resources/traps/trap1.png");
 
@@ -49,7 +47,7 @@ SpikeTrap::SpikeTrap(QGraphicsItem *parent)
     UpdateAnimation();
 
     connect(animationTimer, &QTimer::timeout, this, &SpikeTrap::UpdateAnimation);
-    animationTimer->start(220);
+    animationTimer->start(150);
 
     connect(damageTimer, &QTimer::timeout, this, &SpikeTrap::CheckDamage);
     damageTimer->start(60);
@@ -58,23 +56,45 @@ SpikeTrap::SpikeTrap(QGraphicsItem *parent)
     cooldownTimer->setInterval(800);
 
     connect(cooldownTimer, &QTimer::timeout, this, [this]() {
+        if (!isPaused)
+            canDamage = true;
+    });
+
+    pauseTimer->setSingleShot(true);
+    connect(pauseTimer, &QTimer::timeout, this, [this]() {
+        isPaused = false;
         canDamage = true;
+        currentFrame = 0;
+        animationTimer->start(150);
     });
 }
 
 void SpikeTrap::UpdateAnimation()
 {
+    if (isPaused)
+        return;
+
     displayedFrame = currentFrame;
 
     int y = displayedFrame * frameHeight;
     setPixmap(framesheet.copy(0, y, frameWidth, frameHeight));
 
-    currentFrame = (currentFrame + 1) % frameCount;
+    if (currentFrame >= frameCount - 1)
+    {
+        isPaused = true;
+        canDamage = false;
+        currentFrame = 0;
+        animationTimer->stop();
+        pauseTimer->start(2000);
+        return;
+    }
+
+    currentFrame++;
 }
 
 void SpikeTrap::CheckDamage()
 {
-    if (!scene() || !canDamage || !isExtended())
+    if (!scene() || !canDamage || isPaused || !isExtended())
         return;
 
     QRectF area = damageArea();
@@ -95,7 +115,6 @@ QRectF SpikeTrap::damageArea() const
 {
     QRectF area = sceneBoundingRect();
 
-    // Only the top sharp part should hurt, not the whole sprite.
     area.adjust(area.width() * 0.20,
                 area.height() * 0.35,
                 -area.width() * 0.20,
@@ -151,7 +170,9 @@ SlidingSpikeTrap::SlidingSpikeTrap(QGraphicsItem *parent)
     canDamage(true),
     animationTimer(new QTimer(this)),
     damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this))
+    cooldownTimer(new QTimer(this)),
+    pauseTimer(new QTimer(this)),
+    isPaused(false)
 {
     framesheet.load(":resources/traps/trap2.png");
 
@@ -164,7 +185,7 @@ SlidingSpikeTrap::SlidingSpikeTrap(QGraphicsItem *parent)
     UpdateAnimation();
 
     connect(animationTimer, &QTimer::timeout, this, &SlidingSpikeTrap::UpdateAnimation);
-    animationTimer->start(360);
+    animationTimer->start(220);
 
     connect(damageTimer, &QTimer::timeout, this, &SlidingSpikeTrap::CheckDamage);
     damageTimer->start(60);
@@ -173,12 +194,25 @@ SlidingSpikeTrap::SlidingSpikeTrap(QGraphicsItem *parent)
     cooldownTimer->setInterval(700);
 
     connect(cooldownTimer, &QTimer::timeout, this, [this]() {
+        if (!isPaused)
+            canDamage = true;
+    });
+
+    pauseTimer->setSingleShot(true);
+    connect(pauseTimer, &QTimer::timeout, this, [this]() {
+        isPaused = false;
         canDamage = true;
+        currentFrame = 0;
+        direction = 1;
+        animationTimer->start(220);
     });
 }
 
 void SlidingSpikeTrap::UpdateAnimation()
 {
+    if (isPaused)
+        return;
+
     displayedFrame = currentFrame;
 
     int y = displayedFrame * frameHeight;
@@ -191,16 +225,21 @@ void SlidingSpikeTrap::UpdateAnimation()
         currentFrame = frameCount - 1;
         direction = -1;
     }
-    else if (currentFrame <= 0)
+    else if (currentFrame <= 0 && direction == -1)
     {
         currentFrame = 0;
         direction = 1;
+
+        isPaused = true;
+        canDamage = false;
+        animationTimer->stop();
+        pauseTimer->start(2000);
     }
 }
 
 void SlidingSpikeTrap::CheckDamage()
 {
-    if (!scene() || !canDamage)
+    if (!scene() || !canDamage || isPaused)
         return;
 
     QRectF area = damageArea();
@@ -274,7 +313,9 @@ SawBladeTrap::SawBladeTrap(QGraphicsItem *parent)
     canDamage(true),
     animationTimer(new QTimer(this)),
     damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this))
+    cooldownTimer(new QTimer(this)),
+    pauseTimer(new QTimer(this)),
+    isPaused(false)
 {
     framesheet.load(":resources/traps/trap3.png");
 
@@ -287,7 +328,7 @@ SawBladeTrap::SawBladeTrap(QGraphicsItem *parent)
     UpdateAnimation();
 
     connect(animationTimer, &QTimer::timeout, this, &SawBladeTrap::UpdateAnimation);
-    animationTimer->start(110);
+    animationTimer->start(70);
 
     connect(damageTimer, &QTimer::timeout, this, &SawBladeTrap::CheckDamage);
     damageTimer->start(50);
@@ -296,23 +337,45 @@ SawBladeTrap::SawBladeTrap(QGraphicsItem *parent)
     cooldownTimer->setInterval(550);
 
     connect(cooldownTimer, &QTimer::timeout, this, [this]() {
+        if (!isPaused)
+            canDamage = true;
+    });
+
+    pauseTimer->setSingleShot(true);
+    connect(pauseTimer, &QTimer::timeout, this, [this]() {
+        isPaused = false;
         canDamage = true;
+        currentFrame = 0;
+        animationTimer->start(70);
     });
 }
 
 void SawBladeTrap::UpdateAnimation()
 {
+    if (isPaused)
+        return;
+
     displayedFrame = currentFrame;
 
     int x = qRound(displayedFrame * (framesheet.width() / qreal(frameCount)));
     setPixmap(framesheet.copy(x, 0, frameWidth, frameHeight));
 
-    currentFrame = (currentFrame + 1) % frameCount;
+    if (currentFrame >= frameCount - 1)
+    {
+        isPaused = true;
+        canDamage = false;
+        currentFrame = 0;
+        animationTimer->stop();
+        pauseTimer->start(2000);
+        return;
+    }
+
+    currentFrame++;
 }
 
 void SawBladeTrap::CheckDamage()
 {
-    if (!scene() || !canDamage)
+    if (!scene() || !canDamage || isPaused)
         return;
 
     QRectF area = damageArea();
@@ -382,7 +445,9 @@ FireTrap::FireTrap(QGraphicsItem *parent)
     canDamage(true),
     animationTimer(new QTimer(this)),
     damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this))
+    cooldownTimer(new QTimer(this)),
+    pauseTimer(new QTimer(this)),
+    isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap1.png");
 
@@ -395,7 +460,7 @@ FireTrap::FireTrap(QGraphicsItem *parent)
     UpdateAnimation();
 
     connect(animationTimer, &QTimer::timeout, this, &FireTrap::UpdateAnimation);
-    animationTimer->start(170);
+    animationTimer->start(100);
 
     connect(damageTimer, &QTimer::timeout, this, &FireTrap::CheckDamage);
     damageTimer->start(60);
@@ -404,12 +469,24 @@ FireTrap::FireTrap(QGraphicsItem *parent)
     cooldownTimer->setInterval(700);
 
     connect(cooldownTimer, &QTimer::timeout, this, [this]() {
+        if (!isPaused)
+            canDamage = true;
+    });
+
+    pauseTimer->setSingleShot(true);
+    connect(pauseTimer, &QTimer::timeout, this, [this]() {
+        isPaused = false;
         canDamage = true;
+        currentFrame = 0;
+        animationTimer->start(100);
     });
 }
 
 void FireTrap::UpdateAnimation()
 {
+    if (isPaused)
+        return;
+
     displayedFrame = currentFrame;
 
     setPixmap(framesheet.copy(currentFrame * frameWidth,
@@ -417,7 +494,17 @@ void FireTrap::UpdateAnimation()
                               frameWidth,
                               frameHeight));
 
-    currentFrame = (currentFrame + 1) % frameCount;
+    if (currentFrame >= frameCount - 1)
+    {
+        isPaused = true;
+        canDamage = false;
+        currentFrame = 0;
+        animationTimer->stop();
+        pauseTimer->start(2000);
+        return;
+    }
+
+    currentFrame++;
 }
 
 bool FireTrap::isSparkFrame() const
@@ -432,7 +519,7 @@ bool FireTrap::isFireFrame() const
 
 void FireTrap::CheckDamage()
 {
-    if (!scene() || !canDamage)
+    if (!scene() || !canDamage || isPaused)
         return;
 
     if (!isSparkFrame() && !isFireFrame())
@@ -482,7 +569,6 @@ QRectF FireTrap::damageArea() const
     qreal w = isSparkFrame() ? area.width() * 0.22
                              : area.width() * 0.70;
 
-    // Fire shoots LEFT. Base is on RIGHT.
     return QRectF(area.right() - w - area.width() * 0.12,
                   y,
                   w,
@@ -513,7 +599,9 @@ FireTrap2::FireTrap2(QGraphicsItem *parent)
     canDamage(true),
     animationTimer(new QTimer(this)),
     damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this))
+    cooldownTimer(new QTimer(this)),
+    pauseTimer(new QTimer(this)),
+    isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap1.png");
 
@@ -526,7 +614,7 @@ FireTrap2::FireTrap2(QGraphicsItem *parent)
     UpdateAnimation();
 
     connect(animationTimer, &QTimer::timeout, this, &FireTrap2::UpdateAnimation);
-    animationTimer->start(170);
+    animationTimer->start(100);
 
     connect(damageTimer, &QTimer::timeout, this, &FireTrap2::CheckDamage);
     damageTimer->start(60);
@@ -535,12 +623,24 @@ FireTrap2::FireTrap2(QGraphicsItem *parent)
     cooldownTimer->setInterval(700);
 
     connect(cooldownTimer, &QTimer::timeout, this, [this]() {
+        if (!isPaused)
+            canDamage = true;
+    });
+
+    pauseTimer->setSingleShot(true);
+    connect(pauseTimer, &QTimer::timeout, this, [this]() {
+        isPaused = false;
         canDamage = true;
+        currentFrame = 0;
+        animationTimer->start(100);
     });
 }
 
 void FireTrap2::UpdateAnimation()
 {
+    if (isPaused)
+        return;
+
     displayedFrame = currentFrame;
 
     QPixmap frame = framesheet.copy(currentFrame * frameWidth,
@@ -550,7 +650,17 @@ void FireTrap2::UpdateAnimation()
 
     setPixmap(frame.transformed(QTransform().scale(-1, 1)));
 
-    currentFrame = (currentFrame + 1) % frameCount;
+    if (currentFrame >= frameCount - 1)
+    {
+        isPaused = true;
+        canDamage = false;
+        currentFrame = 0;
+        animationTimer->stop();
+        pauseTimer->start(2000);
+        return;
+    }
+
+    currentFrame++;
 }
 
 bool FireTrap2::isSparkFrame() const
@@ -565,7 +675,7 @@ bool FireTrap2::isFireFrame() const
 
 void FireTrap2::CheckDamage()
 {
-    if (!scene() || !canDamage)
+    if (!scene() || !canDamage || isPaused)
         return;
 
     if (!isSparkFrame() && !isFireFrame())
@@ -615,7 +725,6 @@ QRectF FireTrap2::damageArea() const
     qreal w = isSparkFrame() ? area.width() * 0.22
                              : area.width() * 0.70;
 
-    // Fire shoots RIGHT. Base is on LEFT.
     return QRectF(area.left() + area.width() * 0.12,
                   y,
                   w,
@@ -646,7 +755,9 @@ FireTrap3::FireTrap3(QGraphicsItem *parent)
     canDamage(true),
     animationTimer(new QTimer(this)),
     damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this))
+    cooldownTimer(new QTimer(this)),
+    pauseTimer(new QTimer(this)),
+    isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap3.png");
 
@@ -659,7 +770,7 @@ FireTrap3::FireTrap3(QGraphicsItem *parent)
     UpdateAnimation();
 
     connect(animationTimer, &QTimer::timeout, this, &FireTrap3::UpdateAnimation);
-    animationTimer->start(170);
+    animationTimer->start(100);
 
     connect(damageTimer, &QTimer::timeout, this, &FireTrap3::CheckDamage);
     damageTimer->start(60);
@@ -668,12 +779,24 @@ FireTrap3::FireTrap3(QGraphicsItem *parent)
     cooldownTimer->setInterval(700);
 
     connect(cooldownTimer, &QTimer::timeout, this, [this]() {
+        if (!isPaused)
+            canDamage = true;
+    });
+
+    pauseTimer->setSingleShot(true);
+    connect(pauseTimer, &QTimer::timeout, this, [this]() {
+        isPaused = false;
         canDamage = true;
+        currentFrame = 0;
+        animationTimer->start(100);
     });
 }
 
 void FireTrap3::UpdateAnimation()
 {
+    if (isPaused)
+        return;
+
     displayedFrame = currentFrame;
 
     setPixmap(framesheet.copy(currentFrame * frameWidth,
@@ -681,7 +804,17 @@ void FireTrap3::UpdateAnimation()
                               frameWidth,
                               frameHeight));
 
-    currentFrame = (currentFrame + 1) % frameCount;
+    if (currentFrame >= frameCount - 1)
+    {
+        isPaused = true;
+        canDamage = false;
+        currentFrame = 0;
+        animationTimer->stop();
+        pauseTimer->start(2000);
+        return;
+    }
+
+    currentFrame++;
 }
 
 bool FireTrap3::isSparkFrame() const
@@ -696,7 +829,7 @@ bool FireTrap3::isFireFrame() const
 
 void FireTrap3::CheckDamage()
 {
-    if (!scene() || !canDamage)
+    if (!scene() || !canDamage || isPaused)
         return;
 
     if (!isSparkFrame() && !isFireFrame())
@@ -746,7 +879,6 @@ QRectF FireTrap3::damageArea() const
     qreal h = isSparkFrame() ? area.height() * 0.25
                              : area.height() * 0.65;
 
-    // Fire shoots UP. Base is at BOTTOM.
     return QRectF(x,
                   area.bottom() - h - area.height() * 0.15,
                   w,
@@ -777,7 +909,9 @@ FireTrap4::FireTrap4(QGraphicsItem *parent)
     canDamage(true),
     animationTimer(new QTimer(this)),
     damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this))
+    cooldownTimer(new QTimer(this)),
+    pauseTimer(new QTimer(this)),
+    isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap3.png");
 
@@ -790,7 +924,7 @@ FireTrap4::FireTrap4(QGraphicsItem *parent)
     UpdateAnimation();
 
     connect(animationTimer, &QTimer::timeout, this, &FireTrap4::UpdateAnimation);
-    animationTimer->start(170);
+    animationTimer->start(100);
 
     connect(damageTimer, &QTimer::timeout, this, &FireTrap4::CheckDamage);
     damageTimer->start(60);
@@ -799,12 +933,24 @@ FireTrap4::FireTrap4(QGraphicsItem *parent)
     cooldownTimer->setInterval(700);
 
     connect(cooldownTimer, &QTimer::timeout, this, [this]() {
+        if (!isPaused)
+            canDamage = true;
+    });
+
+    pauseTimer->setSingleShot(true);
+    connect(pauseTimer, &QTimer::timeout, this, [this]() {
+        isPaused = false;
         canDamage = true;
+        currentFrame = 0;
+        animationTimer->start(100);
     });
 }
 
 void FireTrap4::UpdateAnimation()
 {
+    if (isPaused)
+        return;
+
     displayedFrame = currentFrame;
 
     QPixmap frame = framesheet.copy(currentFrame * frameWidth,
@@ -814,7 +960,17 @@ void FireTrap4::UpdateAnimation()
 
     setPixmap(frame.transformed(QTransform().scale(1, -1)));
 
-    currentFrame = (currentFrame + 1) % frameCount;
+    if (currentFrame >= frameCount - 1)
+    {
+        isPaused = true;
+        canDamage = false;
+        currentFrame = 0;
+        animationTimer->stop();
+        pauseTimer->start(2000);
+        return;
+    }
+
+    currentFrame++;
 }
 
 bool FireTrap4::isSparkFrame() const
@@ -829,7 +985,7 @@ bool FireTrap4::isFireFrame() const
 
 void FireTrap4::CheckDamage()
 {
-    if (!scene() || !canDamage)
+    if (!scene() || !canDamage || isPaused)
         return;
 
     if (!isSparkFrame() && !isFireFrame())
@@ -879,7 +1035,6 @@ QRectF FireTrap4::damageArea() const
     qreal h = isSparkFrame() ? area.height() * 0.25
                              : area.height() * 0.65;
 
-    // Fire shoots DOWN. Base is at TOP.
     return QRectF(x,
                   area.top() + area.height() * 0.15,
                   w,
