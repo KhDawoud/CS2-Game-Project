@@ -502,3 +502,5 @@ void Player::shootFireball()
     Projectile *fireball = new Projectile(spawnPos, shootDir, currentMap);
     this->scene()->addItem(fireball);
 }
+
+

@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 
     overworld->addItem(stats);
 
+    QObject::connect(overworld, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
+
     GameView *view = new GameView(overworld, interior, player);
 
     QObject::connect(player,

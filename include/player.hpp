@@ -48,6 +48,7 @@ public slots:
     void updateAnimation();
     void movePlayer();
 
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 
@@ -93,6 +94,7 @@ protected:
 
     qreal sprintMultiplier = 1.5;
     bool isSprinting = false;
+    int levelscleared=0;
 
 signals:
     void positionChanged(QGraphicsItem *playerPtr); // The announcement

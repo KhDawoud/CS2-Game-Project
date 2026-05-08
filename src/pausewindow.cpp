@@ -23,7 +23,6 @@ pausewindow::pausewindow(QWidget *parent)
         QFont buttonFont(pixel, 14);
 
         QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setContentsMargins(30, 30, 30, 30); // Add padding around edges
         layout->setSpacing(20);                     // Space between buttons
 
 

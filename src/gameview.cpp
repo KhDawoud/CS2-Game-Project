@@ -56,10 +56,14 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, Characters *player
     // visible in overwold
     connect(this, &GameView::isoverworld, _progressBar, &QProgressBar::setVisible);
 
-    connect(_overworld, &MapLoader::levelCleared, [this]()
-            {
-        LevelCleared clearedwindow(this);
-        clearedwindow.exec(); });
+    connect(_overworld, &MapLoader::levelCleared, this, [this]() {
+        auto* clearedwindow = new LevelCleared(this);
+        clearedwindow->setAttribute(Qt::WA_DeleteOnClose);
+        connect(clearedwindow, &QDialog::accepted, this, [this]() {
+            this->switchToInterior();
+        });
+        clearedwindow->open();
+    });
 
     QTimer::singleShot(0, this, [this]()
                        {

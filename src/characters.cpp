@@ -12,14 +12,17 @@ Characters::Characters(int num): Player(num){
     }
 }
 void Characters::loadSwordsman(){
-    damage = 10;
     animationfactor=1;
+    int charIndex = (levelscleared == 0) ? 1 : levelscleared==1 ? 2: 3;
+    damage = charIndex * 10;
 
-    walkSheet.load(":resources/player/running/swordsman_1_run.png");
-    idleSheet.load(":resources/player/idling/swordsman_1_idle.png");
-    attackSheet.load(":resources/player/attacking/swordsman_1_attack.png");
-    damagedSheet.load(":resources/player/damaged/swordsman_1_damaged.png");
-    deadSheet.load(":resources/player/dead/swordsman_1_dead.png");
+    QString path = ":resources/player/%1/swordsman_%2_%1.png";
+
+    walkSheet.load(path.arg("running",   QString::number(charIndex)));
+    idleSheet.load(path.arg("idling",    QString::number(charIndex)));
+    attackSheet.load(path.arg("attacking", QString::number(charIndex)));
+    damagedSheet.load(path.arg("damaged",  QString::number(charIndex)));
+    deadSheet.load(path.arg("dead",     QString::number(charIndex)));
 
     walkFrameWidthCount = 8;
     walkFrameWidth = walkSheet.width() / 8;
@@ -174,5 +177,11 @@ void Characters::swtichto(int num){
     }
     currentFrame = 0;
 }
-
+void Characters::handleLevelCleared(){
+    levelscleared++;
+    if(characternum==1){
+        loadSwordsman();
+    }
+    currentFrame = 0;
+}
 

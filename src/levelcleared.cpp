@@ -10,42 +10,42 @@ LevelCleared::LevelCleared(QWidget *parent)
 
     if (fontId != -1)
     {
-        // Retrieve the exact family name assigned by the font file
         QString pixel = QFontDatabase::applicationFontFamilies(fontId).at(0);
 
-        // Set up the window look
         setFixedSize(500, 300);
         setWindowTitle("Exit Menu");
         setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
         setAttribute(Qt::WA_TranslucentBackground);
 
-        // 2. Define a Large Font
         QFont largeFont(pixel, 18, QFont::Bold);
         QFont buttonFont(pixel, 14);
 
         QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setContentsMargins(50, 100, 50, 100); // Add padding around edges
-        layout->setSpacing(20);                         // Space between buttons
+        layout->setContentsMargins(50, 50, 50, 50);
+        layout->setSpacing(20);
 
-        // 3. Large Label
         QLabel *label = new QLabel("LEVEL SUCCESFULLY CLEARED!", this);
         label->setFont(largeFont);
         label->setAlignment(Qt::AlignCenter);
         label->setStyleSheet("color: black;");
 
-        // 4. Large Buttons
         QPushButton *nextLevelBtn = new QPushButton("RETURN TO HOME", this);
+        QPushButton *exit = new QPushButton("SAVE & EXIT", this);
 
         nextLevelBtn->setFont(buttonFont);
-
-        nextLevelBtn->setMinimumHeight(60); // Make buttons tall
-
+        nextLevelBtn->setMinimumHeight(60);
         nextLevelBtn->setStyleSheet("background-color: #4CAF50; color: black; border-radius: 10px;");
+
+        exit->setFont(buttonFont);
+        exit->setMinimumHeight(60);
+        exit->setStyleSheet("background-color: #f44336; color: black; border-radius: 10px;");
+
         layout->addWidget(label);
         layout->addWidget(nextLevelBtn);
+        layout->addWidget(exit);
 
-        // for now it just quits but we'll make it go to the house when we add more levels
-        connect(nextLevelBtn, &QPushButton::clicked, qApp, &QApplication::quit);
+        connect(nextLevelBtn, &QPushButton::clicked, this, &LevelCleared::accept);
+        connect(exit, &QPushButton::clicked, qApp, &QApplication::quit);
     }
 }
 void LevelCleared::paintEvent(QPaintEvent *event)

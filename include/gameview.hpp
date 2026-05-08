@@ -22,7 +22,6 @@ protected:
 private:
     void switchToInterior();
     void switchToOverworld();
-
     MapLoader *_overworld;
     MapLoader *_interior;
     Characters *_player;

@@ -12,7 +12,8 @@ private:
 public:
     Characters(int);
     void swtichto(int);
-
+public slots:
+    void handleLevelCleared();
 
 };
 
