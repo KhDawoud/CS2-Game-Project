@@ -252,17 +252,17 @@ void GameView::loadinteractionPrompt()
     }
     textStart = new QGraphicsTextItem("Press");
     textStart->setDefaultTextColor(Qt::white);
-    textStart->setFont(QFont(pixelFontFamily, 4));
+    textStart->setFont(QFont(pixelFontFamily, 6));
 
     interactPrompt = new QGraphicsPixmapItem(QPixmap(":resources/ui-elements/Ebutton.PNG"));
     interactPrompt->setZValue(100);
     interactPrompt->setVisible(false);
     interactPrompt->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-    interactPrompt->setScale(1.5);
+    interactPrompt->setScale(1.8);
 
     textEnd = new QGraphicsTextItem("to Enter");
     textEnd->setDefaultTextColor(Qt::white);
-    textEnd->setFont(QFont(pixelFontFamily, 4));
+    textEnd->setFont(QFont(pixelFontFamily, 6));
 
     textStart->setZValue(100);
     interactPrompt->setZValue(100);
