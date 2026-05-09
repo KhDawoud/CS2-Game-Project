@@ -44,6 +44,7 @@ Player::Player(int charnum) : characternum(charnum)
     setZValue(2);
 
     lightning = new LightningAttack(this, nullptr);
+    lightning->updateDirection(currentDirection);
     lightning->setPos(0, 0);
 
     rowMap[(int)Direction::Up] = 3;

@@ -136,7 +136,7 @@ void LightningAttack::updateDirection(Direction dir) {
 void LightningAttack::updateLength() {
     if (!currentMap) return;
 
-    float maxLength = 250.0f;
+    float maxLength = 130.0f;
     currentLength = maxLength;
     float tileSize = static_cast<float>(currentMap->tileSize());
 
