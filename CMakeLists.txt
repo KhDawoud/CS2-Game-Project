@@ -38,6 +38,7 @@ qt_add_executable(QtTest
     src/projectile.cpp
     src/basewindow.cpp
     src/statsupgrade.cpp
+    src/lightningattack.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -260,6 +261,9 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/map2 objects/dungeon_vase_sm.png"
         "resources/map-assets/map2 objects/dungeon_vase.png"
         "resources/map-assets/map2 objects/dungeon_barrel_blue.png"
+        "resources/player/Lightning-sheet.png"
+        "resources/sound-effects/lightning-hold.wav"
+
 )
 
 target_link_libraries(QtTest

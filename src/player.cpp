@@ -43,6 +43,9 @@ Player::Player(int charnum) : characternum(charnum)
     setFocus();
     setZValue(2);
 
+    lightning = new LightningAttack(this, nullptr);
+    lightning->setPos(0, 0);
+
     rowMap[(int)Direction::Up] = 3;
     rowMap[(int)Direction::Down] = 0;
     rowMap[(int)Direction::Left] = 1;
@@ -104,15 +107,44 @@ void Player::updateAnimation()
         currentFrameWidth = attackFrameWidth;
         currentFrameHeight = attackFrameHeight;
         sheetToDraw = &attackSheet;
+        if (characternum == 2 && currentState == PlayerState::Attacking)
+        {
+            if (currentFrame == 3 && !hasSpawnedFireball)
+            {
+                hasSpawnedFireball =true;
+                if (isUsingLightning) {
+                    if (lightning) lightning->startAttack();
+                } else {
+                    performAttack();
+                    AudioManager::instance().playSound("Fireball");
+                }
+            }
+            if (lightning && lightning->isVisible() && isUsingLightning)
+            {
+                if (lightning) lightning->startAttack();
+                manaRegenTimer->stop();
+                mana -= 4;
+                if (mana <= 0) {
+                    mana = 0;
+                    lightning->stopAttack();
+                    isUsingLightning =false;
+
+                }
+                emit statsChanged();
+                manaRegenTimer->start(400);
+
+                currentFrame = 4;
+                int row = static_cast<int>(rowMap[(int)currentDirection]);
+                setPixmap(sheetToDraw->copy(currentFrame * currentFrameWidth,
+                                            row * currentFrameHeight,
+                                            currentFrameWidth,
+                                            currentFrameHeight));
+                return;
+            }
+        }
         if (currentFrame == 0 && characternum != 2)
         {
             AudioManager::instance().playSound("SwordSwing");
-        }
-        if (currentFrame == 3 && characternum == 2)
-        {
-            performAttack();
-            AudioManager::instance().playSound("Fireball");
-            hasSpawnedFireball = true;
         }
     }
     else if (currentState == PlayerState::Damaged)
@@ -179,6 +211,7 @@ void Player::updateAnimation()
             idleTimer->start(1000);
             setAnimationState(PlayerState::Idle);
             hasSpawnedFireball = false;
+            isUsingLightning =false;
         }
     }
 }
@@ -259,6 +292,9 @@ void Player::movePlayer()
     if (oldDirection != currentDirection)
     {
         updateAnimation();
+        if (lightning) {
+            lightning->updateDirection(currentDirection);
+        }
     }
 
     bool previouslySprinting = isSprinting;
@@ -306,6 +342,28 @@ void Player::movePlayer()
             QRectF predictedHitboxY = getPlayerHitbox(QPointF(x(), newY));
             if (!checkCollision(predictedHitboxY, currentMap))
                 setY(newY);
+        }
+        if (lightning) {
+            QRectF pRect = this->boundingRect();
+            QPointF center = pRect.center();
+            float offset = 58.0f;
+            float upOffset = -5.0f;
+
+            switch (currentDirection) {
+            case Direction::Up:
+                lightning->setPos(center.x() + upOffset, center.y() - offset+3);
+                break;
+            case Direction::Down:
+                lightning->setPos(center.x() - upOffset, center.y() + offset-10);
+                break;
+            case Direction::Left:
+                lightning->setPos(center.x() - offset, center.y() + upOffset);
+                break;
+            case Direction::Right:
+                lightning->setPos(center.x() + offset, center.y() + upOffset);
+                break;
+            }
+            lightning->setMap(currentMap);
         }
     }
 
@@ -377,6 +435,8 @@ void Player::keyPressEvent(QKeyEvent *event)
             {
                 if (mana >= 20 && characternum == 2)
                 {
+                    isUsingLightning = false;
+                    hasSpawnedFireball = false;
                     setAnimationState(PlayerState::Attacking);
                     stamina -= 20;
                     mana -= 20;
@@ -401,7 +461,7 @@ void Player::keyPressEvent(QKeyEvent *event)
         if (!activeKeys.contains(key))
             activeKeys.append(key);
     }
-    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana>=30) {
+    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana>=30 && characternum!=2) {
         isDashing = true;
         dashDuration = 8;
         dashCooldown = 50;
@@ -424,6 +484,18 @@ void Player::keyPressEvent(QKeyEvent *event)
 
         emit statsChanged();
         AudioManager::instance().playSound("Dash");
+        return;
+    }
+    if (currentState != PlayerState::Attacking)
+    {
+        idleTimer->stop();
+        if (key == Qt::Key_Control) {
+            if (mana >= 20) {
+                isUsingLightning = true;
+                hasSpawnedFireball = false;
+                setAnimationState(PlayerState::Attacking);
+            }
+        }
     }
 }
 
@@ -437,6 +509,12 @@ void Player::keyReleaseEvent(QKeyEvent *event)
         isShiftPressed = false;
         isSprinting = false;
         staminaRegenTimer->start(400);
+    }
+    if (event->key() == Qt::Key_Control) {
+        lightning->stopAttack();
+        hasSpawnedFireball = true;
+        isUsingLightning =false;
+        AudioManager::instance().stopSound("Lightning");
     }
 }
 
