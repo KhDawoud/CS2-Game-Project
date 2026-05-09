@@ -260,7 +260,6 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/map2 objects/dungeon_vase_sm.png"
         "resources/map-assets/map2 objects/dungeon_vase.png"
         "resources/map-assets/map2 objects/dungeon_barrel_blue.png"
-        "resources/map-assets/map2 objects/dungeon_ladder2.png"
 )
 
 target_link_libraries(QtTest
