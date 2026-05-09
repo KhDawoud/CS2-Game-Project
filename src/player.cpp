@@ -112,24 +112,29 @@ void Player::updateAnimation()
         {
             if (currentFrame == 3 && !hasSpawnedFireball)
             {
-                hasSpawnedFireball =true;
-                if (isUsingLightning) {
-                    if (lightning) lightning->startAttack();
-                } else {
+                hasSpawnedFireball = true;
+                if (isUsingLightning)
+                {
+                    if (lightning)
+                        lightning->startAttack();
+                }
+                else
+                {
                     performAttack();
                     AudioManager::instance().playSound("Fireball");
                 }
             }
             if (lightning && lightning->isVisible() && isUsingLightning)
             {
-                if (lightning) lightning->startAttack();
+                if (lightning)
+                    lightning->startAttack();
                 manaRegenTimer->stop();
                 mana -= 4;
-                if (mana <= 0) {
+                if (mana <= 0)
+                {
                     mana = 0;
                     lightning->stopAttack();
-                    isUsingLightning =false;
-
+                    isUsingLightning = false;
                 }
                 emit statsChanged();
                 manaRegenTimer->start(400);
@@ -212,7 +217,7 @@ void Player::updateAnimation()
             idleTimer->start(1000);
             setAnimationState(PlayerState::Idle);
             hasSpawnedFireball = false;
-            isUsingLightning =false;
+            isUsingLightning = false;
         }
     }
 }
@@ -222,41 +227,51 @@ void Player::movePlayer()
     if (currentState == PlayerState::Damaged || currentState == PlayerState::Dead)
         return;
 
-    if (isDashing) {
-        if (dashDuration > 0) {
+    if (isDashing)
+    {
+        if (dashDuration > 0)
+        {
             float speed = 4.0f + (dashDuration * 0.5f);
             float newX = x() + (dashDirection.x() * speed);
             float newY = y() + (dashDirection.y() * speed);
             MapLoader *currentMap = qobject_cast<MapLoader *>(scene());
 
-            if (currentMap) {
-                if (!checkCollision(getPlayerHitbox(QPointF(newX, y())), currentMap)) setX(newX);
-                if (!checkCollision(getPlayerHitbox(QPointF(x(), newY)), currentMap)) setY(newY);
+            if (currentMap)
+            {
+                if (!checkCollision(getPlayerHitbox(QPointF(newX, y())), currentMap))
+                    setX(newX);
+                if (!checkCollision(getPlayerHitbox(QPointF(x(), newY)), currentMap))
+                    setY(newY);
             }
 
-            QGraphicsPixmapItem* ghost = new QGraphicsPixmapItem(this->pixmap());
+            QGraphicsPixmapItem *ghost = new QGraphicsPixmapItem(this->pixmap());
             ghost->setPos(this->pos());
             ghost->setZValue(this->zValue() - 1);
             ghost->setOpacity(0.4);
-            if (scene()) scene()->addItem(ghost);
+            if (scene())
+                scene()->addItem(ghost);
 
-            QTimer::singleShot(200, [ghost]() {
+            QTimer::singleShot(200, [ghost]()
+                               {
                 if (ghost && ghost->scene()) {
                     ghost->scene()->removeItem(ghost);
                     delete ghost;
-                }
-            });
+                } });
 
             dashDuration--;
             emit positionChanged(this);
-        } else {
+        }
+        else
+        {
             isDashing = false;
         }
     }
 
-    if (dashCooldown > 0) dashCooldown--;
+    if (dashCooldown > 0)
+        dashCooldown--;
 
-    if (currentState == PlayerState::Attacking) return;
+    if (currentState == PlayerState::Attacking)
+        return;
 
     float dx = 0, dy = 0;
     if (activeKeys.contains(Qt::Key_W) || activeKeys.contains(Qt::Key_Up))
@@ -284,7 +299,6 @@ void Player::movePlayer()
     }
     setAnimationState(PlayerState::Walking);
 
-
     Direction oldDirection = currentDirection;
     if (dx != 0)
         currentDirection = (dx > 0) ? Direction::Right : Direction::Left;
@@ -293,7 +307,8 @@ void Player::movePlayer()
     if (oldDirection != currentDirection)
     {
         updateAnimation();
-        if (lightning) {
+        if (lightning)
+        {
             lightning->updateDirection(currentDirection);
         }
     }
@@ -344,18 +359,20 @@ void Player::movePlayer()
             if (!checkCollision(predictedHitboxY, currentMap))
                 setY(newY);
         }
-        if (lightning) {
+        if (lightning)
+        {
             QRectF pRect = this->boundingRect();
             QPointF center = pRect.center();
             float offset = 58.0f;
             float upOffset = -5.0f;
 
-            switch (currentDirection) {
+            switch (currentDirection)
+            {
             case Direction::Up:
-                lightning->setPos(center.x() + upOffset, center.y() - offset+3);
+                lightning->setPos(center.x() + upOffset, center.y() - offset + 3);
                 break;
             case Direction::Down:
-                lightning->setPos(center.x() - upOffset, center.y() + offset-10);
+                lightning->setPos(center.x() - upOffset, center.y() + offset - 10);
                 break;
             case Direction::Left:
                 lightning->setPos(center.x() - offset, center.y() + upOffset);
@@ -372,18 +389,18 @@ void Player::movePlayer()
     setZValue(actualHitbox.bottom());
 
     // uncomment to see player hitbox
-    // if (!debugHitboxItem && scene())
-    // {
-    //     debugHitboxItem = new QGraphicsRectItem();
-    //     debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
-    //     debugHitboxItem->setPen(QPen(Qt::blue));
-    //     debugHitboxItem->setZValue(10000);
-    //     scene()->addItem(debugHitboxItem);
-    // }
-    // if (debugHitboxItem)
-    // {
-    //     debugHitboxItem->setRect(actualHitbox);
-    // }
+    if (!debugHitboxItem && scene())
+    {
+        debugHitboxItem = new QGraphicsRectItem();
+        debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
+        debugHitboxItem->setPen(QPen(Qt::blue));
+        debugHitboxItem->setZValue(10000);
+        scene()->addItem(debugHitboxItem);
+    }
+    if (debugHitboxItem)
+    {
+        debugHitboxItem->setRect(actualHitbox);
+    }
 
     emit positionChanged(this);
 }
@@ -462,24 +479,34 @@ void Player::keyPressEvent(QKeyEvent *event)
         if (!activeKeys.contains(key))
             activeKeys.append(key);
     }
-    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana>=30 && characternum!=2) {
+    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana >= 30 && characternum != 2)
+    {
         isDashing = true;
         dashDuration = 8;
         dashCooldown = 50;
         stamina -= 30;
-        mana -=30;
+        mana -= 30;
 
         float ddx = 0, ddy = 0;
-        if (activeKeys.contains(Qt::Key_W) || activeKeys.contains(Qt::Key_Up)) ddy -= 1;
-        if (activeKeys.contains(Qt::Key_S) || activeKeys.contains(Qt::Key_Down)) ddy += 1;
-        if (activeKeys.contains(Qt::Key_A) || activeKeys.contains(Qt::Key_Left)) ddx -= 1;
-        if (activeKeys.contains(Qt::Key_D) || activeKeys.contains(Qt::Key_Right)) ddx += 1;
+        if (activeKeys.contains(Qt::Key_W) || activeKeys.contains(Qt::Key_Up))
+            ddy -= 1;
+        if (activeKeys.contains(Qt::Key_S) || activeKeys.contains(Qt::Key_Down))
+            ddy += 1;
+        if (activeKeys.contains(Qt::Key_A) || activeKeys.contains(Qt::Key_Left))
+            ddx -= 1;
+        if (activeKeys.contains(Qt::Key_D) || activeKeys.contains(Qt::Key_Right))
+            ddx += 1;
 
-        if (ddx == 0 && ddy == 0) {
-            if (currentDirection == Direction::Up) ddy = -1;
-            else if (currentDirection == Direction::Down) ddy = 1;
-            else if (currentDirection == Direction::Left) ddx = -1;
-            else if (currentDirection == Direction::Right) ddx = 1;
+        if (ddx == 0 && ddy == 0)
+        {
+            if (currentDirection == Direction::Up)
+                ddy = -1;
+            else if (currentDirection == Direction::Down)
+                ddy = 1;
+            else if (currentDirection == Direction::Left)
+                ddx = -1;
+            else if (currentDirection == Direction::Right)
+                ddx = 1;
         }
         dashDirection = QPointF(ddx, ddy);
 
@@ -490,8 +517,10 @@ void Player::keyPressEvent(QKeyEvent *event)
     if (currentState != PlayerState::Attacking)
     {
         idleTimer->stop();
-        if (key == Qt::Key_Control && characternum==2) {
-            if (mana >= 20) {
+        if (key == Qt::Key_Control && characternum == 2)
+        {
+            if (mana >= 20)
+            {
                 isUsingLightning = true;
                 hasSpawnedFireball = false;
                 setAnimationState(PlayerState::Attacking);
@@ -511,10 +540,11 @@ void Player::keyReleaseEvent(QKeyEvent *event)
         isSprinting = false;
         staminaRegenTimer->start(400);
     }
-    if (event->key() == Qt::Key_Control) {
+    if (event->key() == Qt::Key_Control)
+    {
         lightning->stopAttack();
         hasSpawnedFireball = true;
-        isUsingLightning =false;
+        isUsingLightning = false;
         AudioManager::instance().stopSound("Lightning");
     }
 }
@@ -642,5 +672,3 @@ void Player::shootFireball()
     Projectile *fireball = new Projectile(spawnPos, shootDir, currentMap);
     this->scene()->addItem(fireball);
 }
-
-

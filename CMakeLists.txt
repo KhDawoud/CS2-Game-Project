@@ -43,6 +43,10 @@ qt_add_executable(QtTest
 
 target_include_directories(QtTest PUBLIC include)
 
+file(GLOB_RECURSE DUNGEON_TILES 
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+    CONFIGURE_DEPENDS "resources/dungeon-assets/tiles/*.png"
+)
 
 qt_add_resources(QtTest "images"
     FILES 
@@ -228,6 +232,7 @@ qt_add_resources(QtTest "images"
         "resources/house_interior/Using/side_of_wall_2.png"
         "resources/house_interior/Using/entrance.png"
         "resources/map-data/house.json"
+        "resources/map-data/test-level-2.json"
         "resources/ui-elements/window.png"
         "resources/player/Fireball.png"
         "resources/player/Circle_explosion1-sheet.png"
@@ -264,8 +269,11 @@ qt_add_resources(QtTest "images"
         "resources/player/Lightning-sheet.png"
         "resources/sound-effects/lightning-hold.wav"
         "resources/ui-elements/Ebutton.PNG"
+        ${DUNGEON_TILES}
 
 )
+
+
 
 target_link_libraries(QtTest
     PRIVATE

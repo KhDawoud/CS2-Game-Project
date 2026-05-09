@@ -14,29 +14,25 @@
 #include "characters.hpp"
 #include "traps.hpp"
 
-
 static QGraphicsTextItem *makeLabel(const QString &text, qreal x, qreal y)
 {
     auto *t = new QGraphicsTextItem(text);
     t->setDefaultTextColor(Qt::white);
-    QFont f; f.setPointSize(10); f.setBold(true);
+    QFont f;
+    f.setPointSize(10);
+    f.setBold(true);
     t->setFont(f);
     t->setPos(x, y);
     t->setZValue(500);
     return t;
 }
 
-
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     AudioManager::instance();
 
-
-
-
-
-    Characters* player = new Characters(1);
+    Characters *player = new Characters(1);
 
     CharacterStats *stats = new CharacterStats();
     stats->setPlayer(player);
@@ -45,11 +41,11 @@ int main(int argc, char *argv[])
     QObject::connect(player, &Player::statsChanged, stats, &CharacterStats::updateBars);
 
     // every map is now an instance of maploader
-    MapLoader *interior = new MapLoader(":/resources/map-data/house.json", player);
+    MapLoader *interior = new MapLoader(":resources/map-data/house.json", player);
     interior->setSceneRect(0, 0, interior->mapCols() * interior->tileSize(),
                            interior->mapRows() * interior->tileSize());
 
-    MapLoader *overworld = new MapLoader(":/resources/map-data/level-1.json", player);
+    MapLoader *overworld = new MapLoader(":resources/map-data/test-level-2.json", player);
 
     overworld->setSceneRect(0, 0, overworld->mapCols() * overworld->tileSize(),
                             overworld->mapRows() * overworld->tileSize());
@@ -100,5 +96,4 @@ int main(int argc, char *argv[])
         deathScreen->exec(); });
 
     return a.exec();
-
 }

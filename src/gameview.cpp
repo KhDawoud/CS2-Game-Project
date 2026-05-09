@@ -57,7 +57,8 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, Characters *player
     // visible in overwold
     connect(this, &GameView::isoverworld, _progressBar, &QProgressBar::setVisible);
 
-    connect(_overworld, &MapLoader::levelCleared, this, [this]() {
+    connect(_overworld, &MapLoader::levelCleared, this, [this]()
+            {
         auto* vWindow = new LevelCleared(this, _player->getLevelsCompleted());
 
         connect(vWindow, &QDialog::accepted, this, [this]() {
@@ -65,8 +66,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, Characters *player
             connect(sWindow, &QDialog::accepted, this, &GameView::switchToInterior);
             sWindow->show();
         });
-        vWindow->show();
-    });
+        vWindow->show(); });
 
     QTimer::singleShot(0, this, [this]()
                        {
@@ -105,7 +105,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
         {
             switchToInterior();
         }
-        else if (scene() == _interior&& interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 11)
+        else if (scene() == _interior && interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 11)
         {
             switchToOverworld();
         }
@@ -113,7 +113,8 @@ void GameView::keyPressEvent(QKeyEvent *event)
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
     {
         int targetChar = event->key() - Qt::Key_1 + 1;
-        if(_player->getcharacternum() == targetChar) return;
+        if (_player->getcharacternum() == targetChar)
+            return;
         _player->swtichto(targetChar);
         _player->setScale(1.2f);
     }
@@ -170,7 +171,8 @@ void GameView::switchToOverworld()
     scene()->addItem(textStart);
     scene()->addItem(textEnd);
 }
-void GameView::checkInteractions() {
+void GameView::checkInteractions()
+{
     int tileSize = static_cast<MapLoader *>(scene())->tileSize();
 
     int row = static_cast<int>(_player->y() / tileSize);
@@ -178,21 +180,29 @@ void GameView::checkInteractions() {
 
     bool inZone = false;
 
-    if (scene() == _overworld) {
-        if (row >= 13 && row <= 14 && col >= 8 && col <= 9) {
+    if (scene() == _overworld)
+    {
+        if (row >= 13 && row <= 14 && col >= 8 && col <= 9)
+        {
             inZone = true;
         }
     }
-    else if (scene() == _interior) {
-        if (row >= 7 && row <= 8 && col >= 10 && col <= 11) {
+    else if (scene() == _interior)
+    {
+        if (row >= 7 && row <= 8 && col >= 10 && col <= 11)
+        {
             inZone = true;
         }
     }
 
-    if (inZone) {
-        if (scene() == _overworld) {
+    if (inZone)
+    {
+        if (scene() == _overworld)
+        {
             textEnd->setPlainText("to Enter");
-        } else if (scene() == _interior) {
+        }
+        else if (scene() == _interior)
+        {
             textEnd->setPlainText("to Exit");
         }
 
@@ -214,20 +224,32 @@ void GameView::checkInteractions() {
 
         interactPrompt->setPos(startX + w1, iconY);
 
-        textEnd->setPos(startX + w1 + wIcon-10, baseY);
+        textEnd->setPos(startX + w1 + wIcon - 10, baseY);
 
         textStart->setVisible(true);
         interactPrompt->setVisible(true);
         textEnd->setVisible(true);
-    } else {
+    }
+    else
+    {
         textStart->setVisible(false);
         interactPrompt->setVisible(false);
         textEnd->setVisible(false);
     }
 }
-void GameView::loadinteractionPrompt(){
-    int fontId = QFontDatabase::addApplicationFont(":resources/fonts/pixelfont.ttf");
-    pixelFontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
+void GameView::loadinteractionPrompt()
+{
+    int fontId = QFontDatabase::addApplicationFont(":/resources/fonts/pixelfont.ttf");
+
+    if (fontId != -1)
+    {
+        pixelFontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
+    }
+    else
+    {
+        qWarning() << "CRITICAL: Could not load pixelfont.ttf! Using fallback font.";
+        pixelFontFamily = "Arial";
+    }
     textStart = new QGraphicsTextItem("Press");
     textStart->setDefaultTextColor(Qt::white);
     textStart->setFont(QFont(pixelFontFamily, 4));
@@ -237,7 +259,6 @@ void GameView::loadinteractionPrompt(){
     interactPrompt->setVisible(false);
     interactPrompt->setFlag(QGraphicsItem::ItemIgnoresTransformations);
     interactPrompt->setScale(1.5);
-
 
     textEnd = new QGraphicsTextItem("to Enter");
     textEnd->setDefaultTextColor(Qt::white);
