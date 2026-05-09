@@ -12,6 +12,7 @@ class GameView : public QGraphicsView
 
 public:
     GameView(MapLoader *overworld, MapLoader *interior, Characters *player);
+    void checkInteractions();
 
 signals:
     void isoverworld(bool toggle);
@@ -27,6 +28,11 @@ private:
     Characters *_player;
 
     QProgressBar *_progressBar;
+    QGraphicsTextItem* textStart;
+    QGraphicsPixmapItem* interactPrompt;
+    QGraphicsTextItem* textEnd;
+    void loadinteractionPrompt();
+    QString pixelFontFamily;
 };
 
 #endif // GAMEVIEW_HPP

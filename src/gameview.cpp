@@ -79,6 +79,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, Characters *player
 
     emit isoverworld(scene() == _overworld);
     showFullScreen();
+    loadinteractionPrompt();
 }
 
 void GameView::keyPressEvent(QKeyEvent *event)
@@ -100,11 +101,11 @@ void GameView::keyPressEvent(QKeyEvent *event)
         float row = _player->y() / tileSize;
         float col = _player->x() / tileSize;
 
-        if (scene() == _overworld && row >= 13 && row <= 14 && col >= 8 && col <= 9)
+        if (scene() == _overworld && interactPrompt->isVisible() && row >= 13 && row <= 14 && col >= 8 && col <= 9)
         {
             switchToInterior();
         }
-        else if (scene() == _interior && row >= 7 && row <= 8 && col >= 10 && col <= 11)
+        else if (scene() == _interior&& interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 11)
         {
             switchToOverworld();
         }
@@ -126,6 +127,9 @@ void GameView::switchToInterior()
 {
     int tileSize = _interior->tileSize();
     _overworld->removeItem(_player);
+    _overworld->removeItem(interactPrompt);
+    scene()->removeItem(textStart);
+    scene()->removeItem(textEnd);
 
     setScene(_interior);
     emit isoverworld(false);
@@ -138,12 +142,18 @@ void GameView::switchToInterior()
     resetTransform();
     scale(4.5, 4.5);
     centerOn(_player);
+    _interior->addItem(interactPrompt);
+    scene()->addItem(textStart);
+    scene()->addItem(textEnd);
 }
 
 void GameView::switchToOverworld()
 {
     int tileSize = _overworld->tileSize();
     _interior->removeItem(_player);
+    _interior->removeItem(interactPrompt);
+    scene()->removeItem(textStart);
+    scene()->removeItem(textEnd);
 
     setScene(_overworld);
     emit isoverworld(true);
@@ -156,4 +166,92 @@ void GameView::switchToOverworld()
     resetTransform();
     scale(3.0, 3.0);
     centerOn(_player);
+    _overworld->addItem(interactPrompt);
+    scene()->addItem(textStart);
+    scene()->addItem(textEnd);
+}
+void GameView::checkInteractions() {
+    int tileSize = static_cast<MapLoader *>(scene())->tileSize();
+
+    int row = static_cast<int>(_player->y() / tileSize);
+    int col = static_cast<int>(_player->x() / tileSize);
+
+    bool inZone = false;
+
+    if (scene() == _overworld) {
+        if (row >= 13 && row <= 14 && col >= 8 && col <= 9) {
+            inZone = true;
+        }
+    }
+    else if (scene() == _interior) {
+        if (row >= 7 && row <= 8 && col >= 10 && col <= 11) {
+            inZone = true;
+        }
+    }
+
+    if (inZone) {
+        if (scene() == _overworld) {
+            textEnd->setPlainText("to Enter");
+        } else if (scene() == _interior) {
+            textEnd->setPlainText("to Exit");
+        }
+
+        float w1 = textStart->boundingRect().width();
+        float wIcon = interactPrompt->pixmap().width();
+        float w2 = textEnd->boundingRect().width();
+
+        float totalWidth = w1 + wIcon + w2;
+
+        float startX = _player->x() + (_player->boundingRect().width() / 2) - (totalWidth / 2);
+        float baseY = _player->y() + _player->boundingRect().height() + 10;
+
+        textStart->setPos(startX, baseY);
+
+        float yoffset = 4.0f;
+
+        float iconY = baseY + (textStart->boundingRect().height() / 2) -
+                      (interactPrompt->pixmap().height() / 2) + yoffset;
+
+        interactPrompt->setPos(startX + w1, iconY);
+
+        textEnd->setPos(startX + w1 + wIcon-10, baseY);
+
+        textStart->setVisible(true);
+        interactPrompt->setVisible(true);
+        textEnd->setVisible(true);
+    } else {
+        textStart->setVisible(false);
+        interactPrompt->setVisible(false);
+        textEnd->setVisible(false);
+    }
+}
+void GameView::loadinteractionPrompt(){
+    int fontId = QFontDatabase::addApplicationFont(":resources/fonts/pixelfont.ttf");
+    pixelFontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
+    textStart = new QGraphicsTextItem("Press");
+    textStart->setDefaultTextColor(Qt::white);
+    textStart->setFont(QFont(pixelFontFamily, 4));
+
+    interactPrompt = new QGraphicsPixmapItem(QPixmap(":resources/ui-elements/Ebutton.PNG"));
+    interactPrompt->setZValue(100);
+    interactPrompt->setVisible(false);
+    interactPrompt->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+    interactPrompt->setScale(1.5);
+
+
+    textEnd = new QGraphicsTextItem("to Enter");
+    textEnd->setDefaultTextColor(Qt::white);
+    textEnd->setFont(QFont(pixelFontFamily, 4));
+
+    textStart->setZValue(100);
+    interactPrompt->setZValue(100);
+    textEnd->setZValue(100);
+
+    textStart->setVisible(false);
+    interactPrompt->setVisible(false);
+    textEnd->setVisible(false);
+
+    scene()->addItem(interactPrompt);
+    scene()->addItem(textStart);
+    scene()->addItem(textEnd);
 }

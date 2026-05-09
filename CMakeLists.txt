@@ -263,6 +263,7 @@ qt_add_resources(QtTest "images"
         "resources/map-assets/map2 objects/dungeon_barrel_blue.png"
         "resources/player/Lightning-sheet.png"
         "resources/sound-effects/lightning-hold.wav"
+        "resources/ui-elements/Ebutton.PNG"
 
 )
 

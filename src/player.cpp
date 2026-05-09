@@ -490,7 +490,7 @@ void Player::keyPressEvent(QKeyEvent *event)
     if (currentState != PlayerState::Attacking)
     {
         idleTimer->stop();
-        if (key == Qt::Key_Control) {
+        if (key == Qt::Key_Control && characternum==2) {
             if (mana >= 20) {
                 isUsingLightning = true;
                 hasSpawnedFireball = false;

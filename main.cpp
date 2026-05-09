@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
                      {
                          view->centerOn(p);
                          stats->setPos(view->mapToScene(10, 10));
+                         view->checkInteractions();
                      });
 
     stats->setPos(view->mapToScene(10, 10));
