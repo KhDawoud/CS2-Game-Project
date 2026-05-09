@@ -84,6 +84,8 @@ void SpikeTrap::UpdateAnimation()
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
+        displayedFrame = 0;
+        setPixmap(framesheet.copy(0, 0, frameWidth, frameHeight));
         animationTimer->stop();
         pauseTimer->start(2000);
         return;
@@ -229,6 +231,8 @@ void SlidingSpikeTrap::UpdateAnimation()
     {
         currentFrame = 0;
         direction = 1;
+        displayedFrame = 0;
+        setPixmap(framesheet.copy(0, 0, frameWidth, frameHeight));
 
         isPaused = true;
         canDamage = false;
@@ -365,6 +369,8 @@ void SawBladeTrap::UpdateAnimation()
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
+        displayedFrame = 0;
+        setPixmap(framesheet.copy(0, 0, frameWidth, frameHeight));
         animationTimer->stop();
         pauseTimer->start(2000);
         return;
@@ -499,6 +505,8 @@ void FireTrap::UpdateAnimation()
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
+        displayedFrame = 0;
+        setPixmap(framesheet.copy(0, 0, frameWidth, frameHeight));
         animationTimer->stop();
         pauseTimer->start(2000);
         return;
@@ -655,6 +663,9 @@ void FireTrap2::UpdateAnimation()
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
+        displayedFrame = 0;
+        QPixmap firstFrame = framesheet.copy(0, 0, frameWidth, frameHeight);
+        setPixmap(firstFrame.transformed(QTransform().scale(-1, 1)));
         animationTimer->stop();
         pauseTimer->start(2000);
         return;
@@ -809,6 +820,8 @@ void FireTrap3::UpdateAnimation()
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
+        displayedFrame = 0;
+        setPixmap(framesheet.copy(0, 0, frameWidth, frameHeight));
         animationTimer->stop();
         pauseTimer->start(2000);
         return;
@@ -965,6 +978,9 @@ void FireTrap4::UpdateAnimation()
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
+        displayedFrame = 0;
+        QPixmap firstFrame = framesheet.copy(0, 0, frameWidth, frameHeight);
+        setPixmap(firstFrame.transformed(QTransform().scale(1, -1)));
         animationTimer->stop();
         pauseTimer->start(2000);
         return;

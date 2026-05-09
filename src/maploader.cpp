@@ -238,6 +238,37 @@ void MapLoader::loadAssets()
     reg("garlic", ":resources/house_interior/Using-Deco/garlic.png", {0, 0, 0, 0});
     reg("coal", ":resources/house_interior/Using-Deco/coal.png", {0, 0, 0, 0});
 
+    // map2 dungeon objects
+    reg("3obj",           ":resources/map-assets/map2 objects/3obj.png",           {2, 2, 25, 28});
+    reg("4obj",           ":resources/map-assets/map2 objects/4obj.png",           {2, 2, 27, 29});
+    reg("openbox",        ":resources/map-assets/map2 objects/openbox.png",        {2, 2, 22, 18});
+    reg("threeboxes",     ":resources/map-assets/map2 objects/threeboxes.png",     {2, 2, 28, 38});
+    reg("torch_box1",     ":resources/map-assets/map2 objects/torch,box1.png",     {2, 2, 23, 26});
+    reg("treasure",       ":resources/map-assets/map2 objects/treasure.png",       {2, 2, 20, 16});
+    reg("treasureboxmon", ":resources/map-assets/map2 objects/treasureboxmon.png", {2, 2, 19, 19});
+    reg("treasuremon",    ":resources/map-assets/map2 objects/treasuremon.png",    {2, 2, 26, 23});
+    reg("twoboxes",       ":resources/map-assets/map2 objects/twoboxes.png",       {2, 2, 22, 27});
+    reg("twoboxes1",      ":resources/map-assets/map2 objects/twoboxes1.png",      {2, 2, 21, 25});
+    reg("dungeon_stone_slab",  ":resources/map-assets/map2 objects/dungeon_stone_slab.png",  {2, 2, 28, 20});
+    reg("dungeon_coins",       ":resources/map-assets/map2 objects/dungeon_coins.png",       {2, 2, 24, 13});
+    reg("dungeon_coins2",      ":resources/map-assets/map2 objects/dungeon_coins2.png",      {2, 2, 24, 13});
+    reg("dungeon_gems_blue",   ":resources/map-assets/map2 objects/dungeon_gems_blue.png",   {2, 2, 24, 15});
+    reg("dungeon_coins_flat",  ":resources/map-assets/map2 objects/dungeon_coins_flat.png",  {2, 2, 24,  6});
+    reg("dungeon_gold_sm",     ":resources/map-assets/map2 objects/dungeon_gold_sm.png",     {2, 2, 12,  8});
+    reg("dungeon_gem_blue",    ":resources/map-assets/map2 objects/dungeon_gem_blue.png",    {2, 2, 12,  8});
+    reg("dungeon_coin",        ":resources/map-assets/map2 objects/dungeon_coin.png",        {2, 2, 10,  3});
+    reg("dungeon_stone_sm",    ":resources/map-assets/map2 objects/dungeon_stone_sm.png",    {2, 2, 10, 15});
+    reg("dungeon_barrel",      ":resources/map-assets/map2 objects/dungeon_barrel.png",      {2, 2, 24, 26});
+    reg("dungeon_rubble",      ":resources/map-assets/map2 objects/dungeon_rubble.png",      {2, 2, 24, 12});
+    reg("dungeon_stairs",      ":resources/map-assets/map2 objects/dungeon_stairs.png",      {2, 2, 31, 48});
+    reg("dungeon_ladder",      ":resources/map-assets/map2 objects/dungeon_ladder.png",      {2, 2,  8, 48});
+    reg("dungeon_crate",       ":resources/map-assets/map2 objects/dungeon_crate.png",       {2, 2, 28, 28});
+    reg("dungeon_pot",         ":resources/map-assets/map2 objects/dungeon_pot.png",         {2, 2, 17, 22});
+    reg("dungeon_vase_sm",     ":resources/map-assets/map2 objects/dungeon_vase_sm.png",     {2, 2, 10, 22});
+    reg("dungeon_vase",        ":resources/map-assets/map2 objects/dungeon_vase.png",        {2, 2, 12, 22});
+    reg("dungeon_barrel_blue", ":resources/map-assets/map2 objects/dungeon_barrel_blue.png", {2, 2, 26, 22});
+    reg("dungeon_ladder2",     ":resources/map-assets/map2 objects/dungeon_ladder2.png",     {2, 2,  8, 53});
+
     assetsLoaded = true;
 }
 

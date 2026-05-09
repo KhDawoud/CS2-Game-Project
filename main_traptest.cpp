@@ -10,6 +10,7 @@
 #include <QGraphicsTextItem>
 #include <QFont>
 #include <QPainter>
+#include <QObject>
 
 #include "characters.hpp"
 #include "characterstats.hpp"
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
     Characters *player = new Characters(1);
     player->setPos(60, 360);
     scene->addItem(player);
+    scene->setFocusItem(player);
     player->setFocus();
 
     // HP overlay
@@ -73,12 +75,16 @@ int main(int argc, char *argv[])
     auto *fire3 = new FireTrap3();
     fire3->setPos(880, 340 + fire->getheight() + 10 + fire2->getheight() + 10);
 
+    auto *fire4 = new FireTrap4();
+    fire4->setPos(1010, 340 + fire->getheight() + 10 + fire2->getheight() + 10);
+
     scene->addItem(spike);
     scene->addItem(slider);
     scene->addItem(saw);
     scene->addItem(fire);
     scene->addItem(fire2);
     scene->addItem(fire3);
+    scene->addItem(fire4);
 
     // Labels so you know which trap is which
     scene->addItem(makeLabel("SpikeTrap\n(animated)",                 150, 470));
@@ -87,12 +93,25 @@ int main(int argc, char *argv[])
     scene->addItem(makeLabel("FireTrap1",                             860, 470));
     scene->addItem(makeLabel("FireTrap2",                             990, 470));
     scene->addItem(makeLabel("FireTrap3",                             860, 540));
+    scene->addItem(makeLabel("FireTrap4",                             990, 540));
 
     // --- view ---
     auto *view = new QGraphicsView(scene);
     view->setRenderHint(QPainter::Antialiasing, false);
     view->setFixedSize(1220, 760);
+    view->setFocusPolicy(Qt::StrongFocus);
     view->show();
+    view->setFocus();
+    scene->setFocusItem(player);
+    player->setFocus();
+
+    QObject::connect(scene,
+                     &QGraphicsScene::focusItemChanged,
+                     [player](QGraphicsItem *newFocus, QGraphicsItem *, Qt::FocusReason)
+                     {
+                         if (newFocus != player)
+                             player->setFocus();
+                     });
 
     return app.exec();
 }

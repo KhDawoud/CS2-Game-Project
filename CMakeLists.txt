@@ -16,6 +16,7 @@ file(GLOB_RECURSE HEADERS "include/*.hpp")
 qt_add_executable(QtTest
     WIN32 MACOSX_BUNDLE
     main.cpp
+
     ${HEADERS}
     src/player.cpp
     #src/map2.cpp
@@ -231,6 +232,35 @@ qt_add_resources(QtTest "images"
         "resources/player/Circle_explosion1-sheet.png"
         "resources/sound-effects/Fireball.wav"
         "resources/sound-effects/Dash.wav"
+        "resources/map-assets/map2 objects/3obj.png"
+        "resources/map-assets/map2 objects/4obj.png"
+        "resources/map-assets/map2 objects/openbox.png"
+        "resources/map-assets/map2 objects/threeboxes.png"
+        "resources/map-assets/map2 objects/torch,box1.png"
+        "resources/map-assets/map2 objects/treasure.png"
+        "resources/map-assets/map2 objects/treasureboxmon.png"
+        "resources/map-assets/map2 objects/treasuremon.png"
+        "resources/map-assets/map2 objects/twoboxes.png"
+        "resources/map-assets/map2 objects/twoboxes1.png"
+        "resources/map-assets/map2 objects/dungeon_stone_slab.png"
+        "resources/map-assets/map2 objects/dungeon_coins.png"
+        "resources/map-assets/map2 objects/dungeon_coins2.png"
+        "resources/map-assets/map2 objects/dungeon_gems_blue.png"
+        "resources/map-assets/map2 objects/dungeon_coins_flat.png"
+        "resources/map-assets/map2 objects/dungeon_gold_sm.png"
+        "resources/map-assets/map2 objects/dungeon_gem_blue.png"
+        "resources/map-assets/map2 objects/dungeon_coin.png"
+        "resources/map-assets/map2 objects/dungeon_stone_sm.png"
+        "resources/map-assets/map2 objects/dungeon_barrel.png"
+        "resources/map-assets/map2 objects/dungeon_rubble.png"
+        "resources/map-assets/map2 objects/dungeon_stairs.png"
+        "resources/map-assets/map2 objects/dungeon_ladder.png"
+        "resources/map-assets/map2 objects/dungeon_crate.png"
+        "resources/map-assets/map2 objects/dungeon_pot.png"
+        "resources/map-assets/map2 objects/dungeon_vase_sm.png"
+        "resources/map-assets/map2 objects/dungeon_vase.png"
+        "resources/map-assets/map2 objects/dungeon_barrel_blue.png"
+        "resources/map-assets/map2 objects/dungeon_ladder2.png"
 )
 
 target_link_libraries(QtTest
