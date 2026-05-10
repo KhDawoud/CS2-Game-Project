@@ -52,13 +52,17 @@ int main(int argc, char *argv[])
 
     overworld->addItem(stats);
 
+    MapLoader *level2 = new MapLoader(":resources/map-data/Level2.json", player);
+    level2->setSceneRect(0, 0, level2->mapCols() * level2->tileSize(),
+                         level2->mapRows() * level2->tileSize());
+
     MapLoader *level3 = new MapLoader(":resources/map-data/Level3.json", player);
     level3->setSceneRect(0, 0, level3->mapCols() * level3->tileSize(),
-                            level3->mapRows() * level3->tileSize());
+                         level3->mapRows() * level3->tileSize());
 
     QObject::connect(overworld, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
 
-    GameView *view = new GameView(overworld, interior,level3, player);
+    GameView *view = new GameView(overworld, interior, level2, level3, player);
 
     QObject::connect(player,
                      &Player::positionChanged,
@@ -66,6 +70,7 @@ int main(int argc, char *argv[])
                      [view, stats](QGraphicsItem *p)
                      {
                          view->centerOn(p);
+                         view->viewport()->update();
                          stats->setPos(view->mapToScene(10, 10));
                          view->checkInteractions();
                      });

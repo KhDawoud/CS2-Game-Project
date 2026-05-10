@@ -274,6 +274,7 @@ qt_add_resources(QtTest "images"
         "resources/player/Lightning-sheet.png"
         "resources/sound-effects/lightning-hold.wav"
         "resources/ui-elements/Ebutton.PNG"
+        "resources/map-data/Level2.json"
         "resources/map-data/Level3.json"
         ${DUNGEON_TILES}
         ${LEVEL3_TILES}
