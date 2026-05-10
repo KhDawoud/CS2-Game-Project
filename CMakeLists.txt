@@ -47,6 +47,11 @@ file(GLOB_RECURSE DUNGEON_TILES
     RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
     CONFIGURE_DEPENDS "resources/dungeon-assets/tiles/*.png"
 )
+file(GLOB_RECURSE LEVEL3_TILES
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    CONFIGURE_DEPENDS "resources/Level3-assets/tiles/*.png"
+)
+
 
 qt_add_resources(QtTest "images"
     FILES 
@@ -269,7 +274,10 @@ qt_add_resources(QtTest "images"
         "resources/player/Lightning-sheet.png"
         "resources/sound-effects/lightning-hold.wav"
         "resources/ui-elements/Ebutton.PNG"
+        "resources/map-data/Level3.json"
         ${DUNGEON_TILES}
+        ${LEVEL3_TILES}
+
 
 )
 

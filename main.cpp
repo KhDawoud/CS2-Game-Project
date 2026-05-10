@@ -45,16 +45,20 @@ int main(int argc, char *argv[])
     interior->setSceneRect(0, 0, interior->mapCols() * interior->tileSize(),
                            interior->mapRows() * interior->tileSize());
 
-    MapLoader *overworld = new MapLoader(":resources/map-data/test-level-2.json", player);
+    MapLoader *overworld = new MapLoader(":resources/map-data/level-1.json", player);
 
     overworld->setSceneRect(0, 0, overworld->mapCols() * overworld->tileSize(),
                             overworld->mapRows() * overworld->tileSize());
 
     overworld->addItem(stats);
 
+    MapLoader *level3 = new MapLoader(":resources/map-data/Level3.json", player);
+    level3->setSceneRect(0, 0, level3->mapCols() * level3->tileSize(),
+                            level3->mapRows() * level3->tileSize());
+
     QObject::connect(overworld, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
 
-    GameView *view = new GameView(overworld, interior, player);
+    GameView *view = new GameView(overworld, interior,level3, player);
 
     QObject::connect(player,
                      &Player::positionChanged,
@@ -81,6 +85,15 @@ int main(int argc, char *argv[])
                              player->setFocus();
                      });
     QObject::connect(interior,
+                     &QGraphicsScene::focusItemChanged,
+                     [player](QGraphicsItem *newFocus,
+                              QGraphicsItem *,
+                              Qt::FocusReason)
+                     {
+                         if (newFocus != player)
+                             player->setFocus();
+                     });
+    QObject::connect(level3,
                      &QGraphicsScene::focusItemChanged,
                      [player](QGraphicsItem *newFocus,
                               QGraphicsItem *,

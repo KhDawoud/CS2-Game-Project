@@ -7,13 +7,14 @@
 #include "levelintro.hpp"
 #include "statsupgrade.hpp"
 
-GameView::GameView(MapLoader *overworld, MapLoader *interior, Characters *player)
+GameView::GameView(MapLoader *overworld, MapLoader *interior,MapLoader* level3, Characters *player)
     : QGraphicsView(player->scene()
                         ? qobject_cast<MapLoader *>(player->scene())
                         : overworld),
       _overworld(overworld),
       _interior(interior),
-      _player(player)
+      _player(player),
+      Level3(level3)
 {
     setAlignment(Qt::AlignCenter);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -117,6 +118,13 @@ void GameView::keyPressEvent(QKeyEvent *event)
             return;
         _player->swtichto(targetChar);
         _player->setScale(1.2f);
+    }else if (event->key() == Qt::Key_9)
+    {
+        if(scene() == _interior){
+            switchtoLevel3();
+        }else if(scene() == Level3){
+            switchToInterior();
+        }
     }
     else
     {
@@ -170,6 +178,26 @@ void GameView::switchToOverworld()
     _overworld->addItem(interactPrompt);
     scene()->addItem(textStart);
     scene()->addItem(textEnd);
+}
+void GameView::switchtoLevel3()
+{
+    if (!Level3 || !_player) {
+        return;
+    }
+    int tileSize = Level3->tileSize();
+    this->scene()->removeItem(_player);
+
+    setScene(Level3);
+    emit isoverworld(true);
+
+    Level3->addItem(_player);
+    _player->setFocus();
+    _player->setPos(18.5 * tileSize, 31 * tileSize);
+
+    setBackgroundBrush(Qt::NoBrush);
+    resetTransform();
+    scale(3.0, 3.0);
+    centerOn(_player);
 }
 void GameView::checkInteractions()
 {

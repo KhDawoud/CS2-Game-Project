@@ -269,6 +269,10 @@ void MapLoader::loadAssets()
     reg("dungeon_barrel_blue", ":resources/map-assets/map2 objects/dungeon_barrel_blue.png", {2, 2, 26, 22});
     reg("dungeon_ladder2", ":resources/map-assets/map2 objects/dungeon_ladder2.png", {2, 2, 8, 53});
 
+    //map3 objects
+    reg("object_609", ":resources/Level3-assets/tiles/tile609", {5, 10, 30, 30});
+    reg("object_610", ":resources/Level3-assets/tiles/tile610", {5, 10, 30, 30});
+
     assetsLoaded = true;
 }
 

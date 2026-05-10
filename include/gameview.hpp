@@ -11,7 +11,7 @@ class GameView : public QGraphicsView
     Q_OBJECT
 
 public:
-    GameView(MapLoader *overworld, MapLoader *interior, Characters *player);
+    GameView(MapLoader *overworld, MapLoader *interior, MapLoader* level3,Characters *player);
     void checkInteractions();
 
 signals:
@@ -23,8 +23,10 @@ protected:
 private:
     void switchToInterior();
     void switchToOverworld();
+    void switchtoLevel3();
     MapLoader *_overworld;
     MapLoader *_interior;
+    MapLoader *Level3;
     Characters *_player;
 
     QProgressBar *_progressBar;
