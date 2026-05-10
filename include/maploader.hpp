@@ -63,17 +63,18 @@ private:
     int MAP_COLS = 40;
     int TILE_SIZE = 32;
     QSet<int> solidTileIDs;
+    QSet<int> overheadTiles;
 
     Player *player = nullptr;
     int currentEnemyCount = 0;
 
     QHash<int, QPixmap> baseTileRegistry;
     std::vector<QPixmap> decoPool;
-    int backgroundTileId = 0; 
+    int backgroundTileId = 0;
     bool hasFieldDecorations = false;
 
     // static just means they're only made once per file not everytime you make an instance
-    static QHash<QString, CollidableTemplate> templateRegistry; 
+    static QHash<QString, CollidableTemplate> templateRegistry;
     static bool assetsLoaded;
 
     std::vector<std::vector<int>> mapData;

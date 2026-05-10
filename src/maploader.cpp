@@ -50,6 +50,12 @@ void MapLoader::loadFromJson(const QString &path)
         solidTileIDs.insert(val.toInt());
     }
 
+    QJsonArray overheadArr = meta["overheadTiles"].toArray();
+    for (const QJsonValue &v : overheadArr)
+    {
+        overheadTiles.insert(v.toInt());
+    }
+
     // get the textures for everything
     backgroundTileId = meta["backgroundTileId"].toInt(0);
     hasFieldDecorations = meta["hasFieldDecorations"].toBool(false);
@@ -269,7 +275,7 @@ void MapLoader::loadAssets()
     reg("dungeon_barrel_blue", ":resources/map-assets/map2 objects/dungeon_barrel_blue.png", {2, 2, 26, 22});
     reg("dungeon_ladder2", ":resources/map-assets/map2 objects/dungeon_ladder2.png", {2, 2, 8, 53});
 
-    //map3 objects
+    // map3 objects
     reg("object_609", ":resources/Level3-assets/tiles/tile609", {5, 10, 30, 30});
     reg("object_610", ":resources/Level3-assets/tiles/tile610", {5, 10, 30, 30});
 
@@ -295,12 +301,18 @@ void MapLoader::drawBaseTiles()
                 auto *tile = new QGraphicsPixmapItem(baseTileRegistry[id]);
                 tile->setScale((qreal)TILE_SIZE / baseTileRegistry[id].width());
                 tile->setPos(j * TILE_SIZE, i * TILE_SIZE);
-                if (id >= 2 && id <= 9)
-                    tile->setZValue(0); // floor
-                else if (id >= 10 && id <= 12)
-                    tile->setZValue(1); // walls
+                if (overheadTiles.contains(id))
+                {
+                    tile->setZValue((i * TILE_SIZE) + (TILE_SIZE * 3));
+                }
+                else if (solidTileIDs.contains(id))
+                {
+                    tile->setZValue((i * TILE_SIZE) + TILE_SIZE);
+                }
                 else
+                {
                     tile->setZValue(-100.0);
+                }
                 addItem(tile);
             }
         }

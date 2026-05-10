@@ -97,7 +97,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
             if (_flickerPhase > 1000.0) { _flickerPhase = 0.0; } 
             qreal slowWave = std::sin(_flickerPhase); 
             qreal fastWave = std::sin(_flickerPhase * 2.7) * 0.5;
-            _currentLightRadius = 180.0 + ((slowWave + fastWave) * 5.0);
+            _currentLightRadius = 120 + ((slowWave + fastWave) * 5.0);
             viewport()->update(); 
         } });
     _flickerTimer->start(30);

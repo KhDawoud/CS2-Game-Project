@@ -28,7 +28,7 @@ private:
     void switchtoLevel3();
 
     // these handle the torch effect
-    qreal _currentLightRadius = 180.0;
+    qreal _currentLightRadius = 120.0;
     qreal _flickerPhase = 0.0;
     QTimer *_flickerTimer;
 

@@ -551,13 +551,15 @@ void Player::keyReleaseEvent(QKeyEvent *event)
 
 QRectF Player::getPlayerHitbox(QPointF pos) const
 {
-    float hitboxWidth, hitboxHeight, offsetX, offsetY;
-    hitboxWidth = 15.0f;
-    hitboxHeight = 15.0f;
-    offsetX = 30.0f;
-    offsetY = 40.0f;
+    // I adjusted the hitbox to account for the scale
+    float hitboxWidth = 12.0f;
+    float hitboxHeight = 12.0f;
+    float baseOffsetX = 25.0f;
+    float baseOffsetY = 32.0f;
+    float actualOffsetX = baseOffsetX * this->scale();
+    float actualOffsetY = baseOffsetY * this->scale();
 
-    return QRectF(pos.x() + offsetX, pos.y() + offsetY, hitboxWidth, hitboxHeight);
+    return QRectF(pos.x() + actualOffsetX, pos.y() + actualOffsetY, hitboxWidth, hitboxHeight);
 }
 
 bool Player::checkCollision(const QRectF &hitbox, MapLoader *map) const
