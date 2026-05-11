@@ -132,7 +132,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
             switchToOverworld();
         }
     }
-    else if (event->key() == Qt::Key_S){
+    else if (event->key() == Qt::Key_7){
         switchToCharacterSelectScreen();
     }
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
