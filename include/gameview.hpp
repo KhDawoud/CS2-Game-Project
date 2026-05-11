@@ -24,6 +24,7 @@ private:
     void switchToInterior();
     void switchToOverworld();
     void switchtoLevel3();
+    void switchToCharacterSelectScreen();
     MapLoader *_overworld;
     MapLoader *_interior;
     MapLoader *Level3;

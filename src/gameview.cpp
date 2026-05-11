@@ -6,6 +6,7 @@
 #include "levelcleared.hpp"
 #include "levelintro.hpp"
 #include "statsupgrade.hpp"
+#include "characterselectscreen.hpp"
 
 GameView::GameView(MapLoader *overworld, MapLoader *interior,MapLoader* level3, Characters *player)
     : QGraphicsView(player->scene()
@@ -106,10 +107,15 @@ void GameView::keyPressEvent(QKeyEvent *event)
         {
             switchToInterior();
         }
-        else if (scene() == _interior && interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 11)
+        else if (scene() == _interior && interactPrompt->isVisible())
         {
-            switchToOverworld();
+            if(row >= 7 && row <= 8 && col >= 10 && col <= 11){
+                switchToOverworld();
+            }
         }
+    }
+    else if (event->key() == Qt::Key_S){
+        switchToCharacterSelectScreen();
     }
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
     {
@@ -179,6 +185,21 @@ void GameView::switchToOverworld()
     scene()->addItem(textStart);
     scene()->addItem(textEnd);
 }
+
+
+void GameView::switchToCharacterSelectScreen()
+{
+    CharacterSelectScreen *screen = new CharacterSelectScreen(_player->getcharacternum(), this);
+    screen->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    screen->setWindowModality(Qt::ApplicationModal);
+    connect(screen, &CharacterSelectScreen::selectionMade, this, [this](int charIndex) {
+        _player->swtichto(charIndex);
+        _player->setScale(1.2f);
+        _player->setFocus();
+    });
+    screen->showFullScreen();
+}
+
 void GameView::switchtoLevel3()
 {
     if (!Level3 || !_player) {

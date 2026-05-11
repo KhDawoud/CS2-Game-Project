@@ -39,6 +39,7 @@ qt_add_executable(QtTest
     src/basewindow.cpp
     src/statsupgrade.cpp
     src/lightningattack.cpp
+    src/characterselectscreen.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -275,6 +276,12 @@ qt_add_resources(QtTest "images"
         "resources/sound-effects/lightning-hold.wav"
         "resources/ui-elements/Ebutton.PNG"
         "resources/map-data/Level3.json"
+        "resources/MenuStatsIcons/boot.png"
+        "resources/MenuStatsIcons/empty_boot.png"
+        "resources/MenuStatsIcons/empty_heart.png"
+        "resources/MenuStatsIcons/empty_sword.png"
+        "resources/MenuStatsIcons/sword.png"
+        "resources/MenuStatsIcons/heart.png"
         ${DUNGEON_TILES}
         ${LEVEL3_TILES}
 
