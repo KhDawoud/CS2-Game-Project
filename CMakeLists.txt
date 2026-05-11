@@ -16,7 +16,6 @@ file(GLOB_RECURSE HEADERS "include/*.hpp")
 qt_add_executable(QtTest
     WIN32 MACOSX_BUNDLE
     main.cpp
-
     ${HEADERS}
     src/player.cpp
     #src/map2.cpp
@@ -44,8 +43,8 @@ qt_add_executable(QtTest
 
 target_include_directories(QtTest PUBLIC include)
 
-file(GLOB_RECURSE DUNGEON_TILES 
-    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
+file(GLOB_RECURSE DUNGEON_TILES
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     CONFIGURE_DEPENDS "resources/dungeon-assets/tiles/*.png"
 )
 file(GLOB_RECURSE LEVEL3_TILES
@@ -55,7 +54,7 @@ file(GLOB_RECURSE LEVEL3_TILES
 
 
 qt_add_resources(QtTest "images"
-    FILES 
+    FILES
         "resources/player/attacking/swordsman_1_attacking.png"
         "resources/player/idling/swordsman_1_idling.png"
         "resources/player/running/swordsman_1_running.png"
@@ -163,7 +162,6 @@ qt_add_resources(QtTest "images"
         "resources/enemy/hurt/Slime3_Hurt_with_shadow.png"
         "resources/heart/heal_heart2.png"
         "resources/heart/heart_shadow.png"
-
         "resources/ui-elements/character_panel.png"
         "resources/map-assets/Tree_Emerald_2.png"
         "resources/map-assets/TreeBasic1.png"
@@ -275,6 +273,7 @@ qt_add_resources(QtTest "images"
         "resources/player/Lightning-sheet.png"
         "resources/sound-effects/lightning-hold.wav"
         "resources/ui-elements/Ebutton.PNG"
+        "resources/map-data/Level2.json"
         "resources/map-data/Level3.json"
         "resources/MenuStatsIcons/boot.png"
         "resources/MenuStatsIcons/empty_boot.png"
@@ -284,11 +283,7 @@ qt_add_resources(QtTest "images"
         "resources/MenuStatsIcons/heart.png"
         ${DUNGEON_TILES}
         ${LEVEL3_TILES}
-
-
 )
-
-
 
 target_link_libraries(QtTest
     PRIVATE

@@ -1,6 +1,7 @@
 #include "gameview.hpp"
 #include <QGraphicsColorizeEffect>
 #include <QKeyEvent>
+#include <QRandomGenerator>
 #include <QTimer>
 #include "pausewindow.hpp"
 #include "levelcleared.hpp"
@@ -8,13 +9,13 @@
 #include "statsupgrade.hpp"
 #include "characterselectscreen.hpp"
 
-GameView::GameView(MapLoader *overworld, MapLoader *interior,MapLoader* level3, Characters *player)
+GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player)
     : QGraphicsView(player->scene()
                         ? qobject_cast<MapLoader *>(player->scene())
                         : overworld),
       _overworld(overworld),
       _interior(interior),
-      _player(player),
+      _player(player), Level2(level2),
       Level3(level3)
 {
     setAlignment(Qt::AlignCenter);
@@ -26,6 +27,10 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior,MapLoader* level3, 
     {
         setBackgroundBrush(Qt::black);
         scale(4.5, 4.5);
+    }
+    else if (scene() == Level2)
+    {
+        scale(4, 4);
     }
     else
     {
@@ -82,6 +87,21 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior,MapLoader* level3, 
     emit isoverworld(scene() == _overworld);
     showFullScreen();
     loadinteractionPrompt();
+
+    // this makes the torch expand and flicker to feel more dynamic
+    _flickerTimer = new QTimer(this);
+    connect(_flickerTimer, &QTimer::timeout, this, [this]()
+            {
+        if (scene() == Level2) 
+        {
+            _flickerPhase += 0.08; 
+            if (_flickerPhase > 1000.0) { _flickerPhase = 0.0; } 
+            qreal slowWave = std::sin(_flickerPhase); 
+            qreal fastWave = std::sin(_flickerPhase * 2.7) * 0.5;
+            _currentLightRadius = 120 + ((slowWave + fastWave) * 5.0);
+            viewport()->update(); 
+        } });
+    _flickerTimer->start(30);
 }
 
 void GameView::keyPressEvent(QKeyEvent *event)
@@ -107,11 +127,9 @@ void GameView::keyPressEvent(QKeyEvent *event)
         {
             switchToInterior();
         }
-        else if (scene() == _interior && interactPrompt->isVisible())
+        else if (scene() == _interior && interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 11)
         {
-            if(row >= 7 && row <= 8 && col >= 10 && col <= 11){
-                switchToOverworld();
-            }
+            switchToOverworld();
         }
     }
     else if (event->key() == Qt::Key_S){
@@ -124,11 +142,26 @@ void GameView::keyPressEvent(QKeyEvent *event)
             return;
         _player->swtichto(targetChar);
         _player->setScale(1.2f);
-    }else if (event->key() == Qt::Key_9)
+    }
+    else if (event->key() == Qt::Key_9)
     {
-        if(scene() == _interior){
+        if (scene() == _interior)
+        {
             switchtoLevel3();
-        }else if(scene() == Level3){
+        }
+        else if (scene() == Level3)
+        {
+            switchToInterior();
+        }
+    }
+    else if (event->key() == Qt::Key_8)
+    {
+        if (scene() == _interior)
+        {
+            switchtoLevel2();
+        }
+        else if (scene() == Level2)
+        {
             switchToInterior();
         }
     }
@@ -186,7 +219,6 @@ void GameView::switchToOverworld()
     scene()->addItem(textEnd);
 }
 
-
 void GameView::switchToCharacterSelectScreen()
 {
     CharacterSelectScreen *screen = new CharacterSelectScreen(_player->getcharacternum(), this);
@@ -200,9 +232,33 @@ void GameView::switchToCharacterSelectScreen()
     screen->showFullScreen();
 }
 
+void GameView::switchtoLevel2()
+{
+    if (!Level2 || !_player)
+    {
+        return;
+    }
+    int tileSize = Level2->tileSize();
+    this->scene()->removeItem(_player);
+
+    setScene(Level2);
+    emit isoverworld(true);
+
+    Level2->addItem(_player);
+    _player->setFocus();
+    _player->setPos(10 * tileSize, 3 * tileSize);
+    _player->setScale(1.4f);
+
+    setBackgroundBrush(Qt::NoBrush);
+    resetTransform();
+    scale(3.5, 3.5);
+    centerOn(_player);
+}
+
 void GameView::switchtoLevel3()
 {
-    if (!Level3 || !_player) {
+    if (!Level3 || !_player)
+    {
         return;
     }
     int tileSize = Level3->tileSize();
@@ -324,4 +380,24 @@ void GameView::loadinteractionPrompt()
     scene()->addItem(interactPrompt);
     scene()->addItem(textStart);
     scene()->addItem(textEnd);
+}
+
+// this is the method to handle drawing effects
+void GameView::drawForeground(QPainter *painter, const QRectF &rect)
+{
+    QGraphicsView::drawForeground(painter, rect);
+
+    if (scene() == Level2)
+    {
+        QPointF playerCenter = _player->sceneBoundingRect().center();
+        QRadialGradient gradient(playerCenter, _currentLightRadius);
+
+        // its slightly yellow here to be like fire but we can tweak it
+        gradient.setColorAt(0.0, QColor(255, 215, 100, 35));
+        gradient.setColorAt(0.4, QColor(80, 50, 20, 120));
+        gradient.setColorAt(0.7, QColor(10, 5, 0, 220));
+        gradient.setColorAt(1.0, QColor(0, 0, 0, 255));
+
+        painter->fillRect(rect, gradient);
+    }
 }
