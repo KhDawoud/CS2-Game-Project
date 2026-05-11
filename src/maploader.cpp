@@ -249,7 +249,7 @@ void MapLoader::loadAssets()
     reg("4obj", ":resources/map-assets/map2 objects/4obj.png", {2, 2, 27, 29});
     reg("openbox", ":resources/map-assets/map2 objects/openbox.png", {2, 2, 22, 18});
     reg("threeboxes", ":resources/map-assets/map2 objects/threeboxes.png", {2, 2, 28, 38});
-    reg("torch_box1", ":resources/map-assets/map2 objects/torch,box1.png", {2, 2, 23, 26});
+    reg("torch,box1", ":resources/map-assets/map2 objects/torch,box1.png", {2, 2, 23, 26});
     reg("treasure", ":resources/map-assets/map2 objects/treasure.png", {2, 2, 20, 16});
     reg("treasureboxmon", ":resources/map-assets/map2 objects/treasureboxmon.png", {2, 2, 19, 19});
     reg("treasuremon", ":resources/map-assets/map2 objects/treasuremon.png", {2, 2, 26, 23});
@@ -276,8 +276,8 @@ void MapLoader::loadAssets()
     reg("dungeon_ladder2", ":resources/map-assets/map2 objects/dungeon_ladder2.png", {2, 2, 8, 53});
 
     // map3 objects
-    reg("object_609", ":resources/Level3-assets/tiles/tile609", {5, 10, 30, 30});
-    reg("object_610", ":resources/Level3-assets/tiles/tile610", {5, 10, 30, 30});
+    reg("statue_1", ":resources/Level3-assets/tiles/tile609", {5, 10, 30, 30});
+    reg("statue_2", ":resources/Level3-assets/tiles/tile610", {5, 10, 30, 30});
 
     assetsLoaded = true;
 }
@@ -290,7 +290,8 @@ void MapLoader::drawBaseTiles()
         for (int j = 0; j < MAP_COLS; j++)
         {
             auto *base = new QGraphicsPixmapItem(bgPx);
-            base->setScale((qreal)TILE_SIZE / bgPx.width());
+            scalefactor = (qreal)TILE_SIZE / bgPx.width();
+            base->setScale(scalefactor);
             base->setPos(j * TILE_SIZE, i * TILE_SIZE);
             base->setZValue(-100.0);
             addItem(base);
@@ -370,24 +371,32 @@ void MapLoader::placeStaticObjects(const QJsonArray &objects)
 
 void MapLoader::placeCollidable(float row, float col, const QString &templateId)
 {
-    if (!templateRegistry.contains(templateId))
-    {
-        qWarning() << "MapLoader: unknown template id:" << templateId;
-        return;
-    }
+
+    if (!templateRegistry.contains(templateId)) return;
     const CollidableTemplate &tmpl = templateRegistry[templateId];
+
     QPointF worldPos(col * TILE_SIZE, row * TILE_SIZE);
 
     auto *item = new QGraphicsPixmapItem(tmpl.texture);
+
+    item->setScale(scalefactor);
+
     item->setPos(worldPos);
 
-    QRectF worldHitbox = tmpl.hitbox.translated(worldPos);
-    item->setZValue(worldHitbox.bottom());
-    addItem(item);
+    item->setTransformationMode(Qt::FastTransformation);
 
-    // active collidables is where every single currently active hitbox is so its how we define collision
-    if (tmpl.hitbox.width() > 0 && tmpl.hitbox.height() > 0)
-    {
+    QRectF scaledHitbox(
+        tmpl.hitbox.x() * scalefactor,
+        tmpl.hitbox.y() * scalefactor,
+        tmpl.hitbox.width() * scalefactor,
+        tmpl.hitbox.height() * scalefactor
+        );
+
+    QRectF worldHitbox = scaledHitbox.translated(worldPos);
+    item->setZValue(worldHitbox.bottom());
+
+    addItem(item);
+    if (worldHitbox.width() > 0) {
         activeCollidables.push_back({worldHitbox});
     }
 }

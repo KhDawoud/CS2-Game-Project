@@ -62,6 +62,7 @@ private:
     int MAP_ROWS = 35;
     int MAP_COLS = 40;
     int TILE_SIZE = 32;
+    float scalefactor;
     QSet<int> solidTileIDs;
     QSet<int> overheadTiles;
 

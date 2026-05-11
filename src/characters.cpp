@@ -178,12 +178,13 @@ void Characters::swtichto(int num){
     currentFrame = 0;
 }
 void Characters::handleLevelCleared(){
+    playerstats.oldhealth = 100 +levelscleared*20;
+    playerstats.oldmana = 100 +levelscleared*20;
+    playerstats.oldstamina = 100 +levelscleared*20;
+    playerstats.oldstaminaregenrate = 100 +levelscleared*20;
+    playerstats.oldmanaregenrate = 100 +levelscleared*20;
+
     levelscleared++;
-    playerstats.oldhealth = health;
-    playerstats.oldmana = mana;
-    playerstats.oldstamina = stamina;
-    playerstats.oldstaminaregenrate = staminaRegenRate;
-    playerstats.oldmanaregenrate = staminaRegenRate;
 
     health= 100 +levelscleared*20;
     mana=100 +levelscleared*20;

@@ -141,7 +141,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
         if (_player->getcharacternum() == targetChar)
             return;
         _player->swtichto(targetChar);
-        _player->setScale(1.2f);
+        _player->setScale(currentscale);
     }
     else if (event->key() == Qt::Key_9)
     {
@@ -174,25 +174,33 @@ void GameView::keyPressEvent(QKeyEvent *event)
 void GameView::switchToInterior()
 {
     int tileSize = _interior->tileSize();
-    _overworld->removeItem(_player);
-    _overworld->removeItem(interactPrompt);
-    scene()->removeItem(textStart);
-    scene()->removeItem(textEnd);
+    bool wasinOverworld =false;
+    scene()->removeItem(_player);
+    if(scene() == _overworld){
+        scene()->removeItem(interactPrompt);
+        scene()->removeItem(textStart);
+        scene()->removeItem(textEnd);
+        wasinOverworld =true;
+    }
 
     setScene(_interior);
     emit isoverworld(false);
+    currentscale =1.2;
 
     _interior->addItem(_player);
     _player->setFocus();
     _player->setPos(10.83 * tileSize, 7.25 * tileSize);
+    _player->setScale(currentscale);
 
     setBackgroundBrush(Qt::black);
     resetTransform();
     scale(4.5, 4.5);
     centerOn(_player);
-    _interior->addItem(interactPrompt);
-    scene()->addItem(textStart);
-    scene()->addItem(textEnd);
+    if(wasinOverworld){
+        _interior->addItem(interactPrompt);
+        _interior->addItem(textStart);
+        _interior->addItem(textEnd);
+    }
 }
 
 void GameView::switchToOverworld()
@@ -200,15 +208,17 @@ void GameView::switchToOverworld()
     int tileSize = _overworld->tileSize();
     _interior->removeItem(_player);
     _interior->removeItem(interactPrompt);
-    scene()->removeItem(textStart);
-    scene()->removeItem(textEnd);
+    _interior->removeItem(textStart);
+    _interior->removeItem(textEnd);
 
     setScene(_overworld);
     emit isoverworld(true);
+    currentscale =1.2;
 
     _overworld->addItem(_player);
     _player->setFocus();
     _player->setPos(8.3 * tileSize, 14.5 * tileSize);
+    _player->setScale(currentscale);
 
     setBackgroundBrush(Qt::NoBrush);
     resetTransform();
@@ -239,15 +249,16 @@ void GameView::switchtoLevel2()
         return;
     }
     int tileSize = Level2->tileSize();
-    this->scene()->removeItem(_player);
+    _interior->removeItem(_player);
 
     setScene(Level2);
     emit isoverworld(true);
+    currentscale =1.4;
 
     Level2->addItem(_player);
     _player->setFocus();
     _player->setPos(10 * tileSize, 3 * tileSize);
-    _player->setScale(1.4f);
+    _player->setScale(currentscale);
 
     setBackgroundBrush(Qt::NoBrush);
     resetTransform();
@@ -262,18 +273,20 @@ void GameView::switchtoLevel3()
         return;
     }
     int tileSize = Level3->tileSize();
-    this->scene()->removeItem(_player);
+    _interior->removeItem(_player);
 
     setScene(Level3);
     emit isoverworld(true);
+    currentscale =1.2;
 
     Level3->addItem(_player);
     _player->setFocus();
     _player->setPos(18.5 * tileSize, 31 * tileSize);
+    _player->setScale(currentscale);
 
     setBackgroundBrush(Qt::NoBrush);
     resetTransform();
-    scale(3.0, 3.0);
+    scale(3.5, 3.5);
     centerOn(_player);
 }
 void GameView::checkInteractions()

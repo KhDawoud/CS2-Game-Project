@@ -3,6 +3,10 @@
         "decorationPool": [],
         "solidTiles": [
             306,
+            202,
+            32,
+            18,
+            31,
             300,
             305,
             185,
@@ -761,7 +765,6 @@
             "675": ":resources/dungeon-assets/tiles/tile675.png"
         }
     },
-    "staticObjects": [],
     "randomCollidables": {
         "count": 0,
         "spacing": 0,
@@ -3628,5 +3631,296 @@
                 15
             ]
         ]
-    }
+    },
+        
+    "staticObjects": [
+        {
+            "type": "collidable",
+            "row": 7.375,
+            "col": 17.562,
+            "templateId": "3obj"
+        },
+        {
+            "type": "collidable",
+            "row": 7.688,
+            "col": 2.844,
+            "templateId": "4obj"
+        },
+        {
+            "type": "collidable",
+            "row": 6.875,
+            "col": 9.844,
+            "templateId": "dungeon_gem_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 6.875,
+            "col": 13.281,
+            "templateId": "dungeon_gem_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 7.344,
+            "col": 7.781,
+            "templateId": "dungeon_gems_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 16.375,
+            "col": 17.094,
+            "templateId": "dungeon_crate"
+        },
+        {
+            "type": "collidable",
+            "row": 12.312,
+            "col": 10.531,
+            "templateId": "torch,box1"
+        },
+        {
+            "type": "collidable",
+            "row": 10.594,
+            "col": 11.531,
+            "templateId": "threeboxes"
+        },
+        {
+            "type": "collidable",
+            "row": 10.781,
+            "col": 10.25,
+            "templateId": "dungeon_pot"
+        },
+        {
+            "type": "collidable",
+            "row": 5.156,
+            "col": 23.219,
+            "templateId": "dungeon_ladder"
+        },
+        {
+            "type": "collidable",
+            "row": 17.844,
+            "col": 10.906,
+            "templateId": "dungeon_ladder"
+        },
+        {
+            "type": "collidable",
+            "row": 19.969,
+            "col": 3.0,
+            "templateId": "dungeon_stone_slab"
+        },
+        {
+            "type": "collidable",
+            "row": 35.25,
+            "col": 5.062,
+            "templateId": "openbox"
+        },
+        {
+            "type": "collidable",
+            "row": 35.219,
+            "col": 9.75,
+            "templateId": "openbox"
+        },
+        {
+            "type": "collidable",
+            "row": 34.875,
+            "col": 11.062,
+            "templateId": "dungeon_vase"
+        },
+        {
+            "type": "collidable",
+            "row": 34.344,
+            "col": 2.75,
+            "templateId": "threeboxes"
+        },
+        {
+            "type": "collidable",
+            "row": 5.844,
+            "col": 49.969,
+            "templateId": "dungeon_stairs"
+        },
+        {
+            "type": "collidable",
+            "row": 7.188,
+            "col": 45.719,
+            "templateId": "dungeon_barrel"
+        },
+        {
+            "type": "collidable",
+            "row": 43.0,
+            "col": 50.281,
+            "templateId": "4obj"
+        },
+        {
+            "type": "collidable",
+            "row": 43.156,
+            "col": 36.75,
+            "templateId": "3obj"
+        },
+        {
+            "type": "collidable",
+            "row": 30.344,
+            "col": 37.812,
+            "templateId": "dungeon_gem_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 29.625,
+            "col": 51.0,
+            "templateId": "dungeon_vase"
+        },
+        {
+            "type": "collidable",
+            "row": 27.906,
+            "col": 40.125,
+            "templateId": "dungeon_ladder"
+        },
+        {
+            "type": "collidable",
+            "row": 38.562,
+            "col": 36.812,
+            "templateId": "dungeon_gem_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 35.938,
+            "col": 50.906,
+            "templateId": "dungeon_gem_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 36.438,
+            "col": 51.0,
+            "templateId": "dungeon_gem_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 36.844,
+            "col": 51.062,
+            "templateId": "dungeon_gem_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 36.562,
+            "col": 44.406,
+            "templateId": "4obj"
+        },
+        {
+            "type": "collidable",
+            "row": 12.719,
+            "col": 41.406,
+            "templateId": "4obj"
+        },
+        {
+            "type": "collidable",
+            "row": 31.656,
+            "col": 19.812,
+            "templateId": "4obj"
+        },
+        {
+            "type": "collidable",
+            "row": 25.312,
+            "col": 27.812,
+            "templateId": "4obj"
+        },
+        {
+            "type": "collidable",
+            "row": 33.156,
+            "col": 30.469,
+            "templateId": "dungeon_barrel"
+        },
+        {
+            "type": "collidable",
+            "row": 43.344,
+            "col": 15.906,
+            "templateId": "dungeon_pot"
+        },
+        {
+            "type": "collidable",
+            "row": 40.938,
+            "col": 13.094,
+            "templateId": "dungeon_stone_sm"
+        },
+        {
+            "type": "collidable",
+            "row": 42.531,
+            "col": 2.938,
+            "templateId": "dungeon_stone_sm"
+        },
+        {
+            "type": "collidable",
+            "row": 26.844,
+            "col": 5.344,
+            "templateId": "dungeon_barrel"
+        },
+        {
+            "type": "collidable",
+            "row": 7.062,
+            "col": 29.969,
+            "templateId": "dungeon_stone_slab"
+        },
+        {
+            "type": "collidable",
+            "row": 12.875,
+            "col": 24.812,
+            "templateId": "dungeon_vase"
+        },
+        {
+            "type": "collidable",
+            "row": 13.094,
+            "col": 30.469,
+            "templateId": "dungeon_rubble"
+        },
+        {
+            "type": "collidable",
+            "row": 13.094,
+            "col": 37.156,
+            "templateId": "openbox"
+        },
+        {
+            "type": "collidable",
+            "row": 20.312,
+            "col": 37.938,
+            "templateId": "openbox"
+        },
+        {
+            "type": "collidable",
+            "row": 26.156,
+            "col": 37.781,
+            "templateId": "4obj"
+        },
+        {
+            "type": "collidable",
+            "row": 23.938,
+            "col": 50.188,
+            "templateId": "dungeon_gems_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 26.438,
+            "col": 22.125,
+            "templateId": "dungeon_gems_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 43.604,
+            "col": 18.208,
+            "templateId": "dungeon_gems_blue"
+        },
+        {
+            "type": "collidable",
+            "row": 43.438,
+            "col": 31.146,
+            "templateId": "dungeon_vase_sm"
+        },
+        {
+            "type": "collidable",
+            "row": 10.708,
+            "col": 27.458,
+            "templateId": "dungeon_ladder"
+        },
+        {
+            "type": "collidable",
+            "row": 37.688,
+            "col": 25.0,
+            "templateId": "threeboxes"
+        }
+    ]
 }

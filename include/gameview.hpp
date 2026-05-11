@@ -45,6 +45,7 @@ private:
     QGraphicsTextItem *textEnd;
     void loadinteractionPrompt();
     QString pixelFontFamily;
+    float currentscale=1.2;
 };
 
 #endif // GAMEVIEW_HPP

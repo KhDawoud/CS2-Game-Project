@@ -389,18 +389,18 @@ void Player::movePlayer()
     setZValue(actualHitbox.bottom());
 
     // uncomment to see player hitbox
-    if (!debugHitboxItem && scene())
-    {
-        debugHitboxItem = new QGraphicsRectItem();
-        debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
-        debugHitboxItem->setPen(QPen(Qt::blue));
-        debugHitboxItem->setZValue(10000);
-        scene()->addItem(debugHitboxItem);
-    }
-    if (debugHitboxItem)
-    {
-        debugHitboxItem->setRect(actualHitbox);
-    }
+    // if (!debugHitboxItem && scene())
+    // {
+    //     debugHitboxItem = new QGraphicsRectItem();
+    //     debugHitboxItem->setBrush(QBrush(QColor(0, 0, 255, 100)));
+    //     debugHitboxItem->setPen(QPen(Qt::blue));
+    //     debugHitboxItem->setZValue(10000);
+    //     scene()->addItem(debugHitboxItem);
+    // }
+    // if (debugHitboxItem)
+    // {
+    //     debugHitboxItem->setRect(actualHitbox);
+    // }
 
     emit positionChanged(this);
 }
@@ -557,7 +557,7 @@ QRectF Player::getPlayerHitbox(QPointF pos) const
     float baseOffsetX = 25.0f;
     float baseOffsetY = 32.0f;
     float actualOffsetX = baseOffsetX * this->scale();
-    float actualOffsetY = baseOffsetY * this->scale();
+    float actualOffsetY = baseOffsetY * this->scale()+2;
 
     return QRectF(pos.x() + actualOffsetX, pos.y() + actualOffsetY, hitboxWidth, hitboxHeight);
 }
