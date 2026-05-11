@@ -132,7 +132,8 @@ void GameView::keyPressEvent(QKeyEvent *event)
             switchToOverworld();
         }
     }
-    else if (event->key() == Qt::Key_7){
+    else if (event->key() == Qt::Key_7)
+    {
         switchToCharacterSelectScreen();
     }
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
@@ -174,18 +175,19 @@ void GameView::keyPressEvent(QKeyEvent *event)
 void GameView::switchToInterior()
 {
     int tileSize = _interior->tileSize();
-    bool wasinOverworld =false;
+    bool wasinOverworld = false;
     scene()->removeItem(_player);
-    if(scene() == _overworld){
+    if (scene() == _overworld)
+    {
         scene()->removeItem(interactPrompt);
         scene()->removeItem(textStart);
         scene()->removeItem(textEnd);
-        wasinOverworld =true;
+        wasinOverworld = true;
     }
 
     setScene(_interior);
     emit isoverworld(false);
-    currentscale =1.2;
+    currentscale = 1.2;
 
     _interior->addItem(_player);
     _player->setFocus();
@@ -196,7 +198,8 @@ void GameView::switchToInterior()
     resetTransform();
     scale(4.5, 4.5);
     centerOn(_player);
-    if(wasinOverworld){
+    if (wasinOverworld)
+    {
         _interior->addItem(interactPrompt);
         _interior->addItem(textStart);
         _interior->addItem(textEnd);
@@ -213,7 +216,7 @@ void GameView::switchToOverworld()
 
     setScene(_overworld);
     emit isoverworld(true);
-    currentscale =1.2;
+    currentscale = 1.2;
 
     _overworld->addItem(_player);
     _player->setFocus();
@@ -232,14 +235,24 @@ void GameView::switchToOverworld()
 void GameView::switchToCharacterSelectScreen()
 {
     CharacterSelectScreen *screen = new CharacterSelectScreen(_player->getcharacternum(), this);
-    screen->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    screen->setWindowModality(Qt::ApplicationModal);
-    connect(screen, &CharacterSelectScreen::selectionMade, this, [this](int charIndex) {
+
+    connect(screen, &CharacterSelectScreen::selectionMade, this, [this](int charIndex)
+            {
         _player->swtichto(charIndex);
-        _player->setScale(1.2f);
-        _player->setFocus();
-    });
-    screen->showFullScreen();
+        _player->setScale(1.2f); });
+
+    connect(screen, &QObject::destroyed, this, [this]()
+            {
+        this->activateWindow();
+        this->setFocus();
+        if (this->scene()) {
+            this->scene()->setFocusItem(_player);
+        }
+        _player->setFocus(); });
+
+    screen->raise();
+    screen->show();
+    screen->setFocus();
 }
 
 void GameView::switchtoLevel2()
@@ -253,7 +266,7 @@ void GameView::switchtoLevel2()
 
     setScene(Level2);
     emit isoverworld(true);
-    currentscale =1.4;
+    currentscale = 1.4;
 
     Level2->addItem(_player);
     _player->setFocus();
@@ -277,7 +290,7 @@ void GameView::switchtoLevel3()
 
     setScene(Level3);
     emit isoverworld(true);
-    currentscale =1.2;
+    currentscale = 1.2;
 
     Level3->addItem(_player);
     _player->setFocus();
