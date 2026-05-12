@@ -89,6 +89,7 @@ private:
     void placeStaticObjects(const QJsonArray &objects);
     void distributeRandomCollidables(const QJsonObject &cfg);
     void spawnEnemies(const QJsonObject &cfg);
+    void spawnSpecificEnemies(const QJsonArray &enemies);
 
     void placeCollidable(float row, float col, const QString &templateId);
     void placeNonCollidable(float row, float col, const QString &assetId, qreal zValue);

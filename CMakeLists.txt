@@ -39,6 +39,7 @@ qt_add_executable(QtTest
     src/statsupgrade.cpp
     src/lightningattack.cpp
     src/characterselectscreen.cpp
+    src/boss.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -160,6 +161,11 @@ qt_add_resources(QtTest "images"
         "resources/enemy/attack/Slime3_Attack_with_shadow.png"
         "resources/enemy/dead/Slime3_Death_with_shadow.png"
         "resources/enemy/hurt/Slime3_Hurt_with_shadow.png"
+        "resources/boss/boss_attack.png"
+        "resources/boss/boss_idle.png"
+        "resources/boss/boss_walk.png"
+        "resources/boss/boss_hurt.png"
+        "resources/boss/boss_death.png"
         "resources/heart/heal_heart2.png"
         "resources/heart/heart_shadow.png"
         "resources/ui-elements/character_panel.png"

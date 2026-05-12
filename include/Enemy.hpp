@@ -87,12 +87,12 @@ public:
 
     void moveEnemy();
     virtual void updateAnimation();
-    void detectandmove(Player *);
+    virtual void detectandmove(Player *);
 signals:
     void enemyDied();
 
 public slots:
-    void update();
+    virtual void update();
 };
 
 #endif

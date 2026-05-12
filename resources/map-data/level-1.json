@@ -2630,17 +2630,17 @@
         "colMax": 33,
         "types": [
             {
-                "id": "slime1",
+                "class": "Slime",
                 "variant": 1,
                 "weight": 25
             },
             {
-                "id": "slime2",
+                "id": "Slime",
                 "variant": 2,
                 "weight": 15
             },
             {
-                "id": "slime3",
+                "id": "Slime",
                 "variant": 3,
                 "weight": 10
             }

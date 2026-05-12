@@ -47,6 +47,23 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
         "QProgressBar { background-color: rgba(50,50,50,150); border: 3px solid #333; border-radius: 10px; color: white; text-align: center; }"
         "QProgressBar::chunk { background-color: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #c0392b, stop:1 #e74c3c); border-radius: 7px; }");
 
+    _bossLabel = new QLabel("BOSS", this);
+    _bossLabel->setStyleSheet("color: #ff3333; font-size: 24px; font-weight: bold; background: transparent; font-family: 'Courier New';");
+    _bossLabel->setAlignment(Qt::AlignCenter);
+
+    _bossHealthBar = new QProgressBar(this);
+    _bossHealthBar->setFormat("%v / %m");
+    _bossHealthBar->setAlignment(Qt::AlignCenter);
+    _bossHealthBar->setStyleSheet(
+        "QProgressBar { border: 3px solid #3b2121; background-color: #2b2b2b; border-radius: 5px; color: white; font-weight: bold; font-size: 20px; }"
+        "QProgressBar::chunk { background-color: #d32f2f; border-radius: 2px; }");
+
+    QRect progRect = _progressBar->geometry();
+    _bossHealthBar->setGeometry(progRect.x(), progRect.y() + 30, progRect.width(), progRect.height() + 20);
+    _bossLabel->setGeometry(progRect.x(), progRect.y(), progRect.width(), 30);
+    _bossHealthBar->setVisible(false);
+    _bossLabel->setVisible(false);
+
     // this essential allows the progress bar to work for any map regardless of enemy count or type
     auto bindProgress = [this](MapLoader *scene)
     {
@@ -301,6 +318,9 @@ void GameView::switchtoLevel3()
     resetTransform();
     scale(3.5, 3.5);
     centerOn(_player);
+    _bossHealthBar->setMaximum(300);
+    _bossHealthBar->setValue(300);
+    _bossHealthBar->setVisible(true);
 }
 void GameView::checkInteractions()
 {

@@ -64,6 +64,30 @@ int main(int argc, char *argv[])
 
     GameView *view = new GameView(overworld, interior, level2, level3, player);
 
+    QTimer *uiTimer = new QTimer();
+
+    // we constantly move stats bar to the current level and load progress and boss bars
+    QObject::connect(uiTimer, &QTimer::timeout, [view, stats, interior, level2, level3]()
+                     {
+        if (stats->scene() != view->scene() && view->scene() != nullptr && view->scene() != interior) {
+            if (stats->scene()) {
+                stats->scene()->removeItem(stats);
+            }
+            view->scene()->addItem(stats);
+        }
+        stats->setPos(view->mapToScene(10, 10));
+    if (view->scene() == level3) {
+            if (view->_progressBar) view->_progressBar->setVisible(false);
+            if (view->_bossHealthBar) view->_bossHealthBar->setVisible(true);
+            if (view->_bossLabel) view->_bossLabel->setVisible(true);
+        } else {
+            if (view->_progressBar) view->_progressBar->setVisible(true);
+            if (view->_bossHealthBar) view->_bossHealthBar->setVisible(false);
+            if (view->_bossLabel) view->_bossLabel->setVisible(false);
+        } });
+
+    uiTimer->start(16);
+
     QObject::connect(player,
                      &Player::positionChanged,
                      view,

@@ -3,6 +3,7 @@
 
 #include <QGraphicsView>
 #include <QProgressBar>
+#include <QLabel>
 #include "maploader.hpp"
 #include "characters.hpp"
 
@@ -13,6 +14,9 @@ class GameView : public QGraphicsView
 public:
     GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player);
     void checkInteractions();
+    QProgressBar *_bossHealthBar;
+    QLabel *_bossLabel;
+    QProgressBar *_progressBar;
 
 signals:
     void isoverworld(bool toggle);
@@ -39,13 +43,12 @@ private:
     MapLoader *Level3;
     Characters *_player;
 
-    QProgressBar *_progressBar;
     QGraphicsTextItem *textStart;
     QGraphicsPixmapItem *interactPrompt;
     QGraphicsTextItem *textEnd;
     void loadinteractionPrompt();
     QString pixelFontFamily;
-    float currentscale=1.2;
+    float currentscale = 1.2;
 };
 
 #endif // GAMEVIEW_HPP
