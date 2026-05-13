@@ -8,13 +8,14 @@ Vampire::Vampire()
 }
 
 Vampire::Vampire(int num)
+    // Higher variants get more health, damage, defense, speed, and reach.
     : BaseEnemy(
           (num == 1 ? 80  : (num == 2 ? 90 : 110)),
           (num == 1 ? 20  : (num == 2 ? 25  : 35)),
           (num == 1 ? 5   : (num == 2 ? 8   : 12)),
           (num == 1 ? 5.0f : (num == 2 ? 6.0f : 7.0f)),
           (num == 1 ? 30.0f : (num == 2 ? 32.0f : 35.0f)),
-          "SlimeDamage"),
+          "VampireDamage"),
       vampirenumber(num)
 {
     loadAnimations();
@@ -22,6 +23,7 @@ Vampire::Vampire(int num)
 
 void Vampire::loadAnimations()
 {
+    // The resource folders are numbered, so the variant decides which sprite set to load.
     QString n = QString::number(vampirenumber);
     QString path = ":/resources/vampires/vampire " + n + "/Vampires" + n;
 
@@ -31,7 +33,7 @@ void Vampire::loadAnimations()
     hurtSheet.load(path   + "_Hurt_with_shadow.png");
     deadSheet.load(path   + "_Death_with_shadow.png");
 
-    // check BEFORE calculating dimensions — if null, width() returns 0
+    // check before calculating dimensions,if null width() returns 0
     if (idleSheet.isNull())
     {
         qDebug() << "Vampire: idle sheet failed to load for variant" << vampirenumber
@@ -43,6 +45,7 @@ void Vampire::loadAnimations()
     idleData.frameWidth   = idleSheet.width()   / 4;
     idleData.frameHeight  = idleSheet.height()  / 4;
 
+    // Each sheet stores animation frames across columns and facing directions across rows.
     walkData.frameCount   = 8;
     walkData.frameWidth   = walkSheet.width()   / 8;
     walkData.frameHeight  = walkSheet.height()  / 4;

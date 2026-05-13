@@ -12,6 +12,7 @@
 
 QString LevelSelectWindow::savePath()
 {
+    // here we just choose where the save file will live on the user's pc
     QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(dir);
     return dir + "/savegame.json";
@@ -19,6 +20,7 @@ QString LevelSelectWindow::savePath()
 
 QJsonObject LevelSelectWindow::readSave()
 {
+    // here we read the save file and return an empty object if there is no save yet
     QFile f(savePath());
 
     if (!f.open(QIODevice::ReadOnly))
@@ -32,6 +34,7 @@ QJsonObject LevelSelectWindow::readSave()
 
 void LevelSelectWindow::writeSave(const QJsonObject &obj)
 {
+    // here we rewrite the save file with the newest progress
     QFile f(savePath());
 
     if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
@@ -47,6 +50,7 @@ static int sessionUnlockedLevel = 1;
 
 void LevelSelectWindow::markLevelCompleted(int level)
 {
+    // here we mark the finished level and unlock only the next door
     if (level > sessionCompletedLevels)
         sessionCompletedLevels = level;
 
@@ -61,6 +65,7 @@ void LevelSelectWindow::saveContinueState(int level, int health,
 {
     QJsonObject save = readSave();
 
+    // here we save everything needed to continue from the same spot later
     QJsonObject cont;
     cont["exists"] = true;
     cont["level"] = level;
@@ -80,6 +85,7 @@ void LevelSelectWindow::clearContinueState()
 {
     QJsonObject save = readSave();
 
+    // here we keep the old data but tell the menu that continue is no longer active
     QJsonObject cont = save.value("continue").toObject();
     cont["exists"] = false;
 
@@ -147,6 +153,7 @@ LevelSelectWindow::LevelSelectWindow(QWidget *parent)
 {
     continueMode = false;
 
+
     int fontId = QFontDatabase::addApplicationFont(":resources/fonts/pixelfont.ttf");
 
     if (fontId != -1)
@@ -159,6 +166,7 @@ LevelSelectWindow::LevelSelectWindow(QWidget *parent)
 
     sheet.load(":resources/ui-elements/Levels.png");
 
+    // here we cut the three door states from the same UI sprite sheet
     doorAvailable = sheet.copy(88, 162, 17, 22);
     doorLocked = sheet.copy(120, 162, 17, 22);
     doorCompleted = sheet.copy(56, 162, 17, 22);
@@ -167,18 +175,17 @@ LevelSelectWindow::LevelSelectWindow(QWidget *parent)
     setupButtons();
 }
 
-
 void LevelSelectWindow::loadSaveData()
 {
+    // here we decide what the menu should show: normal session progress or continue progress
     QJsonObject save = readSave();
-
     QJsonObject cont = save.value("continue").toObject();
 
     hasContinue = cont.value("exists").toBool(false);
     continueLevel = cont.value("level").toInt(1);
-
     if (continueMode && hasContinue)
     {
+        // here we show the saved run progress instead of the current session progress
         completedLevels = qMax(0, continueLevel - 1);
         unlockedLevel = continueLevel;
     }
@@ -209,6 +216,7 @@ void LevelSelectWindow::setupButtons()
 
         QPushButton *btn = new QPushButton(this);
 
+        // here we add invisible buttons on top of the painted doors so they can be clicked
         btn->setGeometry(cx - r, cy - r, r * 2, r * 2);
         btn->setFlat(true);
         btn->setStyleSheet("background: transparent; border: none;");
@@ -221,6 +229,7 @@ void LevelSelectWindow::setupButtons()
     }
 
     if (hasContinue) {
+        // here we only show continue/reset if a continue save actually exists
         QPushButton *continueBtn = new QPushButton("CONTINUE", this);
         QPushButton *reset = new QPushButton("RESET PROGRESS", this);
 
@@ -241,6 +250,7 @@ void LevelSelectWindow::setupButtons()
         continueBtn->setCursor(Qt::PointingHandCursor);
 
         connect(continueBtn, &QPushButton::clicked, this, [this]() {
+            // here we switch the menu into continue mode before starting the saved run
             setContinueMode(true);
             emit continueRequested();
         });
@@ -256,6 +266,7 @@ void LevelSelectWindow::setupButtons()
         reset->setCursor(Qt::PointingHandCursor);
 
         connect(reset, &QPushButton::clicked, this, [this]() {
+            // here we clear the saved run and tell the main window to reset progress
             clearContinueState();
             emit resetRequested();
         });
@@ -263,6 +274,7 @@ void LevelSelectWindow::setupButtons()
 
     QPushButton *quitBtn = new QPushButton("QUIT", this);
 
+    // here we make the quit button separate from the door buttons
     if (!pixelFontFamily.isEmpty())
         quitBtn->setFont(QFont(pixelFontFamily, 8, QFont::Bold));
 
@@ -283,6 +295,7 @@ void LevelSelectWindow::setupButtons()
 
     QPushButton *closeBtn = new QPushButton(this);
 
+    // here we use a hidden button for the X/close area drawn on the panel art
     closeBtn->setGeometry(CLOSE_X * SCALE,
                           CLOSE_Y * SCALE,
                           CLOSE_W * SCALE,
@@ -300,6 +313,7 @@ void LevelSelectWindow::setupButtons()
 
 void LevelSelectWindow::forceUnlockAll()
 {
+    // here we unlock everything for testing or debug use
     sessionUnlockedLevel = 3;
     sessionCompletedLevels = 3;
     unlockedLevel = 3;
@@ -310,6 +324,7 @@ void LevelSelectWindow::forceUnlockAll()
 
 void LevelSelectWindow::setContinueMode(bool enabled)
 {
+    // here we refresh the doors after toggling between normal and continue mode
     continueMode = enabled;
 
     loadSaveData();
@@ -319,6 +334,7 @@ void LevelSelectWindow::setContinueMode(bool enabled)
 
 QPixmap LevelSelectWindow::getDoorSprite(int level) const
 {
+    // here we choose which door image each level should use
     if (continueMode && hasContinue) {
         if (level < continueLevel)
             return doorCompleted;
@@ -343,6 +359,7 @@ void LevelSelectWindow::updateButtonStates()
     for (int i = 0; i < levelButtons.size(); i++) {
         int level = i + 1;
 
+        // here we make locked doors unclickable, same as how they look
         bool clickable = false;
 
         if (continueMode && hasContinue) {
@@ -364,6 +381,7 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
+    // here we keep pixel art crisp by avoiding smoothing on the sprite sheet
     painter.setRenderHint(QPainter::SmoothPixmapTransform, false);
 
     QPixmap panel = sheet.copy(PANEL_SRC_X,
@@ -371,6 +389,7 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
                                PANEL_SRC_W,
                                PANEL_SRC_H);
 
+    // here we draw the level select panel first, then draw doors and text on top
     painter.drawPixmap(0,
                        0,
                        PANEL_SRC_W * SCALE,
@@ -415,6 +434,7 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
         else
             locked = (level > unlockedLevel);
 
+        // here we draw the circle backing behind each door
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setBrush(QColor(185, 148, 98));
         painter.setPen(QPen(QColor(96, 57, 40), 3));
@@ -423,6 +443,7 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
 
         QPixmap door = getDoorSprite(level);
 
+        // here we scale the small door sprite to fit inside the circle nicely
         int dh = r * 2 - 28;
         int dw = door.width() * dh / door.height();
 
@@ -433,6 +454,7 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
                            door);
 
         if (locked) {
+            // here we darken locked levels so the player can read them as unavailable
             painter.setRenderHint(QPainter::Antialiasing, true);
             painter.setBrush(QColor(0, 0, 0, 110));
             painter.setPen(Qt::NoPen);
@@ -468,6 +490,7 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
     }
 
     if (continueMode && hasContinue) {
+        // here we show which level the continue save will load into
         if (!pixelFontFamily.isEmpty())
             painter.setFont(QFont(pixelFontFamily, 7));
 

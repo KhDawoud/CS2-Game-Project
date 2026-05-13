@@ -21,11 +21,13 @@ namespace
 {
 QPointF tileCenter(int row, int col, int tileSize)
 {
+    // Aim enemies at the middle of a tile so path movement does not wobble around tile edges.
     return QPointF((col + 0.5f) * tileSize, (row + 0.5f) * tileSize);
 }
 
 bool pathTileBlocked(MapLoader *map, int row, int col)
 {
+    // Pathfinding treats both solid map tiles and placed objects as things to route around.
     if (map->isTileCollidable(row, col))
         return true;
 
@@ -41,6 +43,7 @@ bool pathTileBlocked(MapLoader *map, int row, int col)
 
 bool nextPathPoint(MapLoader *map, const QPointF &from, const QPointF &to, QPointF &nextPoint)
 {
+    // Breadth-first search is enough for these small tile maps and gives the nearest route.
     const int rows = map->mapRows();
     const int cols = map->mapCols();
     const int tileSize = map->tileSize();
@@ -63,6 +66,7 @@ bool nextPathPoint(MapLoader *map, const QPointF &from, const QPointF &to, QPoin
     std::vector<std::vector<QPoint>> parent(rows, std::vector<QPoint>(cols, QPoint(-1, -1)));
     std::queue<QPoint> open;
 
+    // The queue expands outward from the enemy one tile at a time.
     visited[startRow][startCol] = true;
     open.push(QPoint(startCol, startRow));
 
@@ -97,6 +101,7 @@ bool nextPathPoint(MapLoader *map, const QPointF &from, const QPointF &to, QPoin
             if ((nextRow != goalRow || nextCol != goalCol) && pathTileBlocked(map, nextRow, nextCol))
                 continue;
 
+            // here we remember where this tile came from so we can walk the path backward later.
             visited[nextRow][nextCol] = true;
             parent[nextRow][nextCol] = current;
             open.push(QPoint(nextCol, nextRow));
@@ -109,6 +114,7 @@ bool nextPathPoint(MapLoader *map, const QPointF &from, const QPointF &to, QPoin
     QPoint step(goalCol, goalRow);
     QPoint previous = parent[step.y()][step.x()];
 
+    // We only need the first step, not the whole route, because the enemy recalculates often.
     while (previous != QPoint(-1, -1) && previous != QPoint(startCol, startRow))
     {
         step = previous;
@@ -145,6 +151,7 @@ void BaseEnemy::setPlayer(Player *p)
 void BaseEnemy::detectandmove(Player *player)
 { // finding the difference in distance between player and
     // enemy so if less than attack sets movement direction
+    // Use the visible centers for path choice so enemies chase the player instead of a sprite corner.
     float diffX = player->sceneBoundingRect().center().x() - this->collisionHitbox().center().x();
     float diffY = player->sceneBoundingRect().center().y() - this->collisionHitbox().center().y();
 
@@ -157,6 +164,7 @@ void BaseEnemy::detectandmove(Player *player)
 
         if (map && nextPathPoint(map, collisionHitbox().center(), player->sceneBoundingRect().center(), targetPoint))
         {
+            // If a route exists, steer toward the next tile in the route instead of the player directly.
             diffX = targetPoint.x() - collisionHitbox().center().x();
             diffY = targetPoint.y() - collisionHitbox().center().y();
             distance = sqrt(diffX * diffX + diffY * diffY);
@@ -280,7 +288,7 @@ void BaseEnemy::moveEnemy()
         int fw = this->pixmap().width();
         int fh = this->pixmap().height();
 
-        // check X movement
+        // Check X and Y separately so enemies can slide along objects instead of freezing.
         QRectF hitboxX(newX, this->y() + fh * 0.6f, fw, fh * 0.4f);
         int lCol = (int)std::floor(hitboxX.left()   / tileSize);
         int rCol = (int)std::floor(hitboxX.right()  / tileSize);
@@ -297,7 +305,6 @@ void BaseEnemy::moveEnemy()
                 if (hitboxX.intersects(obj.worldHitbox)) { blockedX = true; break; }
         if (!blockedX) this->setX(newX);
 
-        // check Y movement
         QRectF hitboxY(this->x(), newY + fh * 0.6f, fw, fh * 0.4f);
         lCol = (int)std::floor(hitboxY.left()   / tileSize);
         rCol = (int)std::floor(hitboxY.right()  / tileSize);
@@ -322,6 +329,7 @@ void BaseEnemy::moveEnemy()
 
 QRectF BaseEnemy::collisionHitbox() const
 {
+    // Only the lower body collides; the top of the sprite can overlap scenery naturally.
     QRectF body = sceneBoundingRect();
     return QRectF(body.left(),
                   body.top() + body.height() * 0.60,

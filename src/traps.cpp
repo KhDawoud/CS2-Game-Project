@@ -10,6 +10,7 @@ static QRectF playerDamageBox(Player *player)
 {
     QRectF box = player->sceneBoundingRect();
 
+    // here i shrink the player box a bit so tiny sprite touches do not feel unfair
     box.adjust(box.width() * 0.25,
                box.height() * 0.25,
                -box.width() * 0.25,
@@ -46,9 +47,11 @@ SpikeTrap::SpikeTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &SpikeTrap::UpdateAnimation);
     animationTimer->start(150);
 
+    // here i check damage more often than the animation so hits feel responsive
     connect(damageTimer, &QTimer::timeout, this, &SpikeTrap::CheckDamage);
     damageTimer->start(60);
 
+    // here i add a cooldown so one trap cycle does not hit the player too many times
     cooldownTimer->setSingleShot(true);
     cooldownTimer->setInterval(800);
 
@@ -78,6 +81,7 @@ void SpikeTrap::UpdateAnimation()
 
     if (currentFrame >= frameCount - 1)
     {
+        // here the spikes finished extending, so i pause them before the next cycle
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -124,6 +128,7 @@ QRectF SpikeTrap::damageArea() const
 
 bool SpikeTrap::isExtended() const
 {
+    // here i only allow damage when the spikes are actually out on screen
     return displayedFrame >= frameCount - 2;
 }
 
@@ -183,6 +188,7 @@ SlidingSpikeTrap::SlidingSpikeTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &SlidingSpikeTrap::UpdateAnimation);
     animationTimer->start(220);
 
+    // here this trap moves slower, but still checks damage smoothly
     connect(damageTimer, &QTimer::timeout, this, &SlidingSpikeTrap::CheckDamage);
     damageTimer->start(60);
 
@@ -218,6 +224,7 @@ void SlidingSpikeTrap::UpdateAnimation()
 
     if (currentFrame >= frameCount - 1)
     {
+        // here the spike reached the far side, so i reverse it back
         currentFrame = frameCount - 1;
         direction = -1;
     }
@@ -256,6 +263,7 @@ void SlidingSpikeTrap::CheckDamage()
 
 QRectF SlidingSpikeTrap::spikeLocalRect() const
 {
+    // here i track just the sliding spike head, not the full trap sprite
     qreal headW = frameWidth / qreal(frameCount);
     qreal x = (frameWidth - headW) * (displayedFrame / qreal(frameCount - 1));
 
@@ -325,6 +333,7 @@ SawBladeTrap::SawBladeTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &SawBladeTrap::UpdateAnimation);
     animationTimer->start(70);
 
+    // here the saw checks damage quickly because its animation is fast
     connect(damageTimer, &QTimer::timeout, this, &SawBladeTrap::CheckDamage);
     damageTimer->start(50);
 
@@ -357,6 +366,7 @@ void SawBladeTrap::UpdateAnimation()
 
     if (currentFrame >= frameCount - 1)
     {
+        // here i pause the saw for a moment so it is not always dangerous
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -456,6 +466,7 @@ FireTrap::FireTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &FireTrap::UpdateAnimation);
     animationTimer->start(100);
 
+    // here fire damage follows the active frames instead of the whole sprite cycle
     connect(damageTimer, &QTimer::timeout, this, &FireTrap::CheckDamage);
     damageTimer->start(60);
 
@@ -505,11 +516,13 @@ void FireTrap::UpdateAnimation()
 
 bool FireTrap::isSparkFrame() const
 {
+    // here the first frames are just sparks, so they work like a warning
     return displayedFrame >= 1 && displayedFrame <= 3;
 }
 
 bool FireTrap::isFireFrame() const
 {
+    // here the later frames are the actual fire burst
     return displayedFrame >= 4;
 }
 
@@ -539,6 +552,7 @@ void FireTrap::applyDamageTo(Player *player)
 {
     if (isFireFrame())
     {
+        // here i use percent damage so fire still matters when health gets upgraded
         player->takeDamage(player->getHealth() * 0.25f);
         cooldownTimer->setInterval(600);
     }
@@ -557,6 +571,7 @@ QRectF FireTrap::damageArea() const
     if (!isSparkFrame() && !isFireFrame())
         return QRectF();
 
+    // here the spark hitbox is small, then the real fire hitbox gets wider
     QRectF area = sceneBoundingRect();
 
     qreal h = area.height() * 0.30;
@@ -634,6 +649,7 @@ void FireTrap2::UpdateAnimation()
     if (isPaused)
         return;
 
+    // here i mirror the same fire sheet so this trap shoots from the other side
     displayedFrame = currentFrame;
 
     QPixmap frame = framesheet.copy(currentFrame * frameWidth,
@@ -866,6 +882,7 @@ QRectF FireTrap3::damageArea() const
     if (!isSparkFrame() && !isFireFrame())
         return QRectF();
 
+    // here the vertical flame grows taller after the warning sparks
     QRectF area = sceneBoundingRect();
 
     qreal w = area.width() * 0.22;
@@ -943,6 +960,7 @@ void FireTrap4::UpdateAnimation()
     if (isPaused)
         return;
 
+    // here i flip the vertical fire so it shoots from the opposite side
     displayedFrame = currentFrame;
 
     QPixmap frame = framesheet.copy(currentFrame * frameWidth,
