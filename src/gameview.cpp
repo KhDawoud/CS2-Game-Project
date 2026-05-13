@@ -387,8 +387,8 @@ void GameView::switchtoLevel3()
     resetTransform();
     scale(3.5, 3.5);
     centerOn(_player);
-    _bossHealthBar->setMaximum(300);
-    _bossHealthBar->setValue(300);
+    _bossHealthBar->setMaximum(1000);
+    _bossHealthBar->setValue(1000);
     _bossHealthBar->setVisible(true);
     bindProgress(Level3);
 }
