@@ -163,14 +163,16 @@ void BaseEnemy::moveEnemy()
 
 QRectF BaseEnemy::collisionHitbox() const
 {
-    return sceneBoundingRect();
+    return QRectF();
 }
 
 void BaseEnemy::update()
 {
-    if (!scene()) return;
+    if (!scene())
+        return;
 
-    if (scene()->views().isEmpty()) {
+    if (scene()->views().isEmpty())
+    {
         return;
     }
 

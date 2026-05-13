@@ -669,11 +669,17 @@ bool Player::checkCollision(const QRectF &hitbox, MapLoader *map) const
         }
     }
 
-    // check if u collide with enemy
+    // check if u collide with enemy, but allow escape if an enemy stepped onto you to fix
+    // bug when u get trapped
+    QRectF currentHitbox = getPlayerHitbox(pos());
     for (QGraphicsItem *item : map->items(hitbox))
     {
         BaseEnemy *enemy = dynamic_cast<BaseEnemy *>(item);
-        if (enemy && !enemy->isdead() && hitbox.intersects(enemy->collisionHitbox()))
+        if (!enemy || enemy->isdead())
+            continue;
+
+        QRectF enemyHitbox = enemy->collisionHitbox();
+        if (hitbox.intersects(enemyHitbox) && !currentHitbox.intersects(enemyHitbox))
         {
             return true;
         }
