@@ -5,8 +5,9 @@ class LevelCleared : public BaseWindow
 {
 public:
     LevelCleared(QWidget *,int);
-protected:
+private:
     int CurrentLevel;
+    bool savedAndQuit = false;   // true when player chose Save & Quit
 };
 
 #endif // LEVELCLEARED_H

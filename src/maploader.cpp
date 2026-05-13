@@ -4,6 +4,7 @@
 #include "campfire.hpp"
 #include "AudioManager.hpp"
 #include "player.hpp"
+#include "key.hpp"
 
 #include <QFile>
 #include <QTextStream>
@@ -122,7 +123,6 @@ void MapLoader::loadFromJson(const QString &path)
     {
         spawnSpecificEnemies(root["specificEnemies"].toArray());
     }
-
     initialEnemyCount = currentEnemyCount;
 
     // spawn player when u load in specified spot (scene is still null)
@@ -138,6 +138,21 @@ void MapLoader::loadFromJson(const QString &path)
             spawnPlayer(player, row, col);
         }
     }
+        QJsonObject key = meta["keySpawn"].toObject();
+
+        if (!key.isEmpty())
+        {
+            float row = key["row"].toDouble();
+            float col = key["col"].toDouble();
+            if(!player){
+                qDebug() << "Player not found";
+            }else{
+                qDebug() << "found";
+            }
+            Key* key1 = new Key(col * TILE_SIZE, row * TILE_SIZE,player);
+            addItem(key1);
+        }
+
 }
 
 void MapLoader::loadAssets()
@@ -317,7 +332,7 @@ void MapLoader::drawBaseTiles()
                 }
                 else if (solidTileIDs.contains(id))
                 {
-                    tile->setZValue((i * TILE_SIZE) + TILE_SIZE);
+                    tile->setZValue(-50.0);
                 }
                 else
                 {
@@ -683,7 +698,17 @@ bool MapLoader::isTileCollidable(int row, int col) const
 {
     if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS)
         return true;
-    return collisionMap[row][col] == 1;
+
+    int tileValue = collisionMap[row][col];
+
+    if (tileValue == 1) {
+        if (row >= 17 && row <= 19 && col >= 14 && col <= 16 && player->haskey()) { // this is where the door is
+            return false;
+        }
+        return true;
+    }
+
+    return false;
 }
 
 int MapLoader::getCurrentEnemyCount()

@@ -28,7 +28,7 @@ pausewindow::pausewindow(QWidget *parent, bool inLevel) : BaseWindow(parent) {
     mainLayout->addWidget(resumeBtn);
 
     if (inLevel) {
-        QPushButton *saveBtn = new QPushButton("SAVE & QUIT", this);
+        QPushButton *saveBtn = new QPushButton("SAVE AND QUIT", this);
         saveBtn->setFont(buttonFont);
         saveBtn->setStyleSheet("background-color: #2196F3; color: black; border-radius: 10px;");
         saveBtn->setMinimumHeight(60);

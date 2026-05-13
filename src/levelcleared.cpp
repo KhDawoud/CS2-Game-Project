@@ -17,14 +17,8 @@ LevelCleared::LevelCleared(QWidget *parent, int level)
     nextLevelBtn->setMinimumHeight(60);
     nextLevelBtn->setStyleSheet("background-color: #4CAF50; color: black; border-radius: 10px;");
 
-    QPushButton *quitBtn = new QPushButton("SAVE & QUIT", this);
-    quitBtn->setFont(buttonFont);
-    quitBtn->setStyleSheet("background-color: #f44336; color: black; border-radius: 10px;");
-    quitBtn->setMinimumHeight(60);
-
     mainLayout->addWidget(label);
     mainLayout->addWidget(nextLevelBtn);
-    mainLayout->addWidget(quitBtn);
 
     connect(nextLevelBtn, &QPushButton::clicked, this, &LevelCleared::accept);
 }

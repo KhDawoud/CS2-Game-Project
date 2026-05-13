@@ -14,7 +14,6 @@ Characters::Characters(int num): Player(num){
 void Characters::loadSwordsman(){
     animationfactor=1;
     int charIndex = (levelscleared == 0) ? 1 : levelscleared==1 ? 2: 3;
-    damage = charIndex * 10;
 
     QString path = ":resources/player/%1/swordsman_%2_%1.png";
 
@@ -53,7 +52,6 @@ void Characters::loadSwordsman(){
 }
 
 void Characters::loadWizard(){
-    damage = 20;
     animationfactor = 2;
 
     walkSheet.load(":resources/player/running/Wizard-walk-spritesheet.png");
@@ -90,7 +88,6 @@ void Characters::loadWizard(){
 
 }
 void Characters::loadVampire(){
-    damage = 30;
     animationfactor = 1;
 
     walkSheet.load(":resources/player/running/Vampires3_Run_with_shadow.png");
@@ -127,7 +124,6 @@ void Characters::loadVampire(){
 
 }
 void Characters::loadSkeleton(){
-    damage = 30;
     animationfactor = 1;
 
     walkSheet.load(":resources/player/running/skeleton-walksheet.png");
@@ -183,7 +179,7 @@ void Characters::handleLevelCleared(){
     playerstats.oldstamina = 100 +levelscleared*20;
     playerstats.oldstaminaregenrate = 100 +levelscleared*20;
     playerstats.oldmanaregenrate = 100 +levelscleared*20;
-
+    playerstats.olddamage = 10 +levelscleared*10;
     levelscleared++;
 
     health= 100 +levelscleared*20;
@@ -191,12 +187,14 @@ void Characters::handleLevelCleared(){
     stamina= 100 +levelscleared*20;
     staminaRegenRate = 5 +levelscleared*2;
     manaRegenRate = 2 +levelscleared*2;
+    damage = 10+ levelscleared*10;
 
     playerstats.health = health;
     playerstats.mana = mana;
     playerstats.stamina = stamina;
     playerstats.staminaregenrate = staminaRegenRate;
     playerstats.manaregenrate = staminaRegenRate;
+    playerstats.damage = damage;
 
     if(characternum==1){
         loadSwordsman();

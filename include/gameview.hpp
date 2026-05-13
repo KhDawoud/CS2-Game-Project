@@ -35,7 +35,6 @@ private:
     void openLevelSelect();
     void saveCurrentState();
     void restoreContinueState();
-    int  currentLevelNumber() const;
     void bindProgress(MapLoader *map);
 
     // these handle the torch effect

@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
                          level3->mapRows() * level3->tileSize());
 
     QObject::connect(overworld, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
+    QObject::connect(level2, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
+    QObject::connect(level3, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
 
     GameView *view = new GameView(overworld, interior, level2, level3, player);
 

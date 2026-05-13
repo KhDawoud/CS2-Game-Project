@@ -12,11 +12,13 @@ Statsupgrade::Statsupgrade(QWidget *parent, Stats stats, int Level) : BaseWindow
     QString statText = QString(
                            "HEALTH:  %1 -> %2\n\n"
                            "MANA:    %3 -> %4\n\n"
-                           "STAMINA: %5 -> %6"
+                           "STAMINA: %5 -> %6\n\n"
+                           "DAMAGE: %7 -> %8"
                            )
                            .arg(stats.oldhealth).arg(stats.health)
                            .arg(stats.oldmana).arg(stats.mana)
-                           .arg(stats.oldstamina).arg(stats.stamina);
+                           .arg(stats.oldstamina).arg(stats.stamina)
+                            .arg(stats.olddamage).arg(stats.damage);
     QLabel *display = new QLabel(statText, this);
     display->setFont(font);
     display->setStyleSheet("color: black;");
@@ -30,12 +32,25 @@ Statsupgrade::Statsupgrade(QWidget *parent, Stats stats, int Level) : BaseWindow
     mainLayout->addWidget(header);
     mainLayout->addWidget(display);
     if(Level ==1){
-        QLabel *skill = new QLabel("New DASH SKILL UNLOCKED!");
+        QLabel *skill = new QLabel("NEW DASH SKILL UNLOCKED!");
+        skill->setFont(font);
+        skill->setStyleSheet("color: black;");
+        skill->setAlignment(Qt::AlignCenter);
+        mainLayout->addWidget(skill);
+    }else if(Level == 2){
+        QLabel *skill = new QLabel("NEW LIGHTNING SKILL UNLOCKED!");
+        skill->setFont(font);
+        skill->setStyleSheet("color: black;");
+        skill->setAlignment(Qt::AlignCenter);
+        mainLayout->addWidget(skill);
+    }else if(Level == 3){
+        QLabel *skill = new QLabel("CONGRATS YOU WIN!");
         skill->setFont(font);
         skill->setStyleSheet("color: black;");
         skill->setAlignment(Qt::AlignCenter);
         mainLayout->addWidget(skill);
     }
+
     mainLayout->addWidget(okBtn);
 
     connect(okBtn, &QPushButton::clicked, this, &QDialog::accept);

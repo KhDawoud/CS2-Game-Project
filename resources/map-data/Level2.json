@@ -56,7 +56,9 @@
             228,
             215,
             186,
-            162
+            162,
+            253,
+            254
         ],
         "overheadTiles": [
             199,
@@ -80,6 +82,10 @@
         "playerSpawn": {
             "row": 0,
             "col": 0
+        },
+        "keySpawn": {
+            "row": 21,
+            "col": 34.562
         },
         "backgroundTileId": 80,
         "cols": 55,

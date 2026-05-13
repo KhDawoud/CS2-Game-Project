@@ -41,6 +41,7 @@ qt_add_executable(QtTest
     src/lightningattack.cpp
     src/characterselectscreen.cpp
     src/boss.cpp
+    src/key.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -290,6 +291,7 @@ qt_add_resources(QtTest "images"
         "resources/MenuStatsIcons/empty_sword.png"
         "resources/MenuStatsIcons/sword.png"
         "resources/MenuStatsIcons/heart.png"
+        "resources/dungeon-assets/Key.png"
         ${DUNGEON_TILES}
         ${LEVEL3_TILES}
 )

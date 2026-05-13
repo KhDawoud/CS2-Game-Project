@@ -29,15 +29,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
         setBackgroundBrush(Qt::black);
         scale(4.5, 4.5);
     }
-    else if (scene() == Level2)
-    {
-        scale(4, 4);
-    }
-    else
-    {
-        setBackgroundBrush(Qt::NoBrush);
-        scale(3.0, 3.0);
-    }
+
     _player->setScale(1.2);
     _player->setFocus();
     centerOn(_player);
@@ -90,14 +82,28 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
             {
         LevelSelectWindow::markLevelCompleted(2);
         LevelSelectWindow::clearContinueState();
-        switchToInterior();
+        auto* vWindow = new LevelCleared(this, _player->getLevelsCompleted());
+
+        connect(vWindow, &QDialog::accepted, this, [this]() {
+            auto* sWindow = new Statsupgrade(this, _player->getStats(), _player->getLevelsCompleted());
+            connect(sWindow, &QDialog::accepted, this, &GameView::switchToInterior);
+            sWindow->show();
+        });
+        vWindow->show();
     });
 
     connect(Level3, &MapLoader::levelCleared, this, [this]()
             {
         LevelSelectWindow::markLevelCompleted(3);
         LevelSelectWindow::clearContinueState();
-        switchToInterior();
+        auto* vWindow = new LevelCleared(this, _player->getLevelsCompleted());
+
+        connect(vWindow, &QDialog::accepted, this, [this]() {
+            auto* sWindow = new Statsupgrade(this, _player->getStats(), _player->getLevelsCompleted());
+            connect(sWindow, &QDialog::accepted, this, &GameView::switchToInterior);
+            sWindow->show();
+        });
+        vWindow->show();
     });
 
     QTimer::singleShot(0, this, [this]()
@@ -157,15 +163,10 @@ void GameView::keyPressEvent(QKeyEvent *event)
         {
             switchToInterior();
         }
-        else if (scene() == _interior && interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 11)
+        else if (scene() == _interior && interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 12)
         {
-            switchToOverworld();
-        }
-    }
-    else if (event->key() == Qt::Key_L)
-    {
-        if (scene() == _interior)
             openLevelSelect();
+        }
     }
     else if (event->key() == Qt::Key_7)
     {
@@ -177,28 +178,13 @@ void GameView::keyPressEvent(QKeyEvent *event)
         if (_player->getcharacternum() == targetChar)
             return;
         _player->swtichto(targetChar);
-        _player->setScale(currentscale);
     }
     else if (event->key() == Qt::Key_9)
     {
-        if (scene() == _interior)
+        if (scene() != _interior)
         {
-            switchtoLevel3();
-        }
-        else if (scene() == Level3)
-        {
-            switchToInterior();
-        }
-    }
-    else if (event->key() == Qt::Key_8)
-    {
-        if (scene() == _interior)
-        {
-            switchtoLevel2();
-        }
-        else if (scene() == Level2)
-        {
-            switchToInterior();
+            MapLoader* Thismap = dynamic_cast<MapLoader*>(scene());
+            Thismap->levelCleared();
         }
     }
     else
@@ -212,7 +198,7 @@ void GameView::switchToInterior()
     int tileSize = _interior->tileSize();
     bool wasinOverworld = false;
     scene()->removeItem(_player);
-    if (scene() == _overworld)
+    if (scene() == _overworld || scene() == Level2)
     {
         scene()->removeItem(interactPrompt);
         scene()->removeItem(textStart);
@@ -297,8 +283,13 @@ void GameView::switchtoLevel2()
     {
         return;
     }
+
     int tileSize = Level2->tileSize();
     _interior->removeItem(_player);
+    _interior->removeItem(interactPrompt);
+    _interior->removeItem(textStart);
+    _interior->removeItem(textEnd);
+
 
     setScene(Level2);
     emit isoverworld(true);
@@ -313,6 +304,9 @@ void GameView::switchtoLevel2()
     resetTransform();
     scale(3.5, 3.5);
     centerOn(_player);
+    scene()->addItem(interactPrompt);
+    scene()->addItem(textStart);
+    scene()->addItem(textEnd);
     bindProgress(Level2);
 }
 
@@ -353,17 +347,9 @@ void GameView::bindProgress(MapLoader *map)
             Qt::UniqueConnection);
 }
 
-int GameView::currentLevelNumber() const
-{
-    if (scene() == _overworld) return 1;
-    if (scene() == Level2)     return 2;
-    if (scene() == Level3)     return 3;
-    return 0;
-}
-
 void GameView::saveCurrentState()
 {
-    int lvl = currentLevelNumber();
+    int lvl = _player->getLevelsCompleted()+1;
     if (lvl == 0) return;
 
     MapLoader *currentMap = static_cast<MapLoader *>(scene());
@@ -396,12 +382,10 @@ void GameView::restoreContinueState()
 
     _player->setPos(posX, posY);
     _player->setHealth(static_cast<float>(health));
+    _player->setLevelsCompleted(lvl-1);
 
-    if (_player->getcharacternum() != charNum)
-    {
-        _player->swtichto(charNum);
-        _player->setScale(currentscale);
-    }
+    _player->swtichto(charNum);
+    _player->setScale(currentscale);
 
     // restore enemy count so bar and levelCleared fire from the right number
     if (targetMap)
@@ -472,6 +456,11 @@ void GameView::checkInteractions()
         {
             inZone = true;
         }
+    }else if (scene()== Level2){
+        if (row >= 17 && row <= 19 && col >= 14 && col <= 16)
+        {
+            inZone = true;
+        }
     }
 
     if (inZone)
@@ -482,31 +471,47 @@ void GameView::checkInteractions()
         }
         else if (scene() == _interior)
         {
-            textEnd->setPlainText("to Exit");
+            textEnd->setPlainText("to Select Level");
+        }
+        else if (scene() == Level2 && _player->haskey())
+        {
+            textEnd->setPlainText("Door Unlocked");
+        }
+        else if (scene() == Level2 && !_player->haskey())
+        {
+            textEnd->setPlainText("Key is needed to unlock the door");
         }
 
         float w1 = textStart->boundingRect().width();
         float wIcon = interactPrompt->pixmap().width();
         float w2 = textEnd->boundingRect().width();
-
         float totalWidth = w1 + wIcon + w2;
 
         float startX = _player->x() + (_player->boundingRect().width() / 2) - (totalWidth / 2);
-        float baseY = _player->y() + _player->boundingRect().height() + 10;
+
+        float baseY;
+        if (scene() == Level2) {
+            baseY = _player->y() - textStart->boundingRect().height() - 10;
+        } else {
+            baseY = _player->y() + _player->boundingRect().height() + 10;
+        }
 
         textStart->setPos(startX, baseY);
 
         float yoffset = 4.0f;
-
         float iconY = baseY + (textStart->boundingRect().height() / 2) -
                       (interactPrompt->pixmap().height() / 2) + yoffset;
 
         interactPrompt->setPos(startX + w1, iconY);
-
         textEnd->setPos(startX + w1 + wIcon - 10, baseY);
 
-        textStart->setVisible(true);
-        interactPrompt->setVisible(true);
+        if(scene() == Level2){
+            textStart->setVisible(false);
+            interactPrompt->setVisible(false);
+        } else {
+            textStart->setVisible(true);
+            interactPrompt->setVisible(true);
+        }
         textEnd->setVisible(true);
     }
     else
@@ -524,11 +529,6 @@ void GameView::loadinteractionPrompt()
     {
         pixelFontFamily = QFontDatabase::applicationFontFamilies(fontId).at(0);
     }
-    else
-    {
-        qWarning() << "CRITICAL: Could not load pixelfont.ttf! Using fallback font.";
-        pixelFontFamily = "Arial";
-    }
     textStart = new QGraphicsTextItem("Press");
     textStart->setDefaultTextColor(Qt::white);
     textStart->setFont(QFont(pixelFontFamily, 6));
@@ -539,7 +539,7 @@ void GameView::loadinteractionPrompt()
     interactPrompt->setFlag(QGraphicsItem::ItemIgnoresTransformations);
     interactPrompt->setScale(1.8);
 
-    textEnd = new QGraphicsTextItem("to Enter");
+    textEnd = new QGraphicsTextItem("to Select Level");
     textEnd->setDefaultTextColor(Qt::white);
     textEnd->setFont(QFont(pixelFontFamily, 6));
 
@@ -556,7 +556,7 @@ void GameView::loadinteractionPrompt()
     scene()->addItem(textEnd);
 }
 
-// this is the method to handle drawing effects
+//this is the method to handle drawing effects
 void GameView::drawForeground(QPainter *painter, const QRectF &rect)
 {
     QGraphicsView::drawForeground(painter, rect);

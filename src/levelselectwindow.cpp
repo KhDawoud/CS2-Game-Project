@@ -358,10 +358,10 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
         "The Abyss"
     };
 
-    static const char *romanNums[] = {
-        "I",
-        "II",
-        "III"
+    static const char *LevelNums[] = {
+        "1",
+        "2",
+        "3"
     };
 
     for (int i = 0; i < 3; i++) {
@@ -413,7 +413,7 @@ void LevelSelectWindow::paintEvent(QPaintEvent *)
                                r * 2 + 12,
                                20),
                          Qt::AlignCenter,
-                         QString("LEVEL %1").arg(romanNums[i]));
+                         QString("LEVEL %1").arg(LevelNums[i]));
 
         if (!pixelFontFamily.isEmpty())
             painter.setFont(QFont(pixelFontFamily, 7));

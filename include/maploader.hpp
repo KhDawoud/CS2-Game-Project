@@ -10,8 +10,10 @@
 #include <QSet>
 #include <vector>
 
+
 class Player;
 class Campfire;
+class Key;
 
 // all info for an object
 struct CollidableTemplate

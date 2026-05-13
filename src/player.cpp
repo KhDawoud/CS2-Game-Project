@@ -13,6 +13,7 @@ Player::Player(int charnum) : characternum(charnum)
     mana = 100;
     staminaRegenRate = 5;
     manaRegenRate = 2;
+    damage = 10;
     staminaRegenTimer = new QTimer(this);
     connect(staminaRegenTimer, &QTimer::timeout, [this]()
             { regenStamina(staminaRegenRate); });
@@ -456,7 +457,6 @@ void Player::keyPressEvent(QKeyEvent *event)
                     isUsingLightning = false;
                     hasSpawnedFireball = false;
                     setAnimationState(PlayerState::Attacking);
-                    stamina -= 20;
                     mana -= 20;
                     emit statsChanged();
                     return;
@@ -479,7 +479,7 @@ void Player::keyPressEvent(QKeyEvent *event)
         if (!activeKeys.contains(key))
             activeKeys.append(key);
     }
-    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana >= 30 && characternum != 2)
+    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana >= 30 && characternum != 2 && levelscleared >0)
     {
         isDashing = true;
         dashDuration = 8;
@@ -517,7 +517,7 @@ void Player::keyPressEvent(QKeyEvent *event)
     if (currentState != PlayerState::Attacking)
     {
         idleTimer->stop();
-        if (key == Qt::Key_Control && characternum == 2)
+        if (key == Qt::Key_Control && characternum == 2 && levelscleared >1)
         {
             if (mana >= 20)
             {

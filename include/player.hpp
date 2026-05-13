@@ -36,11 +36,13 @@ struct Stats{
     int oldmana;
     int oldstaminaregenrate;
     int oldmanaregenrate;
+    int olddamage;
     int health;
     int stamina;
     int mana;
     int staminaregenrate;
     int manaregenrate;
+    int damage;
 };
 
 class Player : public QObject, public QGraphicsPixmapItem
@@ -53,12 +55,15 @@ public:
     float getStamina() { return stamina; };
     float getMana() { return mana; };
     void setMap(Map *m) { gameMap = m; }
+    void setLevelsCompleted(int level){levelscleared = level;}
     void takeDamage(float damage);
     void Heal(float amount);
     QRectF getPlayerHitbox(QPointF pos) const;
     int getcharacternum();
     Stats getStats(){return playerstats;}
     int getLevelsCompleted(){return levelscleared;}
+    void pickupkey(){key = true;}
+    bool haskey(){return key;}
 
 public slots:
     void updateAnimation();
@@ -163,5 +168,6 @@ private:
     int dashCooldown = 0;
     QPointF dashDirection;
     LightningAttack* lightning;
+    bool key = false;
 };
 #endif // PLAYER_HPP
