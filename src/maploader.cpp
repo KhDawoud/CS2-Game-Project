@@ -5,6 +5,7 @@
 #include "AudioManager.hpp"
 #include "player.hpp"
 #include "key.hpp"
+#include "Vampires.hpp"
 
 #include <QFile>
 #include <QTextStream>
@@ -541,6 +542,8 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
     int colMin = cfg["colMin"].toInt(5);
     int colMax = cfg["colMax"].toInt(33);
 
+    qDebug() << "[spawnEnemies] count=" << count << "rowMin=" << rowMin << "rowMax=" << rowMax;
+
     struct EnemyType
     {
         QString classType;
@@ -572,7 +575,7 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
         int r = QRandomGenerator::global()->bounded(rowMin, rowMax);
         int c = QRandomGenerator::global()->bounded(colMin, colMax);
 
-        if (mapData[r][c] != 0 && mapData[r][c] != 99)
+        if (collisionMap[r][c] != 0 || mapData[r][c] == 98 || mapData[r][c] == 99)
             continue;
 
         QRectF spawnRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE / 3, TILE_SIZE / 3);
@@ -614,6 +617,10 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
             // enemy = new Boss(chosen->variant);
             int i = 5;
         }
+        else if (chosen->classType == "Vampire")
+        {
+            enemy = new Vampire(chosen->variant);
+        }
         else
         {
             enemy = new Slime(chosen->variant);
@@ -622,6 +629,7 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
         if (enemy)
         {
             enemy->setPos(c * TILE_SIZE, r * TILE_SIZE);
+            enemy->setZValue(r * TILE_SIZE + TILE_SIZE * 4);
             enemy->setPlayer(player);
             addItem(enemy);
             connect(enemy, &BaseEnemy::enemyDied, this, &MapLoader::onEnemyDied);
@@ -654,6 +662,10 @@ void MapLoader::spawnSpecificEnemies(const QJsonArray &enemies)
         {
             enemy = new Boss(variant);
         }
+        else if (classType == "Vampire")
+        {
+            enemy = new Vampire(variant);
+        }
         else
         {
             enemy = new Slime(variant);
@@ -662,6 +674,7 @@ void MapLoader::spawnSpecificEnemies(const QJsonArray &enemies)
         if (enemy)
         {
             enemy->setPos(c * TILE_SIZE, r * TILE_SIZE);
+            enemy->setZValue(r * TILE_SIZE + TILE_SIZE * 4);
             enemy->setPlayer(player);
             addItem(enemy);
             connect(enemy, &BaseEnemy::enemyDied, this, &MapLoader::onEnemyDied);

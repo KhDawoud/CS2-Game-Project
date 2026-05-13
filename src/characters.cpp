@@ -5,8 +5,6 @@ Characters::Characters(int num): Player(num){
         loadSwordsman();
     }else if(num==2){
         loadWizard();
-    }else if(num==3){
-        loadVampire();
     }else if(num==4){
         loadSkeleton();
     }
@@ -87,42 +85,7 @@ void Characters::loadWizard(){
     rowMap[(int)Direction::Right] = 2;
 
 }
-void Characters::loadVampire(){
-    animationfactor = 1;
 
-    walkSheet.load(":resources/player/running/Vampires3_Run_with_shadow.png");
-    idleSheet.load(":resources/player/idling/Vampires3_Idle_with_shadow.png");
-    attackSheet.load(":resources/player/attacking/Vampires3_Attack_with_shadow.png");
-    damagedSheet.load(":resources/player/damaged/Vampires3_Hurt_with_shadow.png");
-    deadSheet.load(":resources/player/dead/Vampires3_Death_with_shadow.png");
-
-    walkFrameWidthCount = 8;
-    walkFrameWidth = walkSheet.width() / 8;
-    walkFrameHeight = walkSheet.height() / 4;
-
-    idleFrameWidthCount =4;
-    idleFrameWidth = idleSheet.width() / 4;
-    idleFrameHeight = idleSheet.height() / 4;
-    idleFrameUpCount=4;
-
-    attackFrameWidthCount = 12;
-    attackFrameWidth = attackSheet.width() / 12;
-    attackFrameHeight = attackSheet.height() / 4;
-
-    damagedFrameWidthCount = 4;
-    damagedFrameWidth = damagedSheet.width() / 4;
-    damagedFrameHeight = damagedSheet.height() / 4;
-
-    deadFrameWidthCount = 11;
-    deadFrameWidth = deadSheet.width() / 11;
-    deadFrameHeight = deadSheet.height() / 4;
-
-    rowMap[(int)Direction::Up]    = 1;
-    rowMap[(int)Direction::Down]  = 0;
-    rowMap[(int)Direction::Left]  = 2;
-    rowMap[(int)Direction::Right] = 3;
-
-}
 void Characters::loadSkeleton(){
     animationfactor = 1;
 
@@ -167,8 +130,6 @@ void Characters::swtichto(int num){
     }else if(num==2){
         loadWizard();
     }else if(num==3){
-        loadVampire();
-    }else if(num==4){
         loadSkeleton();
     }
     currentFrame = 0;

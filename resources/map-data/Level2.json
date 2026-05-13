@@ -778,12 +778,28 @@
         "templateIds": []
     },
     "enemySpawns": {
-        "count": 0,
-        "rowMin": 0,
-        "rowMax": 0,
-        "colMin": 0,
-        "colMax": 0,
-        "types": []
+        "count": 10,
+        "rowMin": 8,
+        "rowMax": 45,
+        "colMin": 5,
+        "colMax": 50,
+        "types": [
+            {
+                "class": "Vampire",
+                "variant": 1,
+                "weight": 50
+            },
+            {
+                "class": "Vampire",
+                "variant": 2,
+                "weight": 30
+            },
+            {
+                "class": "Vampire",
+                "variant": 3,
+                "weight": 20
+            }
+        ]
     },
     "tileLayer": {
         "data": [
@@ -3927,6 +3943,38 @@
             "row": 37.688,
             "col": 25.0,
             "templateId": "threeboxes"
+        }
+    ],
+    "specificEnemies": [
+        {
+            "class": "Vampire",
+            "variant": 1,
+            "row": 8,
+            "col": 5
+        },
+        {
+            "class": "Vampire",
+            "variant": 2,
+            "row": 5,
+            "col": 19
+        },
+        {
+            "class": "Vampire",
+            "variant": 1,
+            "row": 20,
+            "col": 21
+        },
+        {
+            "class": "Vampire",
+            "variant": 2,
+            "row": 25,
+            "col": 28
+        },
+        {
+            "class": "Vampire",
+            "variant": 3,
+            "row": 30,
+            "col": 22
         }
     ]
 }

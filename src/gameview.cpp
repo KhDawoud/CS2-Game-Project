@@ -196,6 +196,10 @@ void GameView::keyPressEvent(QKeyEvent *event)
     {
         switchToCharacterSelectScreen();
     }
+    else if (event->key() == Qt::Key_8) // TEMP: jump to level 2
+    {
+        switchtoLevel2();
+    }
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
     {
         int targetChar = event->key() - Qt::Key_1 + 1;

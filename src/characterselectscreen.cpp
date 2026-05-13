@@ -129,9 +129,8 @@ CharacterSelectScreen::CharacterSelectScreen(int currentCharIndex, QWidget *pare
 
     characterData swordsman(1, "Swordsman", ":resources/player/idling/swordsman_1_idling.png", 12, 100, 10, "Medium");
     characterData wizard(2, "Wizard", ":resources/player/idling/Wizard-idle-spritesheet.png", 12, 100, 20, "Medium");
-    characterData vampire(3, "Vampire", ":resources/player/idling/Vampires3_Idle_with_shadow.png", 4, 100, 30, "Fast");
     characterData skeleton(4, "Skeleton", ":resources/player/idling/skeleton-idlesheet.png", 6, 100, 30, "Medium");
-    characters = {swordsman, wizard, vampire, skeleton};
+    characters = {swordsman, wizard, skeleton};
 
     leftCharLabel = new QLabel(this);
     centerCharLabel = new QLabel(this);

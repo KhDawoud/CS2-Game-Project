@@ -42,6 +42,7 @@ qt_add_executable(QtTest
     src/characterselectscreen.cpp
     src/boss.cpp
     src/key.cpp
+    src/Vampires.cpp
 )
 
 target_include_directories(QtTest PUBLIC include)
@@ -77,12 +78,7 @@ qt_add_resources(QtTest "images"
         "resources/player/idling/Wizard-idle-spritesheet.png"
         "resources/player/running/Wizard-walk-spritesheet.png"
         "resources/player/damaged/Wizard-hurt-spritesheet.png"
-        "resources/player/attacking/Vampires3_Attack_with_shadow.png"
-        "resources/player/idling/Vampires3_Idle_with_shadow.png"
-        "resources/player/running/Vampires3_Run_with_shadow.png"
-        "resources/player/damaged/Vampires3_Hurt_with_shadow.png"
-        "resources/player/dead/Vampires3_Death_with_shadow.png"
-        "resources/player/attacking/skeleton-attacksheet.png"
+"resources/player/attacking/skeleton-attacksheet.png"
         "resources/player/damaged/skeleton-hurtsheet.png"
         "resources/player/idling/skeleton-idlesheet.png"
         "resources/player/running/skeleton-walksheet.png"
@@ -294,6 +290,24 @@ qt_add_resources(QtTest "images"
         "resources/dungeon-assets/Key.png"
         ${DUNGEON_TILES}
         ${LEVEL3_TILES}
+        "resources/vampires/vampire 1/Vampires1_Idle_with_shadow.png"
+        "resources/vampires/vampire 1/Vampires1_Walk_with_shadow.png"
+        "resources/vampires/vampire 1/Vampires1_Run_with_shadow.png"
+        "resources/vampires/vampire 1/Vampires1_Attack_with_shadow.png"
+        "resources/vampires/vampire 1/Vampires1_Hurt_with_shadow.png"
+        "resources/vampires/vampire 1/Vampires1_Death_with_shadow.png"
+        "resources/vampires/vampire 2/Vampires2_Idle_with_shadow.png"
+        "resources/vampires/vampire 2/Vampires2_Walk_with_shadow.png"
+        "resources/vampires/vampire 2/Vampires2_Run_with_shadow.png"
+        "resources/vampires/vampire 2/Vampires2_Attack_with_shadow.png"
+        "resources/vampires/vampire 2/Vampires2_Hurt_with_shadow.png"
+        "resources/vampires/vampire 2/Vampires2_Death_with_shadow.png"
+        "resources/vampires/vampire 3/Vampires3_Idle_with_shadow.png"
+        "resources/vampires/vampire 3/Vampires3_Walk_with_shadow.png"
+        "resources/vampires/vampire 3/Vampires3_Run_with_shadow.png"
+        "resources/vampires/vampire 3/Vampires3_Attack_with_shadow.png"
+        "resources/vampires/vampire 3/Vampires3_Hurt_with_shadow.png"
+        "resources/vampires/vampire 3/Vampires3_Death_with_shadow.png"
 )
 
 target_link_libraries(QtTest

@@ -18,9 +18,6 @@ static QRectF playerDamageBox(Player *player)
     return box;
 }
 
-// ===========================================================================
-// SpikeTrap
-// ===========================================================================
 
 SpikeTrap::SpikeTrap(QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),
@@ -157,9 +154,6 @@ void SpikeTrap::setDamageCooldown(int milliseconds)
     cooldownTimer->setInterval(milliseconds);
 }
 
-// ===========================================================================
-// SlidingSpikeTrap
-// ===========================================================================
 
 SlidingSpikeTrap::SlidingSpikeTrap(QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),
@@ -303,9 +297,6 @@ void SlidingSpikeTrap::setDamageCooldown(int milliseconds)
     cooldownTimer->setInterval(milliseconds);
 }
 
-// ===========================================================================
-// SawBladeTrap
-// ===========================================================================
 
 SawBladeTrap::SawBladeTrap(QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),
@@ -437,9 +428,6 @@ void SawBladeTrap::setDamageCooldown(int milliseconds)
     cooldownTimer->setInterval(milliseconds);
 }
 
-// ===========================================================================
-// FireTrap - shoots LEFT
-// ===========================================================================
 
 FireTrap::FireTrap(QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),
@@ -593,9 +581,6 @@ int FireTrap::getheight() const
     return int(frameHeight * scale());
 }
 
-// ===========================================================================
-// FireTrap2 - shoots RIGHT
-// ===========================================================================
 
 FireTrap2::FireTrap2(QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),
@@ -752,9 +737,6 @@ int FireTrap2::getheight() const
     return int(frameHeight * scale());
 }
 
-// ===========================================================================
-// FireTrap3 - shoots UP
-// ===========================================================================
 
 FireTrap3::FireTrap3(QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),
@@ -908,9 +890,6 @@ int FireTrap3::getheight() const
     return int(frameHeight * scale());
 }
 
-// ===========================================================================
-// FireTrap4 - shoots DOWN
-// ===========================================================================
 
 FireTrap4::FireTrap4(QGraphicsItem *parent)
     : QGraphicsPixmapItem(parent),

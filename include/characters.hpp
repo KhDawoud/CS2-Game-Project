@@ -7,7 +7,6 @@ class Characters : public Player
 private:
     void loadSwordsman();
     void loadWizard();
-    void loadVampire();
     void loadSkeleton();
 public:
     Characters(int);
