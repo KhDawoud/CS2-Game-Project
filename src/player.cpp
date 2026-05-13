@@ -553,7 +553,7 @@ void Player::keyPressEvent(QKeyEvent *event)
         if (!activeKeys.contains(key))
             activeKeys.append(key);
     }
-    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana >= 30 && characternum != 2 && levelscleared >0)
+    if (event->modifiers().testFlag(Qt::ControlModifier) && !isDashing && dashCooldown <= 0 && stamina >= 30 && mana >= 30 && characternum != 2 && levelscleared > 0)
     {
         isDashing = true;
         dashDuration = 8;
@@ -591,7 +591,7 @@ void Player::keyPressEvent(QKeyEvent *event)
     if (currentState != PlayerState::Attacking)
     {
         idleTimer->stop();
-        if (key == Qt::Key_Control && characternum == 2 && levelscleared >1)
+        if (key == Qt::Key_Control && characternum == 2 && levelscleared > 1)
         {
             if (mana >= 20)
             {
@@ -631,7 +631,7 @@ QRectF Player::getPlayerHitbox(QPointF pos) const
     float baseOffsetX = 25.0f;
     float baseOffsetY = 32.0f;
     float actualOffsetX = baseOffsetX * this->scale();
-    float actualOffsetY = baseOffsetY * this->scale()+2;
+    float actualOffsetY = baseOffsetY * this->scale() + 2;
 
     return QRectF(pos.x() + actualOffsetX, pos.y() + actualOffsetY, hitboxWidth, hitboxHeight);
 }
@@ -664,6 +664,16 @@ bool Player::checkCollision(const QRectF &hitbox, MapLoader *map) const
     for (const auto &obj : objects)
     {
         if (hitbox.intersects(obj.worldHitbox))
+        {
+            return true;
+        }
+    }
+
+    // check if u collide with enemy
+    for (QGraphicsItem *item : map->items(hitbox))
+    {
+        BaseEnemy *enemy = dynamic_cast<BaseEnemy *>(item);
+        if (enemy && !enemy->isdead() && hitbox.intersects(enemy->collisionHitbox()))
         {
             return true;
         }

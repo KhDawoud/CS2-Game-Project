@@ -160,6 +160,12 @@ void BaseEnemy::moveEnemy()
 
     this->setPos(newX, newY);
 }
+
+QRectF BaseEnemy::collisionHitbox() const
+{
+    return sceneBoundingRect();
+}
+
 void BaseEnemy::update()
 {
     if (!scene()) return;

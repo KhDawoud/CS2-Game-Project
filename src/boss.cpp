@@ -15,6 +15,7 @@ namespace
     constexpr qreal FireballSpeed = 4.0;
     constexpr qreal FireballHitboxSize = 22.0;
     constexpr int FireballDamage = 20;
+    constexpr float BossMeleeRange = 60.0f;
 
     class BossFireball : public QObject, public QGraphicsPixmapItem
     {
@@ -107,7 +108,7 @@ Boss::Boss(int variant)
           20,            // attack
           10,            // defense
           2.5f,          // speed
-          40.0f,         // range
+          BossMeleeRange, // range
           "BossDamage"), // sound
       currentPhase(BossPhase::IdleWait),
       phaseTimer(0),
@@ -137,6 +138,20 @@ void Boss::loadAnimations()
     attackData = {attackSheet, 8, 100, 64, 64};
     deadData = {deadSheet, 8, 100, 64, 64};
     hurtData = {hurtSheet, 4, 100, 64, 64};
+}
+
+QRectF Boss::collisionHitbox() const
+{
+    QRectF body = sceneBoundingRect();
+    return QRectF(body.left() + body.width() * 0.30,
+                  body.top() + body.height() * 0.58,
+                  body.width() * 0.40,
+                  body.height() * 0.34);
+}
+
+void Boss::updateDepth()
+{
+    setZValue(collisionHitbox().bottom());
 }
 
 void Boss::facePlayer(float distance)
@@ -299,8 +314,19 @@ void Boss::updateSwing1(float distance)
 
     if (currentFrame >= attackData.frameCount - 1)
     {
-        currentPhase = BossPhase::ShortDelay;
-        currentState = EnemyState::Idle;
+        chargeCounter++;
+
+        if (chargeCounter < 2)
+        {
+            currentPhase = BossPhase::Charging;
+            currentState = EnemyState::Walking;
+            aiTimer->setInterval(40);
+        }
+        else
+        {
+            enterIdleWait();
+        }
+
         phaseTimer = 0;
         currentFrame = 0;
     }
@@ -383,6 +409,7 @@ void Boss::update()
     if (currentState == EnemyState::Dead)
     {
         updateAnimation();
+        updateDepth();
         if (currentFrame >= deadData.frameCount - 1)
         {
             aiTimer->stop();
@@ -396,6 +423,7 @@ void Boss::update()
     if (currentState == EnemyState::Hurt)
     {
         updateAnimation();
+        updateDepth();
         waitCounter--;
         if (waitCounter <= 0)
         {
@@ -437,4 +465,5 @@ void Boss::update()
     }
 
     updateAnimation();
+    updateDepth();
 }

@@ -22,6 +22,7 @@ class Boss : public BaseEnemy
 public:
     Boss(int variant = 1);
     void loadAnimations();
+    QRectF collisionHitbox() const override;
 
 public slots:
     void update() override;
@@ -50,6 +51,7 @@ private:
     void beginFireballAttack();
     void spawnFireballWall(FireballWallSide side);
     void releaseFireballs();
+    void updateDepth();
     void updateIdleWait();
     void updateCharging(float distance);
     void updateSwing1(float distance);

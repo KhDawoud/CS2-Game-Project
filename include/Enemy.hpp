@@ -86,6 +86,7 @@ public:
     void TakeDamage(int amount);
 
     void moveEnemy();
+    virtual QRectF collisionHitbox() const;
     virtual void updateAnimation();
     virtual void detectandmove(Player *);
 signals:
