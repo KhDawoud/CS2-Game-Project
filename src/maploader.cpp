@@ -1,5 +1,6 @@
 #include "maploader.hpp"
 #include "slime.hpp"
+#include "boss.hpp"
 #include "campfire.hpp"
 #include "AudioManager.hpp"
 #include "player.hpp"
@@ -111,10 +112,18 @@ void MapLoader::loadFromJson(const QString &path)
         distributeRandomCollidables(root["randomCollidables"].toObject());
     }
 
+    currentEnemyCount = 0;
+
     if (root.contains("enemySpawns") && !root["enemySpawns"].isNull())
     {
         spawnEnemies(root["enemySpawns"].toObject());
     }
+    if (root.contains("specificEnemies") && !root["specificEnemies"].isNull())
+    {
+        spawnSpecificEnemies(root["specificEnemies"].toArray());
+    }
+
+    initialEnemyCount = currentEnemyCount;
 
     // spawn player when u load in specified spot (scene is still null)
     if (player && player->scene() == nullptr)
@@ -170,7 +179,6 @@ void MapLoader::loadAssets()
     reg("sidegate2", ":resources/map-assets/sidegate2.png", {16, 0, 9, 23});
     reg("sidegate3", ":resources/map-assets/sidegate3.png", {19, 0, 6, 32});
     reg("wallt", ":resources/map-assets/wallt.png", {0, 30, 32, 2});
-    reg("wall_no_door", ":resources/map-assets/wallt.png", {0, 30, 32, 2});
     reg("wallt2", ":resources/map-assets/wallt2.png", {0, 30, 32, 2});
     reg("wallt3", ":resources/map-assets/wallt3.png", {0, 30, 32, 2});
 
@@ -367,20 +375,14 @@ void MapLoader::placeStaticObjects(const QJsonArray &objects)
         {
             addCampfire(row, col);
         }
-        else if (type == "interactive")
-        {
-            placeInteractive(row, col,
-                             obj["templateId"].toString(),
-                             obj["openTemplateId"].toString(),
-                             obj["zValue"].toDouble(1000.0));
-        }
     }
 }
 
 void MapLoader::placeCollidable(float row, float col, const QString &templateId)
 {
 
-    if (!templateRegistry.contains(templateId)) return;
+    if (!templateRegistry.contains(templateId))
+        return;
     const CollidableTemplate &tmpl = templateRegistry[templateId];
 
     QPointF worldPos(col * TILE_SIZE, row * TILE_SIZE);
@@ -397,14 +399,14 @@ void MapLoader::placeCollidable(float row, float col, const QString &templateId)
         tmpl.hitbox.x() * scalefactor,
         tmpl.hitbox.y() * scalefactor,
         tmpl.hitbox.width() * scalefactor,
-        tmpl.hitbox.height() * scalefactor
-        );
+        tmpl.hitbox.height() * scalefactor);
 
     QRectF worldHitbox = scaledHitbox.translated(worldPos);
     item->setZValue(worldHitbox.bottom());
 
     addItem(item);
-    if (worldHitbox.width() > 0) {
+    if (worldHitbox.width() > 0)
+    {
         activeCollidables.push_back({worldHitbox});
     }
 }
@@ -429,27 +431,6 @@ void MapLoader::placeNonCollidable(float row, float col, const QString &assetId,
         for (int j = (int)col; j < (int)col + wTiles; j++)
             if (i >= 0 && i < MAP_ROWS && j >= 0 && j < MAP_COLS)
                 mapData[i][j] = 99;
-}
-
-void MapLoader::placeInteractive(float row, float col, const QString &templateId, const QString &openTemplateId, qreal zValue)
-{
-    if (!templateRegistry.contains(templateId))
-        return;
-
-    QPixmap px = templateRegistry[templateId].texture;
-    QVariant openVariant;
-    if (!openTemplateId.isEmpty() && templateRegistry.contains(openTemplateId))
-        openVariant = QVariant::fromValue(templateRegistry[openTemplateId].texture);
-
-    auto *item = new QGraphicsPixmapItem(px);
-    item->setPos(col * TILE_SIZE, row * TILE_SIZE);
-    item->setZValue(zValue);
-    item->setData(0, "interactive");
-    item->setData(1, templateId);
-    item->setData(2, openTemplateId);
-    item->setData(3, false);
-    item->setData(4, openVariant);
-    addItem(item);
 }
 
 // eventually thisll be "addAnimatedObject"
@@ -549,16 +530,26 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
     int colMin = cfg["colMin"].toInt(5);
     int colMax = cfg["colMax"].toInt(33);
 
+    struct EnemyType
+    {
+        QString classType;
+        int variant;
+        int weight;
+    };
+
     QJsonArray typeArray = cfg["types"].toArray();
     std::vector<EnemyType> types;
     int totalWeight = 0;
 
-    for (const QJsonValue &v : typeArray)
+    for (const QJsonValue &t : typeArray)
     {
-        QJsonObject t = v.toObject();
-        int w = t["weight"].toInt(10);
-        types.push_back({t["id"].toString(), t["variant"].toInt(1), w});
-        totalWeight += w;
+        QJsonObject to = t.toObject();
+        EnemyType et;
+        et.classType = to["class"].toString("Slime");
+        et.variant = to["variant"].toInt(1);
+        et.weight = to["weight"].toInt(1);
+        types.push_back(et);
+        totalWeight += et.weight;
     }
     if (types.empty() || totalWeight == 0)
         return;
@@ -600,17 +591,81 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
             }
         }
 
-        Slime *slime = new Slime(chosen->variant);
-        slime->setPos(c * TILE_SIZE, r * TILE_SIZE);
-        slime->setPlayer(player);
-        addItem(slime);
-        connect(slime, &Slime::enemyDied, this, &MapLoader::onEnemyDied);
+        BaseEnemy *enemy = nullptr;
 
-        mapData[r][c] = 98;
-        placed++;
+        if (chosen->classType == "Skeleton")
+        {
+            // enemy = new Skeleton(chosen->variant);
+            int i = 5;
+        }
+        else if (chosen->classType == "Boss")
+        {
+            // enemy = new Boss(chosen->variant);
+            int i = 5;
+        }
+        else
+        {
+            enemy = new Slime(chosen->variant);
+        }
+
+        if (enemy)
+        {
+            enemy->setPos(c * TILE_SIZE, r * TILE_SIZE);
+            enemy->setPlayer(player);
+            addItem(enemy);
+            connect(enemy, &BaseEnemy::enemyDied, this, &MapLoader::onEnemyDied);
+
+            mapData[r][c] = 98;
+            placed++;
+        }
     }
-    currentEnemyCount = placed;
-    _totalEnemyCount  = placed;
+    currentEnemyCount += placed;
+}
+
+void MapLoader::spawnSpecificEnemies(const QJsonArray &enemies)
+{
+    int placed = 0;
+
+    for (const QJsonValue &val : enemies)
+    {
+        QJsonObject e = val.toObject();
+        float r = e["row"].toDouble();
+        float c = e["col"].toDouble();
+        int variant = e["variant"].toInt(1);
+        QString classType = e["class"].toString("Slime");
+        BaseEnemy *enemy = nullptr;
+
+        if (classType == "Skeleton")
+        {
+            // enemy = new Skeleton(variant);
+        }
+        else if (classType == "Boss")
+        {
+            enemy = new Boss(variant);
+        }
+        else
+        {
+            enemy = new Slime(variant);
+        }
+
+        if (enemy)
+        {
+            enemy->setPos(c * TILE_SIZE, r * TILE_SIZE);
+            enemy->setPlayer(player);
+            addItem(enemy);
+            connect(enemy, &BaseEnemy::enemyDied, this, &MapLoader::onEnemyDied);
+
+            int intRow = static_cast<int>(r);
+            int intCol = static_cast<int>(c);
+            if (intRow >= 0 && intRow < MAP_ROWS && intCol >= 0 && intCol < MAP_COLS)
+            {
+                mapData[intRow][intCol] = 98;
+            }
+            placed++;
+        }
+    }
+
+    currentEnemyCount += placed;
 }
 
 void MapLoader::onEnemyDied()
@@ -631,3 +686,7 @@ bool MapLoader::isTileCollidable(int row, int col) const
     return collisionMap[row][col] == 1;
 }
 
+int MapLoader::getCurrentEnemyCount()
+{
+    return currentEnemyCount;
+}

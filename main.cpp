@@ -1,5 +1,4 @@
 #include <QApplication>
-#include <QCoreApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QGraphicsTextItem>
@@ -10,7 +9,6 @@
 #include "AudioManager.hpp"
 #include "deathwindow.hpp"
 #include "gameview.hpp"
-#include "levelselectwindow.hpp"
 #include "maploader.hpp"
 #include "characterstats.hpp"
 #include "characters.hpp"
@@ -32,13 +30,6 @@ static QGraphicsTextItem *makeLabel(const QString &text, qreal x, qreal y)
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
-    // Set these BEFORE any code that reads/writes the save file, so
-    // QStandardPaths::AppDataLocation resolves to a stable path that doesn't
-    // change between runs (otherwise "Continue" can silently lose progress).
-    QCoreApplication::setOrganizationName("CS2GameProject");
-    QCoreApplication::setApplicationName("CS2GameProject");
-
     AudioManager::instance();
 
     Characters *player = new Characters(1);
@@ -70,11 +61,8 @@ int main(int argc, char *argv[])
                          level3->mapRows() * level3->tileSize());
 
     QObject::connect(overworld, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
-    QObject::connect(level2,   &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
-    QObject::connect(level3,   &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
 
     GameView *view = new GameView(overworld, interior, level2, level3, player);
-    view->restoreContinueState();
 
     QTimer *uiTimer = new QTimer();
 
@@ -92,6 +80,10 @@ int main(int argc, char *argv[])
             if (view->_progressBar) view->_progressBar->setVisible(false);
             if (view->_bossHealthBar) view->_bossHealthBar->setVisible(true);
             if (view->_bossLabel) view->_bossLabel->setVisible(true);
+        } else if (view->scene() == interior) {
+            if (view->_progressBar) view->_progressBar->setVisible(false);
+            if (view->_bossHealthBar) view->_bossHealthBar->setVisible(false);
+            if (view->_bossLabel) view->_bossLabel->setVisible(false);
         } else {
             if (view->_progressBar) view->_progressBar->setVisible(true);
             if (view->_bossHealthBar) view->_bossHealthBar->setVisible(false);
@@ -110,6 +102,8 @@ int main(int argc, char *argv[])
                          stats->setPos(view->mapToScene(10, 10));
                          view->checkInteractions();
                      });
+
+    stats->setPos(view->mapToScene(10, 10));
 
     view->setFocus();
     player->setFocus();
@@ -132,15 +126,6 @@ int main(int argc, char *argv[])
                          if (newFocus != player)
                              player->setFocus();
                      });
-    QObject::connect(level2,
-                     &QGraphicsScene::focusItemChanged,
-                     [player](QGraphicsItem *newFocus,
-                              QGraphicsItem *,
-                              Qt::FocusReason)
-                     {
-                         if (newFocus != player)
-                             player->setFocus();
-                     });
     QObject::connect(level3,
                      &QGraphicsScene::focusItemChanged,
                      [player](QGraphicsItem *newFocus,
@@ -153,8 +138,6 @@ int main(int argc, char *argv[])
 
     QObject::connect(player, &Player::playerDied, [view]()
                      {
-        // Don't auto-continue into a dead save on next launch
-        LevelSelectWindow::clearContinueState();
         DeathWindow *deathScreen = new DeathWindow(view);
         deathScreen->exec(); });
 

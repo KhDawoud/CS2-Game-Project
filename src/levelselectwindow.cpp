@@ -263,6 +263,14 @@ void LevelSelectWindow::setupButtons()
     updateButtonStates();
 }
 
+void LevelSelectWindow::forceUnlockAll()
+{
+    unlockedLevel = 3;
+    completedLevels = 3;
+    updateButtonStates();
+    update();
+}
+
 void LevelSelectWindow::setContinueMode(bool enabled)
 {
     continueMode = enabled;

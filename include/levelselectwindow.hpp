@@ -35,6 +35,7 @@ public:
     static bool  hasContinueState();
 
     void setContinueMode(bool enabled);
+    void forceUnlockAll();   // unlock all levels regardless of save (used from hub)
 
 signals:
     void levelSelected(int level);   // player clicked a level node
