@@ -222,9 +222,11 @@ void LevelSelectWindow::setupButtons()
 
     if (hasContinue) {
         QPushButton *continueBtn = new QPushButton("CONTINUE", this);
+        QPushButton *reset = new QPushButton("RESET PROGRESS", this);
 
         if (!pixelFontFamily.isEmpty())
             continueBtn->setFont(QFont(pixelFontFamily, 9, QFont::Bold));
+            reset->setFont(QFont(pixelFontFamily, 9, QFont::Bold));
 
         int cx = PANEL_SRC_W * SCALE / 2;
         int cy = (CIRCLE_CY + CIRCLE_R + 22) * SCALE;
@@ -241,6 +243,21 @@ void LevelSelectWindow::setupButtons()
         connect(continueBtn, &QPushButton::clicked, this, [this]() {
             setContinueMode(true);
             emit continueRequested();
+        });
+        cy += + 38;
+
+        reset->setGeometry(cx - 72, cy, 144, 28);
+
+        reset->setStyleSheet(
+            "background-color: #4CAF50; color: black; "
+            "border: 2px solid #2e7d32; border-radius: 4px;"
+            );
+
+        reset->setCursor(Qt::PointingHandCursor);
+
+        connect(reset, &QPushButton::clicked, this, [this]() {
+            clearContinueState();
+            emit resetRequested();
         });
     }
 

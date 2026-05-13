@@ -1,16 +1,12 @@
 #ifndef DEATHWINDOW_H
 #define DEATHWINDOW_H
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QPushButton>
-#include <QLabel>
+
+#include "basewindow.hpp"
 #include <QApplication>
-class DeathWindow : public QDialog
+class DeathWindow : public BaseWindow
 {
 public:
     DeathWindow(QWidget *);
-protected:
-    void paintEvent(QPaintEvent *event) override;
 };
 
 #endif // DEATHWINDOW_H

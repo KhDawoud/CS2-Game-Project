@@ -5,65 +5,32 @@
 #include <QPainter>
 
 DeathWindow::DeathWindow(QWidget *parent)
-    : QDialog(parent)
+    : BaseWindow(parent)
 {
-    int fontId = QFontDatabase::addApplicationFont(":resources/fonts/pixelfont.ttf");
+    setFixedSize(500, 300);
+    setWindowTitle("Exit Menu");
 
-    if (fontId != -1) {
-        // Retrieve the exact family name assigned by the font file
-        QString pixel = QFontDatabase::applicationFontFamilies(fontId).at(0);
+    QLabel *label = new QLabel("YOU DIED", this);
+    label->setFont(pixelFontFamily);
+    label->setAlignment(Qt::AlignCenter);
+    label->setStyleSheet("color: black;");
 
-        // Set up the window look
-        setFixedSize(500, 300);
-        setWindowTitle("Exit Menu");
-        setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-        setAttribute(Qt::WA_TranslucentBackground);
+    QPushButton *restartBtn = new QPushButton("RESTART LEVEL", this);
+    QPushButton *quitBtn = new QPushButton("QUIT TO DESKTOP", this);
 
-        // 2. Define a Large Font
-        QFont largeFont(pixel, 24, QFont::Bold);
-        QFont buttonFont(pixel, 14);
+    restartBtn->setFont(pixelFontFamily);
+    quitBtn->setFont(pixelFontFamily);
 
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->setSpacing(20);                     // Space between buttons
+    restartBtn->setMinimumHeight(60);
+    quitBtn->setMinimumHeight(60);
 
-        // 3. Large Label
-        QLabel *label = new QLabel("YOU DIED", this);
-        label->setFont(largeFont);
-        label->setAlignment(Qt::AlignCenter);
-        label->setStyleSheet("color: black;");
+    restartBtn->setStyleSheet("background-color: #4CAF50; color: black; border-radius: 10px;");
+    quitBtn->setStyleSheet("background-color: #f44336; color: black; border-radius: 10px;");
 
-        // 4. Large Buttons
-        QPushButton *restartBtn = new QPushButton("RESTART GAME", this);
-        QPushButton *quitBtn = new QPushButton("QUIT TO DESKTOP", this);
+    mainLayout->addWidget(label);
+    mainLayout->addWidget(restartBtn);
+    mainLayout->addWidget(quitBtn);
 
-        restartBtn->setFont(buttonFont);
-        quitBtn->setFont(buttonFont);
-
-        restartBtn->setMinimumHeight(60); // Make buttons tall
-        quitBtn->setMinimumHeight(60);
-
-        restartBtn->setStyleSheet("background-color: #4CAF50; color: black; border-radius: 10px;");
-        quitBtn->setStyleSheet("background-color: #f44336; color: black; border-radius: 10px;");
-
-        layout->setContentsMargins(50, 50, 50, 50);
-        layout->addWidget(label);
-        layout->addWidget(restartBtn);
-        layout->addWidget(quitBtn);
-
-        connect(quitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
-        connect(restartBtn, &QPushButton::clicked, this, []() {
-            // basically just closes and reopens the program for now
-            QString program = QCoreApplication::applicationFilePath();
-            QStringList args = qApp->arguments();
-            args.takeFirst();
-            QProcess::startDetached(program, args);
-            qApp->quit();
-        });
-    }
-}
-void DeathWindow::paintEvent(QPaintEvent *event)
-{
-    QPainter painter(this);
-    QPixmap background(":resources/ui-elements/window.png");
-    painter.drawPixmap(0, 0, width(), height(), background);
+    connect(quitBtn, &QPushButton::clicked, qApp, &QApplication::quit);
+    connect(restartBtn, &QPushButton::clicked, this, &DeathWindow::accept);
 }

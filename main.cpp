@@ -7,7 +7,6 @@
 #include <QTimer>
 #include <slime.hpp>
 #include "AudioManager.hpp"
-#include "deathwindow.hpp"
 #include "gameview.hpp"
 #include "maploader.hpp"
 #include "characterstats.hpp"
@@ -147,11 +146,6 @@ int main(int argc, char *argv[])
                          if (newFocus != player)
                              player->setFocus();
                      });
-
-    QObject::connect(player, &Player::playerDied, [view]()
-                     {
-        DeathWindow *deathScreen = new DeathWindow(view);
-        deathScreen->exec(); });
 
     return a.exec();
 }
