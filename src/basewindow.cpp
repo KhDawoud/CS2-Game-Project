@@ -1,5 +1,7 @@
 #include "basewindow.hpp"
 
+//A base window class that just handles the common styling stuff like the background and the pixel font
+
 BaseWindow::BaseWindow(QWidget *parent) : QDialog(parent) {
     int fontId = QFontDatabase::addApplicationFont(":resources/fonts/pixelfont.ttf");
     if (fontId != -1) {

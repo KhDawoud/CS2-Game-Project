@@ -8,7 +8,8 @@
 #include <QDebug>
 
 // This is basically a class which is instantiated once and never again and everyone can access
-// it through AudioManager::instance() so all sound effects are handled in one place
+// it through AudioManager::instance() so all sound effects are handled in one place and dont conflict
+
 class AudioManager : public QObject
 {
 public:

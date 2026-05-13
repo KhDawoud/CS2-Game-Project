@@ -6,6 +6,9 @@
 #include <algorithm>
 #include "player.hpp"
 
+// to draw the character stats, we draw the little red blue and green cubes provided
+// along the length of the bar based on the percentage of health mana and stamina left.
+
 CharacterStats::CharacterStats()
 {
     health = 0.0f;

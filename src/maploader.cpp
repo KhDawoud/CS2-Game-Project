@@ -18,6 +18,12 @@
 #include <QDebug>
 #include <cmath>
 
+
+// we moved from our old tilemap system to using json files to store all our map data,
+// we created our own format for the json files that allows us to store all the data we need for the maps
+// It also handles loading all our assets for the maps and storing them in a hashmap so we can reuse them across maps without reloading
+
+
 // this hashmap stores all our assets for all maps and we load them only once
 QHash<QString, CollidableTemplate> MapLoader::templateRegistry;
 bool MapLoader::assetsLoaded = false;

@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <vector>
 
+// our first iteration of the map system, we used a csv file to store our map data and then loaded it 
+// and drew it based on that data. This was pretty simple and worked but it had a lot of limitations. Mainly that 
+// collisions were grid based so decorations and objects wouldnt work. 
+
 Map::Map()
 {
     LoadMapFromCSV(":resources/map-data/level-1.csv");

@@ -7,6 +7,8 @@
 // #include "AudioManager.hpp"
 // #include <cmath>
 
+// second iteration of the map system which upgraded to using both tiles and hitboxes for collison
+
 // Map::Map(Player *player1)
 // {
 //     ImageLoader();

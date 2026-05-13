@@ -1,9 +1,6 @@
-// ----------------------------------------------------------------------------
-// Trap sandbox.
-// Temporary test main. To use it: open CMakeLists.txt and swap "main.cpp"
-// for "main_traptest.cpp" in qt_add_executable(...). Build and run.
-// Move with WASD/arrows. Watch the HP bar. Each trap is labelled.
-// ----------------------------------------------------------------------------
+// just a test area which was used as the traps were worked on independtly
+// of the changes to the map system so we needed a place to test them without having to worry about the map
+//  system breaking
 #include <QApplication>
 #include <QGraphicsScene>
 #include <QGraphicsView>

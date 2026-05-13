@@ -5,6 +5,11 @@
 #include <algorithm>
 #include <cmath>
 
+// the boss inherits from a base enemy but overrides update so we can add complex attack patterns
+// the whole thing runs on a tick based system where we have a phase timer that counts down and when it hits 0 
+// we switch to the next phase and reset the timer based on the new phase.
+// the animations update based on both the state and the phase
+
 namespace
 {
     constexpr int IdleWaitTicks = 25;

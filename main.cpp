@@ -110,6 +110,8 @@ int main(int argc, char *argv[])
     view->setFocus();
     player->setFocus();
 
+
+    // all of these work to make sure the player stays in focus 
     QObject::connect(overworld,
                      &QGraphicsScene::focusItemChanged,
                      [player](QGraphicsItem *newFocus,

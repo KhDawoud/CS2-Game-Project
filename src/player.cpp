@@ -8,6 +8,10 @@
 #include "Enemy.hpp"
 #include "projectile.hpp"
 
+// since our player characters didnt differ much in terms of movement and attack mechanics,
+// we decided to just have one player class and change the animations based on the character selected
+// so this class is responsible for handling all player mechanics and animations regardless of the character chosen
+
 Player::Player(int charnum) : characternum(charnum)
 {
     health = 100;
@@ -70,6 +74,9 @@ Player::Player(int charnum) : characternum(charnum)
     rowMap[(int)Direction::Left] = 1;
     rowMap[(int)Direction::Right] = 2;
 }
+
+// the animations work on a state system, so this function handles the frame changes
+// and animation speed changes when the player changes state
 
 void Player::setAnimationState(PlayerState newState)
 {
@@ -245,6 +252,7 @@ void Player::movePlayer()
     if (currentState == PlayerState::Damaged || currentState == PlayerState::Dead)
         return;
 
+    // the dash mechanic moves the player very quickly in the direction and makes afterimages
     if (isDashing)
     {
         if (dashDuration > 0)
@@ -474,6 +482,7 @@ void Player::applyLevelProgress(int completedLevels, bool refillResources)
     emit statsChanged();
 }
 
+// fixed bug when menus would break the input, now we just clear everything when a menu opens
 void Player::resetInputState()
 {
     activeKeys.clear();
