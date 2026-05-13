@@ -9,7 +9,7 @@ Statsupgrade::Statsupgrade(QWidget *parent, Stats stats, int Level) : BaseWindow
     header->setStyleSheet("color: black;");
     header->setAlignment(Qt::AlignCenter);
 
-    QString statText = QString(
+    QString statText = QString(//shows old stats then stats
                            "HEALTH:  %1 -> %2\n\n"
                            "MANA:    %3 -> %4\n\n"
                            "STAMINA: %5 -> %6\n\n"
@@ -31,6 +31,7 @@ Statsupgrade::Statsupgrade(QWidget *parent, Stats stats, int Level) : BaseWindow
 
     mainLayout->addWidget(header);
     mainLayout->addWidget(display);
+    //messsage depends on level
     if(Level ==1){
         QLabel *skill = new QLabel("NEW DASH SKILL UNLOCKED!");
         skill->setFont(font);

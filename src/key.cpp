@@ -8,7 +8,7 @@ Key::Key(float x, float y, Player *p, int keyId, QGraphicsItem *parent)
     : QObject(), QGraphicsPixmapItem(parent), player(p), keyId(keyId)
 {
 
-    spriteSheet.load(":resources/dungeon-assets/Key.png");
+    spriteSheet.load(":resources/dungeon-assets/Key.png"); //loads key png
     shadowSpriteSheet.load(":resources/heart/heart_shadow.png");
 
     shadow = new QGraphicsPixmapItem();
@@ -17,7 +17,7 @@ Key::Key(float x, float y, Player *p, int keyId, QGraphicsItem *parent)
     this->setPixmap(spriteSheet);
     this->setPos(x, y);
 
-    shadow->setPos(x - 15, y + 30);
+    shadow->setPos(x - 15, y + 30);//places shadow below it
 
     this->setZValue(50);
     shadow->setZValue(49);
@@ -48,15 +48,15 @@ void Key::updateTick()
     QRectF keyBox = this->sceneBoundingRect();
     QRectF playerBox = player->getPlayerHitbox(player->pos());
 
-    if (keyBox.intersects(playerBox))
+    if (keyBox.intersects(playerBox))// they are both in the same place
     {
-        player->pickupkey(keyId);
+        player->pickupkey(keyId);// make player have the key
         despawn();
     }
 }
 
 void Key::despawn()
-{
+{// despwans only when player picks it up
     updateTimer->stop();
     if (shadow)
     {

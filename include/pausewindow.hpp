@@ -5,7 +5,7 @@
 class pausewindow: public BaseWindow
 {
 public:
-     pausewindow(QWidget *parent, bool inLevel = false);
+    pausewindow(QWidget *parent, bool inLevel = false);
 
     bool savedAndQuit = false;   // true when player chose Save & Quit
 };

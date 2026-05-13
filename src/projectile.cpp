@@ -7,8 +7,8 @@
 
 Projectile::Projectile(QPointF startPos, QPointF direction, MapLoader *map) : currentMap(map)
 {
-    sheet.load(":resources/player/Fireball.png");
-    explosionSheet.load(":/resources/player/Circle_explosion1-sheet.png");
+    sheet.load(":resources/player/Fireball.png"); //loads fireball spritesheet
+    explosionSheet.load(":/resources/player/Circle_explosion1-sheet.png"); //loads explosion spritesheet
     int frameWidth = sheet.width() / 5;
     int frameHeight = sheet.height();
     setPixmap(sheet.copy(0, 0, frameWidth, frameHeight));
@@ -20,6 +20,7 @@ Projectile::Projectile(QPointF startPos, QPointF direction, MapLoader *map) : cu
 
     setTransformOriginPoint(0, 0);
 
+    //rotation depends on payer direction
     if (velocity.x() > 0)
         setRotation(0);
     else if (velocity.x() < 0)
@@ -59,7 +60,7 @@ void Projectile::move()
     qreal BoxSize = 24;
     QRectF hitBox(x() - BoxSize / 2, y() - BoxSize / 2, BoxSize, BoxSize);
 
-    if (currentMap)
+    if (currentMap)//checking if a wall was hit
     {
         float tileSize = static_cast<float>(currentMap->tileSize());
         int leftCol = static_cast<int>(std::floor(hitBox.left() / tileSize));
@@ -94,7 +95,7 @@ void Projectile::move()
             }
         }
     }
-    if (!hitSomething)
+    if (!hitSomething)//checking if an enemy was hit
     {
         QList<QGraphicsItem *> hitItems = scene()->items(hitBox);
         for (QGraphicsItem *item : hitItems)
@@ -117,7 +118,7 @@ void Projectile::move()
     }
     qreal distanceTraveled = QLineF(startPoint, pos()).length();
 
-    if (distanceTraveled > maxRange * 0.8)
+    if (distanceTraveled > maxRange * 0.8)// if it exceeds range it it gets removed slowly
     {
         qreal scale = 1.0 - ((distanceTraveled - maxRange * 0.8) / (maxRange * 0.2));
         this->setScale(scale);
@@ -128,13 +129,13 @@ void Projectile::move()
         return;
     }
 
-    if (distanceTraveled >= maxRange)
+    if (distanceTraveled >= maxRange)//after making it small delete it
     {
         this->deleteLater();
     }
 }
 void Projectile::startExplosion()
-{
+{//intializes explosion
     isExploding = true;
     explosionFrame = 0;
     explosionCounter = 0;
@@ -147,7 +148,7 @@ void Projectile::startExplosion()
     setOffset(-fw / 2, -explosionSheet.height() / 2);
 }
 void Projectile::updateAnimation()
-{
+{//explosion spritesheet updater
     explosionCounter++;
 
     if (explosionCounter < 4)

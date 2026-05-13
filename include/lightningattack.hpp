@@ -12,7 +12,7 @@ enum class BoltState { Starting, Cycling, Ending, Inactive };
 class LightningAttack : public QObject, public QGraphicsPixmapItem {
     Q_OBJECT
 public:
-    explicit LightningAttack(QGraphicsItem* parent, MapLoader* Map);
+    LightningAttack(QGraphicsItem* parent, MapLoader* Map);
     void startAttack();
     void stopAttack();
     void checkCollisions();

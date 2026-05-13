@@ -11,7 +11,7 @@
 class BaseWindow : public QDialog {
     Q_OBJECT
 public:
-    explicit BaseWindow(QWidget *parent = nullptr);
+    BaseWindow(QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

@@ -36,6 +36,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
     _player->setFocus();
     centerOn(_player);
 
+    //progress bar the updates as enemies die
     _progressBar = new QProgressBar(this);
     _progressBar->setGeometry((_overworld->width() - 400) / 2, 20, 400, 25);
     _progressBar->setStyleSheet(
@@ -71,6 +72,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
     // visible in overwold
     connect(this, &GameView::isoverworld, _progressBar, &QProgressBar::setVisible);
 
+    //calls levels cleared window and statsupgrade whena level is cleared
     connect(_overworld, &MapLoader::levelCleared, this, [this]()
             {
         _player->resetInputState();
@@ -114,6 +116,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
         });
         vWindow->show(); });
 
+    //intro message at the start of the game
     QTimer::singleShot(0, this, [this]()
                        {
         LevelIntro *intro = new LevelIntro(this);
@@ -158,7 +161,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
 
 void GameView::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape)
+    if (event->key() == Qt::Key_Escape)//opens pause window and dims background
     {
         _player->resetInputState();
         bool inLevel = (scene() == _overworld || scene() == Level2 || scene() == Level3);
@@ -175,7 +178,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
         if (window.savedAndQuit)
             saveCurrentState();
     }
-    else if (event->key() == Qt::Key_E)
+    else if (event->key() == Qt::Key_E)//interact button to open level window or go back home
     {
         int tileSize = static_cast<MapLoader *>(scene())->tileSize();
         float row = _player->y() / tileSize;
@@ -192,22 +195,18 @@ void GameView::keyPressEvent(QKeyEvent *event)
             openLevelSelect();
         }
     }
-    else if (event->key() == Qt::Key_7)
+    else if (event->key() == Qt::Key_7)// character select screen
     {
         switchToCharacterSelectScreen();
     }
-    else if (event->key() == Qt::Key_8) // TEMP: jump to level 2
-    {
-        switchtoLevel2();
-    }
-    else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_3)
+    else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_3)// other way to switch characters
     {
         int targetChar = event->key() - Qt::Key_1 + 1;
         if (_player->getcharacternum() == targetChar)
             return;
         _player->swtichto(targetChar);
     }
-    else if (event->key() == Qt::Key_9)
+    else if (event->key() == Qt::Key_9) //emits level cleared for testing
     {
         if (scene() != _interior)
         {
@@ -215,7 +214,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
             Thismap->levelCleared();
         }
     }
-    else if (event->key() == Qt::Key_0)
+    else if (event->key() == Qt::Key_0) // increases light in level 2
     {
         if (scene() == Level2)
         {
@@ -613,7 +612,7 @@ void GameView::checkInteractions()
         textEnd->setVisible(false);
     }
 }
-void GameView::loadinteractionPrompt()
+void GameView::loadinteractionPrompt() // loads messages that appear in cearian positions
 {
     int fontId = QFontDatabase::addApplicationFont(":/resources/fonts/pixelfont.ttf");
 
@@ -625,7 +624,7 @@ void GameView::loadinteractionPrompt()
     textStart->setDefaultTextColor(Qt::white);
     textStart->setFont(QFont(pixelFontFamily, 6));
 
-    interactPrompt = new QGraphicsPixmapItem(QPixmap(":resources/ui-elements/Ebutton.PNG"));
+    interactPrompt = new QGraphicsPixmapItem(QPixmap(":resources/ui-elements/Ebutton.PNG")); // E button that shows up when needed
     interactPrompt->setZValue(100);
     interactPrompt->setVisible(false);
     interactPrompt->setFlag(QGraphicsItem::ItemIgnoresTransformations);

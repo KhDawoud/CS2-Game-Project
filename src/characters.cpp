@@ -1,6 +1,6 @@
 #include "characters.hpp"
 
-Characters::Characters(int num): Player(num){
+Characters::Characters(int num): Player(num){//loads selected character
     if(num ==1){
         loadSwordsman();
     }else if(num==2){
@@ -9,7 +9,7 @@ Characters::Characters(int num): Player(num){
         loadSkeleton();
     }
 }
-void Characters::loadSwordsman(){
+void Characters::loadSwordsman(){//loads swordsman spritesheet and checks which level we are at to load the correct one
     animationfactor=1;
     int charIndex = (levelscleared == 0) ? 1 : levelscleared==1 ? 2: 3;
 
