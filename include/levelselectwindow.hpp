@@ -43,6 +43,7 @@ signals:
     void levelSelected(int level);   // player clicked a level node
     void continueRequested();        // player clicked continue
     void closeRequested();           // player clicked X or quit
+    void resetRequested();
 
 protected:
     void paintEvent(QPaintEvent *event) override;

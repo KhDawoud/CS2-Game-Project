@@ -9,6 +9,7 @@
 #include "levelintro.hpp"
 #include "statsupgrade.hpp"
 #include "characterselectscreen.hpp"
+#include "deathwindow.hpp"
 
 GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player, CharacterStats *stats)
     : QGraphicsView(player->scene()
@@ -142,6 +143,19 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
             viewport()->update(); 
         } });
     _flickerTimer->start(30);
+    connect(player, &Player::playerDied, [this](){
+        DeathWindow deathScreen(this);
+        if (deathScreen.exec() == QDialog::Accepted) {
+            if (_player->getLevelsCompleted()+1 == 1) switchToOverworld();
+            else if (_player->getLevelsCompleted()+1 == 2) switchtoLevel2();
+            else if (_player->getLevelsCompleted()+1 == 3) switchtoLevel3();
+
+            _player->setHealth(100 +_player->getLevelsCompleted()*20);
+            _player->setMana(100 +_player->getLevelsCompleted()*20);
+            _player->setStamina(100 +_player->getLevelsCompleted()*20);
+            _player->setAnimationState((PlayerState::Idle));
+        }
+    });
 }
 
 void GameView::keyPressEvent(QKeyEvent *event)
@@ -242,10 +256,16 @@ void GameView::switchToInterior()
 void GameView::switchToOverworld()
 {
     int tileSize = _overworld->tileSize();
+    if (scene() == _overworld){
+        _player->setPos(8.3 * tileSize, 14.5 * tileSize);
+        centerOn(_player);
+        return;
+    }
     _interior->removeItem(_player);
     _interior->removeItem(interactPrompt);
     _interior->removeItem(textStart);
     _interior->removeItem(textEnd);
+
 
     setScene(_overworld);
     emit isoverworld(true);
@@ -296,8 +316,14 @@ void GameView::switchtoLevel2()
     {
         return;
     }
-
     int tileSize = Level2->tileSize();
+
+    if (scene() == Level2){
+        _player->setPos(10 * tileSize, 3 * tileSize);
+        centerOn(_player);
+        return;
+    }
+
     _interior->removeItem(_player);
     _interior->removeItem(interactPrompt);
     _interior->removeItem(textStart);
@@ -330,6 +356,12 @@ void GameView::switchtoLevel3()
         return;
     }
     int tileSize = Level3->tileSize();
+
+    if (scene() == Level3){
+        _player->setPos(18.5 * tileSize, 31 * tileSize);
+        centerOn(_player);
+        return;
+    }
     _interior->removeItem(_player);
 
     setScene(Level3);
@@ -436,6 +468,11 @@ void GameView::openLevelSelect()
         lsw->close();
         restoreContinueState();
     });
+    connect(lsw, &LevelSelectWindow::resetRequested, this, [this, lsw]() {
+        lsw->close();
+        openLevelSelect();
+    });
+
 
     // restore focus when the window closes without selecting a level
     connect(lsw, &QObject::destroyed, this, [this]() {

@@ -70,6 +70,7 @@ public:
     int getLevelsCompleted(){return levelscleared;}
     void pickupkey(){key = true;}
     bool haskey(){return key;}
+    void setAnimationState(PlayerState newState);
 
 public slots:
     void updateAnimation();
@@ -149,7 +150,6 @@ private:
 
     QList<Qt::Key> activeKeys;
 
-    void setAnimationState(PlayerState newState);
     void regenStamina(float amount)
     {
         stamina = std::min(std::max(100.0f, static_cast<float>(playerstats.stamina)), stamina + amount);
