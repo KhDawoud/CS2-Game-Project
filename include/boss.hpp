@@ -10,7 +10,9 @@ enum class BossPhase
     Charging,
     Swing1,
     ShortDelay,
-    Swing2
+    Swing2,
+    FireballWindup,
+    FireballRelease
 };
 
 class Boss : public BaseEnemy
@@ -25,11 +27,36 @@ public slots:
     void update() override;
 
 private:
+    enum class FireballWallSide
+    {
+        Left,
+        Right,
+        Top,
+        Bottom
+    };
+
     BossPhase currentPhase;
     int phaseTimer;
     int chargeCounter; // how many times we do the combo
+    bool nextAttackIsFireball;
+    bool fireballsReleased;
 
     float chargeSpeedMultiplier;
+
+    void facePlayer(float distance);
+    void enterIdleWait();
+    void beginNextAttack();
+    void beginChargeAttack();
+    void beginFireballAttack();
+    void spawnFireballWall(FireballWallSide side);
+    void releaseFireballs();
+    void updateIdleWait();
+    void updateCharging(float distance);
+    void updateSwing1(float distance);
+    void updateShortDelay();
+    void updateSwing2(float distance);
+    void updateFireballWindup();
+    void updateFireballRelease();
 };
 
 #endif // BOSS_HPP
