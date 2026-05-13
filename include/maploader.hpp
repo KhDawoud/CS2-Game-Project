@@ -57,6 +57,7 @@ public:
 
 signals:
     void requestBarUpdate(int remaining);
+    void bossHealthChanged(int health, int maxHealth);
     void levelCleared();
 
 private slots:

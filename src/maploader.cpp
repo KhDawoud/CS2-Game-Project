@@ -144,11 +144,6 @@ void MapLoader::loadFromJson(const QString &path)
         {
             float row = key["row"].toDouble();
             float col = key["col"].toDouble();
-            if(!player){
-                qDebug() << "Player not found";
-            }else{
-                qDebug() << "found";
-            }
             Key* key1 = new Key(col * TILE_SIZE, row * TILE_SIZE,player);
             addItem(key1);
         }
@@ -669,6 +664,10 @@ void MapLoader::spawnSpecificEnemies(const QJsonArray &enemies)
             enemy->setPlayer(player);
             addItem(enemy);
             connect(enemy, &BaseEnemy::enemyDied, this, &MapLoader::onEnemyDied);
+            if (dynamic_cast<Boss *>(enemy))
+            {
+                connect(enemy, &BaseEnemy::healthChanged, this, &MapLoader::bossHealthChanged);
+            }
 
             int intRow = static_cast<int>(r);
             int intCol = static_cast<int>(c);

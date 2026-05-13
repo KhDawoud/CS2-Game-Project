@@ -42,25 +42,19 @@ void LevelSelectWindow::writeSave(const QJsonObject &obj)
 }
 
 static constexpr int TOTAL_LEVELS = 3;
+static int sessionCompletedLevels = 0;
+static int sessionUnlockedLevel = 1;
 
 void LevelSelectWindow::markLevelCompleted(int level)
 {
-    QJsonObject save = readSave();
+    if (level > sessionCompletedLevels)
+        sessionCompletedLevels = level;
 
-    int currentCompleted = save.value("completedLevels").toInt(0);
-
-    if (level > currentCompleted)
-        save["completedLevels"] = level;
-
-    int nextUnlock = qMin(level + 1, TOTAL_LEVELS);
-
-    if (nextUnlock > save.value("unlockedLevel").toInt(1))
-        save["unlockedLevel"] = nextUnlock;
-
-    writeSave(save);
+    sessionUnlockedLevel = qMax(sessionUnlockedLevel, qMin(level + 1, TOTAL_LEVELS));
 }
 
 void LevelSelectWindow::saveContinueState(int level, int health,
+                                          int mana, int stamina,
                                           float posX, float posY,
                                           int enemiesKilled,
                                           int characterNum)
@@ -71,6 +65,8 @@ void LevelSelectWindow::saveContinueState(int level, int health,
     cont["exists"] = true;
     cont["level"] = level;
     cont["health"] = health;
+    cont["mana"] = mana;
+    cont["stamina"] = stamina;
     cont["posX"] = static_cast<double>(posX);
     cont["posY"] = static_cast<double>(posY);
     cont["enemiesKilled"] = enemiesKilled;
@@ -104,7 +100,21 @@ int LevelSelectWindow::getContinueLevel()
 
 int LevelSelectWindow::getContinueHealth()
 {
-    return readSave().value("continue").toObject().value("health").toInt(3);
+    return readSave().value("continue").toObject().value("health").toInt(100);
+}
+
+int LevelSelectWindow::getContinueMana()
+{
+    QJsonObject cont = readSave().value("continue").toObject();
+    int level = cont.value("level").toInt(1);
+    return cont.value("mana").toInt(100 + ((level - 1) * 20));
+}
+
+int LevelSelectWindow::getContinueStamina()
+{
+    QJsonObject cont = readSave().value("continue").toObject();
+    int level = cont.value("level").toInt(1);
+    return cont.value("stamina").toInt(100 + ((level - 1) * 20));
 }
 
 float LevelSelectWindow::getContinuePosX()
@@ -162,13 +172,21 @@ void LevelSelectWindow::loadSaveData()
 {
     QJsonObject save = readSave();
 
-    unlockedLevel = save.value("unlockedLevel").toInt(1);
-    completedLevels = save.value("completedLevels").toInt(0);
-
     QJsonObject cont = save.value("continue").toObject();
 
     hasContinue = cont.value("exists").toBool(false);
     continueLevel = cont.value("level").toInt(1);
+
+    if (continueMode && hasContinue)
+    {
+        completedLevels = qMax(0, continueLevel - 1);
+        unlockedLevel = continueLevel;
+    }
+    else
+    {
+        completedLevels = sessionCompletedLevels;
+        unlockedLevel = sessionUnlockedLevel;
+    }
 
     if (unlockedLevel < 1)
         unlockedLevel = 1;
@@ -265,6 +283,8 @@ void LevelSelectWindow::setupButtons()
 
 void LevelSelectWindow::forceUnlockAll()
 {
+    sessionUnlockedLevel = 3;
+    sessionCompletedLevels = 3;
     unlockedLevel = 3;
     completedLevels = 3;
     updateButtonStates();

@@ -90,6 +90,7 @@ public:
     virtual void detectandmove(Player *);
 signals:
     void enemyDied();
+    void healthChanged(int health, int maxHealth);
 
 public slots:
     virtual void update();

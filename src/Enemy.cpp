@@ -76,6 +76,7 @@ void BaseEnemy::TakeDamage(int amount)
         return;
     // otherwise
     health -= amount;
+    emit healthChanged(health > 0 ? health : 0, maxHealth);
 
     if (health > 0)
     {

@@ -1,7 +1,9 @@
 #include "player.hpp"
+#include <QFocusEvent>
 #include <QKeyEvent>
 #include "AudioManager.hpp"
 #include "maploader.hpp"
+#include <algorithm>
 #include <cmath>
 #include "Enemy.hpp"
 #include "projectile.hpp"
@@ -14,6 +16,18 @@ Player::Player(int charnum) : characternum(charnum)
     staminaRegenRate = 5;
     manaRegenRate = 2;
     damage = 10;
+    playerstats.oldhealth = 100;
+    playerstats.oldstamina = 100;
+    playerstats.oldmana = 100;
+    playerstats.oldstaminaregenrate = 5;
+    playerstats.oldmanaregenrate = 2;
+    playerstats.olddamage = 10;
+    playerstats.health = 100;
+    playerstats.stamina = 100;
+    playerstats.mana = 100;
+    playerstats.staminaregenrate = 5;
+    playerstats.manaregenrate = 2;
+    playerstats.damage = 10;
     staminaRegenTimer = new QTimer(this);
     connect(staminaRegenTimer, &QTimer::timeout, [this]()
             { regenStamina(staminaRegenRate); });
@@ -27,6 +41,9 @@ Player::Player(int charnum) : characternum(charnum)
     currentState = PlayerState::Walking;
     currentDirection = Direction::Right;
     currentFrame = 0;
+    hasSpawnedFireball = false;
+    isUsingLightning = false;
+    isShiftPressed = false;
 
     animTimer = new QTimer(this);
     connect(animTimer, &QTimer::timeout, this, &Player::updateAnimation);
@@ -423,6 +440,63 @@ void Player::takeDamage(float damage)
             setAnimationState(PlayerState::Dead);
         }
     }
+}
+
+void Player::applyLevelProgress(int completedLevels, bool refillResources)
+{
+    levelscleared = completedLevels;
+
+    const float maxResource = 100.0f + (levelscleared * 20.0f);
+    staminaRegenRate = 5.0f + (levelscleared * 2.0f);
+    manaRegenRate = 2.0f + (levelscleared * 2.0f);
+    damage = 10 + (levelscleared * 10);
+
+    if (refillResources)
+    {
+        health = maxResource;
+        mana = maxResource;
+        stamina = maxResource;
+    }
+    else
+    {
+        health = std::min(health, maxResource);
+        mana = std::min(mana, maxResource);
+        stamina = std::min(stamina, maxResource);
+    }
+
+    playerstats.health = static_cast<int>(maxResource);
+    playerstats.mana = static_cast<int>(maxResource);
+    playerstats.stamina = static_cast<int>(maxResource);
+    playerstats.staminaregenrate = static_cast<int>(staminaRegenRate);
+    playerstats.manaregenrate = static_cast<int>(manaRegenRate);
+    playerstats.damage = damage;
+
+    emit statsChanged();
+}
+
+void Player::resetInputState()
+{
+    activeKeys.clear();
+    isShiftPressed = false;
+    isSprinting = false;
+    isDashing = false;
+    dashDuration = 0;
+    dashDirection = QPointF(0, 0);
+    hasSpawnedFireball = false;
+    isUsingLightning = false;
+
+    if (lightning)
+        lightning->stopAttack();
+
+    AudioManager::instance().stopSound("Lightning");
+    staminaRegenTimer->start(400);
+    manaRegenTimer->start(400);
+}
+
+void Player::focusOutEvent(QFocusEvent *event)
+{
+    resetInputState();
+    QGraphicsPixmapItem::focusOutEvent(event);
 }
 
 void Player::keyPressEvent(QKeyEvent *event)

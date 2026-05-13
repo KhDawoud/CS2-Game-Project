@@ -3,11 +3,13 @@
 #include <QGraphicsPixmapItem>
 #include <QObject>
 #include <QTimer>
+#include <algorithm>
 #include "maploader.hpp"
 #include "lightningattack.hpp"
 
 class Map;
 class House_Interior;
+class QFocusEvent;
 
 enum class PlayerState
 {
@@ -54,6 +56,10 @@ public:
     void setHealth(float newHealth) { health = newHealth; emit statsChanged(); };
     float getStamina() { return stamina; };
     float getMana() { return mana; };
+    void setStamina(float newStamina) { stamina = newStamina; emit statsChanged(); };
+    void setMana(float newMana) { mana = newMana; emit statsChanged(); };
+    void applyLevelProgress(int completedLevels, bool refillResources);
+    void resetInputState();
     void setMap(Map *m) { gameMap = m; }
     void setLevelsCompleted(int level){levelscleared = level;}
     void takeDamage(float damage);
@@ -74,6 +80,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
     void keyReleaseEvent(QKeyEvent *event) override;
+    void focusOutEvent(QFocusEvent *event) override;
 
     float health;
     float stamina;
@@ -145,13 +152,13 @@ private:
     void setAnimationState(PlayerState newState);
     void regenStamina(float amount)
     {
-        stamina = std::min(100.0f, stamina + amount);
+        stamina = std::min(std::max(100.0f, static_cast<float>(playerstats.stamina)), stamina + amount);
         emit statsChanged();
     };
 
     void regenMana(float amount)
     {
-        mana = std::min(100.0f, mana + amount);
+        mana = std::min(std::max(100.0f, static_cast<float>(playerstats.mana)), mana + amount);
         emit statsChanged();
     };
 

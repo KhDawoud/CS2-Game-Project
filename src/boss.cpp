@@ -42,7 +42,7 @@ void Boss::loadAnimations()
 
 void Boss::update()
 {
-    if (!this->scene() || !player->scene() || this->scene() != player->scene())
+    if (!this->scene() || !player || !player->scene() || this->scene() != player->scene())
     {
         return;
     }
@@ -50,6 +50,26 @@ void Boss::update()
     if (currentState == EnemyState::Dead)
     {
         updateAnimation();
+        if (currentFrame >= deadData.frameCount - 1)
+        {
+            aiTimer->stop();
+            hide();
+            setEnabled(false);
+            emit enemyDied();
+        }
+        return;
+    }
+
+    if (currentState == EnemyState::Hurt)
+    {
+        updateAnimation();
+        waitCounter--;
+        if (waitCounter <= 0)
+        {
+            currentState = EnemyState::Idle;
+            currentFrame = 0;
+            aiTimer->setInterval(100);
+        }
         return;
     }
 

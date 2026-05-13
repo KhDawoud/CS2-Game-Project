@@ -19,7 +19,7 @@ public:
     static void markLevelCompleted(int level);
 
     // Call on save & exit mid-level
-    static void saveContinueState(int level, int health, float posX, float posY, int enemiesKilled, int characternum);
+    static void saveContinueState(int level, int health, int mana, int stamina, float posX, float posY, int enemiesKilled, int characternum);
 
     // Call when player starts fresh (clears the continue slot)
     static void clearContinueState();
@@ -27,6 +27,8 @@ public:
     // Getters for loading continue state back into the game
     static int   getContinueLevel();
     static int   getContinueHealth();
+    static int   getContinueMana();
+    static int   getContinueStamina();
     static float getContinuePosX();
     static float getContinuePosY();
     static int   getContinueEnemiesKilled();

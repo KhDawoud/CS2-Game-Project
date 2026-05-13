@@ -6,6 +6,7 @@
 #include <QLabel>
 #include "maploader.hpp"
 #include "characters.hpp"
+#include "characterstats.hpp"
 #include "levelselectwindow.hpp"
 
 class GameView : public QGraphicsView
@@ -13,7 +14,7 @@ class GameView : public QGraphicsView
     Q_OBJECT
 
 public:
-    GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player);
+    GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player, CharacterStats *stats);
     void checkInteractions();
     QProgressBar *_bossHealthBar;
     QLabel *_bossLabel;
@@ -47,6 +48,7 @@ private:
     MapLoader *Level2;
     MapLoader *Level3;
     Characters *_player;
+    CharacterStats *_statsOverlay;
 
     QGraphicsTextItem *textStart;
     QGraphicsPixmapItem *interactPrompt;

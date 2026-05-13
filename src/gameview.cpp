@@ -10,14 +10,15 @@
 #include "statsupgrade.hpp"
 #include "characterselectscreen.hpp"
 
-GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player)
+GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player, CharacterStats *stats)
     : QGraphicsView(player->scene()
                         ? qobject_cast<MapLoader *>(player->scene())
                         : overworld),
       _overworld(overworld),
       _interior(interior),
       _player(player), Level2(level2),
-      Level3(level3)
+      Level3(level3),
+      _statsOverlay(stats)
 {
     setAlignment(Qt::AlignCenter);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -61,11 +62,17 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
     bindProgress(Level2);
     bindProgress(Level3);
 
+    connect(Level3, &MapLoader::bossHealthChanged, this, [this](int health, int maxHealth) {
+        _bossHealthBar->setMaximum(maxHealth);
+        _bossHealthBar->setValue(health);
+    });
+
     // visible in overwold
     connect(this, &GameView::isoverworld, _progressBar, &QProgressBar::setVisible);
 
     connect(_overworld, &MapLoader::levelCleared, this, [this]()
             {
+        _player->resetInputState();
         LevelSelectWindow::markLevelCompleted(1);
         LevelSelectWindow::clearContinueState();
 
@@ -80,6 +87,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
 
     connect(Level2, &MapLoader::levelCleared, this, [this]()
             {
+        _player->resetInputState();
         LevelSelectWindow::markLevelCompleted(2);
         LevelSelectWindow::clearContinueState();
         auto* vWindow = new LevelCleared(this, _player->getLevelsCompleted());
@@ -94,6 +102,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
 
     connect(Level3, &MapLoader::levelCleared, this, [this]()
             {
+        _player->resetInputState();
         LevelSelectWindow::markLevelCompleted(3);
         LevelSelectWindow::clearContinueState();
         auto* vWindow = new LevelCleared(this, _player->getLevelsCompleted());
@@ -139,6 +148,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_Escape)
     {
+        _player->resetInputState();
         bool inLevel = (scene() == _overworld || scene() == Level2 || scene() == Level3);
 
         QGraphicsColorizeEffect *dim = new QGraphicsColorizeEffect(this);
@@ -161,10 +171,12 @@ void GameView::keyPressEvent(QKeyEvent *event)
 
         if (scene() == _overworld && interactPrompt->isVisible() && row >= 13 && row <= 14 && col >= 8 && col <= 9)
         {
+            _player->resetInputState();
             switchToInterior();
         }
         else if (scene() == _interior && interactPrompt->isVisible() && row >= 7 && row <= 8 && col >= 10 && col <= 12)
         {
+            _player->resetInputState();
             openLevelSelect();
         }
     }
@@ -257,6 +269,7 @@ void GameView::switchToOverworld()
 void GameView::switchToCharacterSelectScreen()
 {
     CharacterSelectScreen *screen = new CharacterSelectScreen(_player->getcharacternum(), this);
+    _player->resetInputState();
 
     connect(screen, &CharacterSelectScreen::selectionMade, this, [this](int charIndex)
             {
@@ -356,6 +369,8 @@ void GameView::saveCurrentState()
     LevelSelectWindow::saveContinueState(
         lvl,
         static_cast<int>(_player->getHealth()),
+        static_cast<int>(_player->getMana()),
+        static_cast<int>(_player->getStamina()),
         static_cast<float>(_player->x()),
         static_cast<float>(_player->y()),
         currentMap->getCurrentEnemyCount(),
@@ -371,6 +386,8 @@ void GameView::restoreContinueState()
 
     int   lvl     = LevelSelectWindow::getContinueLevel();
     int   health  = LevelSelectWindow::getContinueHealth();
+    int   mana    = LevelSelectWindow::getContinueMana();
+    int   stamina = LevelSelectWindow::getContinueStamina();
     float posX    = LevelSelectWindow::getContinuePosX();
     float posY    = LevelSelectWindow::getContinuePosY();
     int   charNum = LevelSelectWindow::getContinueCharacterNum();
@@ -380,11 +397,13 @@ void GameView::restoreContinueState()
     else if (lvl == 2) { switchtoLevel2();     targetMap = Level2; }
     else if (lvl == 3) { switchtoLevel3();     targetMap = Level3; }
 
-    _player->setPos(posX, posY);
-    _player->setHealth(static_cast<float>(health));
     _player->setLevelsCompleted(lvl-1);
-
     _player->swtichto(charNum);
+    _player->applyLevelProgress(lvl - 1, false);
+    _player->setHealth(static_cast<float>(health));
+    _player->setMana(static_cast<float>(mana));
+    _player->setStamina(static_cast<float>(stamina));
+    _player->setPos(posX, posY);
     _player->setScale(currentscale);
 
     // restore enemy count so bar and levelCleared fire from the right number
@@ -400,11 +419,7 @@ void GameView::openLevelSelect()
 {
     LevelSelectWindow *lsw = new LevelSelectWindow(this);
     lsw->setAttribute(Qt::WA_DeleteOnClose);
-
-    // if a mid-level save exists, start in continue mode so doors show
-    // completed / in-progress / locked correctly instead of all-unlocked
-    if (LevelSelectWindow::hasContinueState())
-        lsw->setContinueMode(true);
+    _player->resetInputState();
 
     connect(lsw, &LevelSelectWindow::levelSelected, this, [this, lsw](int level) {
         lsw->close();
@@ -573,5 +588,15 @@ void GameView::drawForeground(QPainter *painter, const QRectF &rect)
         gradient.setColorAt(1.0, QColor(0, 0, 0, 255));
 
         painter->fillRect(rect, gradient);
+
+        if (_statsOverlay && !_statsOverlay->pixmap().isNull())
+        {
+            painter->save();
+            painter->setRenderHint(QPainter::SmoothPixmapTransform, false);
+            painter->translate(mapToScene(10, 10));
+            painter->scale(_statsOverlay->scale(), _statsOverlay->scale());
+            painter->drawPixmap(0, 0, _statsOverlay->pixmap());
+            painter->restore();
+        }
     }
 }

@@ -177,28 +177,14 @@ void Characters::handleLevelCleared(){
     playerstats.oldhealth = 100 +levelscleared*20;
     playerstats.oldmana = 100 +levelscleared*20;
     playerstats.oldstamina = 100 +levelscleared*20;
-    playerstats.oldstaminaregenrate = 100 +levelscleared*20;
-    playerstats.oldmanaregenrate = 100 +levelscleared*20;
+    playerstats.oldstaminaregenrate = 5 +levelscleared*2;
+    playerstats.oldmanaregenrate = 2 +levelscleared*2;
     playerstats.olddamage = 10 +levelscleared*10;
-    levelscleared++;
 
-    health= 100 +levelscleared*20;
-    mana=100 +levelscleared*20;
-    stamina= 100 +levelscleared*20;
-    staminaRegenRate = 5 +levelscleared*2;
-    manaRegenRate = 2 +levelscleared*2;
-    damage = 10+ levelscleared*10;
-
-    playerstats.health = health;
-    playerstats.mana = mana;
-    playerstats.stamina = stamina;
-    playerstats.staminaregenrate = staminaRegenRate;
-    playerstats.manaregenrate = staminaRegenRate;
-    playerstats.damage = damage;
+    applyLevelProgress(levelscleared + 1, true);
 
     if(characternum==1){
         loadSwordsman();
     }
     currentFrame = 0;
 }
-

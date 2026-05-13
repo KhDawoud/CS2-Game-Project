@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     QObject::connect(level2, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
     QObject::connect(level3, &MapLoader::levelCleared, player, &Characters::handleLevelCleared);
 
-    GameView *view = new GameView(overworld, interior, level2, level3, player);
+    GameView *view = new GameView(overworld, interior, level2, level3, player, stats);
 
     QTimer *uiTimer = new QTimer();
 
@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
             }
             view->scene()->addItem(stats);
         }
+        stats->setVisible(view->scene() != level2);
         stats->setPos(view->mapToScene(10, 10));
     if (view->scene() == level3) {
             if (view->_progressBar) view->_progressBar->setVisible(false);
@@ -129,6 +130,15 @@ int main(int argc, char *argv[])
                              player->setFocus();
                      });
     QObject::connect(level3,
+                     &QGraphicsScene::focusItemChanged,
+                     [player](QGraphicsItem *newFocus,
+                              QGraphicsItem *,
+                              Qt::FocusReason)
+                     {
+                         if (newFocus != player)
+                             player->setFocus();
+                     });
+    QObject::connect(level2,
                      &QGraphicsScene::focusItemChanged,
                      [player](QGraphicsItem *newFocus,
                               QGraphicsItem *,

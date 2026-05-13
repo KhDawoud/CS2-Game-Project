@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QPainter>
 #include <QPixmap>
+#include <algorithm>
 #include "player.hpp"
 
 CharacterStats::CharacterStats()
@@ -55,10 +56,10 @@ void CharacterStats::updateBars()
     // draw panel
     painter.drawPixmap(0, 0, spriteSheet.copy(basePanelRect));
 
-    // use actual max so bars don't overflow after level-clear stat boosts
-    float maxHealth  = std::max(100.0f, health);
-    float maxMana    = std::max(100.0f, mana);
-    float maxStamina = std::max(100.0f, stamina);
+    Stats stats = player->getStats();
+    float maxHealth  = std::max(100.0f, static_cast<float>(stats.health));
+    float maxMana    = std::max(100.0f, static_cast<float>(stats.mana));
+    float maxStamina = std::max(100.0f, static_cast<float>(stats.stamina));
 
     float healthPercent  = std::max(0.0f, health  / maxHealth);
     float manaPercent    = std::max(0.0f, mana    / maxMana);
