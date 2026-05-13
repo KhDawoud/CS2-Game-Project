@@ -11,7 +11,7 @@ class Key : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 public:
-    Key(float x, float y, Player *p, QGraphicsItem *parent = nullptr);
+    Key(float x, float y, Player *p, int keyId, QGraphicsItem *parent = nullptr);
 
 private slots:
     void updateTick();
@@ -27,6 +27,7 @@ private:
 
     float startY;
     float bobTime;
+    int keyId;
 };
 
 #endif // KEY_HPP

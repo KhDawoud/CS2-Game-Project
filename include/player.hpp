@@ -32,7 +32,8 @@ struct Fireball
     QGraphicsPixmapItem *item;
     QPointF direction;
 };
-struct Stats{
+struct Stats
+{
     int oldhealth;
     int oldstamina;
     int oldmana;
@@ -53,29 +54,53 @@ class Player : public QObject, public QGraphicsPixmapItem
 public:
     Player(int);
     float getHealth() { return health; };
-    void setHealth(float newHealth) { health = newHealth; emit statsChanged(); };
+    void setHealth(float newHealth)
+    {
+        health = newHealth;
+        emit statsChanged();
+    };
     float getStamina() { return stamina; };
     float getMana() { return mana; };
-    void setStamina(float newStamina) { stamina = newStamina; emit statsChanged(); };
-    void setMana(float newMana) { mana = newMana; emit statsChanged(); };
+    void setStamina(float newStamina)
+    {
+        stamina = newStamina;
+        emit statsChanged();
+    };
+    void setMana(float newMana)
+    {
+        mana = newMana;
+        emit statsChanged();
+    };
     void applyLevelProgress(int completedLevels, bool refillResources);
     void resetInputState();
     void setMap(Map *m) { gameMap = m; }
-    void setLevelsCompleted(int level){levelscleared = level;}
+    void setLevelsCompleted(int level) { levelscleared = level; }
     void takeDamage(float damage);
     void Heal(float amount);
     QRectF getPlayerHitbox(QPointF pos) const;
     int getcharacternum();
-    Stats getStats(){return playerstats;}
-    int getLevelsCompleted(){return levelscleared;}
-    void pickupkey(){key = true;}
-    bool haskey(){return key;}
+    Stats getStats() { return playerstats; }
+    int getLevelsCompleted() { return levelscleared; }
+    void pickupkey(int id)
+    {
+        if (id == 1)
+            hasKey1 = true;
+        else if (id == 2)
+            hasKey2 = true;
+    }
+    bool haskey(int id) const
+    {
+        if (id == 1)
+            return hasKey1;
+        if (id == 2)
+            return hasKey2;
+        return false;
+    }
     void setAnimationState(PlayerState newState);
 
 public slots:
     void updateAnimation();
     void movePlayer();
-
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -127,7 +152,7 @@ protected:
 
     qreal sprintMultiplier = 1.5;
     bool isSprinting = false;
-    int levelscleared=0;
+    int levelscleared = 0;
 
 signals:
     void positionChanged(QGraphicsItem *playerPtr); // The announcement
@@ -174,7 +199,8 @@ private:
     int dashDuration = 0;
     int dashCooldown = 0;
     QPointF dashDirection;
-    LightningAttack* lightning;
-    bool key = false;
+    LightningAttack *lightning;
+    bool hasKey1 = false;
+    bool hasKey2 = false;
 };
 #endif // PLAYER_HPP

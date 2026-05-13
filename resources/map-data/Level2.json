@@ -58,7 +58,8 @@
             186,
             162,
             253,
-            254
+            254,
+            124
         ],
         "overheadTiles": [
             199,
@@ -3638,7 +3639,6 @@
             ]
         ]
     },
-        
     "staticObjects": [
         {
             "type": "collidable",

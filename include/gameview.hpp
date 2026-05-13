@@ -39,6 +39,7 @@ private:
     void bindProgress(MapLoader *map);
 
     // these handle the torch effect
+    double _baseLightRadius = 120.0;
     qreal _currentLightRadius = 120.0;
     qreal _flickerPhase = 0.0;
     QTimer *_flickerTimer;

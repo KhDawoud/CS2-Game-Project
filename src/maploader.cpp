@@ -138,16 +138,17 @@ void MapLoader::loadFromJson(const QString &path)
             spawnPlayer(player, row, col);
         }
     }
-        QJsonObject key = meta["keySpawn"].toObject();
+    QJsonObject key = meta["keySpawn"].toObject();
 
-        if (!key.isEmpty())
-        {
-            float row = key["row"].toDouble();
-            float col = key["col"].toDouble();
-            Key* key1 = new Key(col * TILE_SIZE, row * TILE_SIZE,player);
-            addItem(key1);
-        }
-
+    if (!key.isEmpty())
+    {
+        float row = key["row"].toDouble();
+        float col = key["col"].toDouble();
+        Key *key1 = new Key(col * TILE_SIZE, row * TILE_SIZE, player, 1);
+        addItem(key1);
+    }
+    Key *key2 = new Key(39 * TILE_SIZE, 22 * TILE_SIZE, player, 2);
+    addItem(key2);
 }
 
 void MapLoader::loadAssets()
@@ -700,9 +701,15 @@ bool MapLoader::isTileCollidable(int row, int col) const
 
     int tileValue = collisionMap[row][col];
 
-    if (tileValue == 1) {
-        if (row >= 17 && row <= 19 && col >= 14 && col <= 16 && player->haskey()) { // this is where the door is
+    if (tileValue == 1)
+    {
+        if (row >= 17 && row <= 19 && col >= 14 && col <= 16 && player->haskey(1))
+        { // this is where the door is
             return false;
+        }
+        if (row >= 28 && row <= 30 && col >= 45 && col <= 46 && player->haskey(2))
+        {
+            return false; // second door
         }
         return true;
     }

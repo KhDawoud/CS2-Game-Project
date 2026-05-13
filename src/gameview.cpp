@@ -63,10 +63,10 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
     bindProgress(Level2);
     bindProgress(Level3);
 
-    connect(Level3, &MapLoader::bossHealthChanged, this, [this](int health, int maxHealth) {
+    connect(Level3, &MapLoader::bossHealthChanged, this, [this](int health, int maxHealth)
+            {
         _bossHealthBar->setMaximum(maxHealth);
-        _bossHealthBar->setValue(health);
-    });
+        _bossHealthBar->setValue(health); });
 
     // visible in overwold
     connect(this, &GameView::isoverworld, _progressBar, &QProgressBar::setVisible);
@@ -98,8 +98,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
             connect(sWindow, &QDialog::accepted, this, &GameView::switchToInterior);
             sWindow->show();
         });
-        vWindow->show();
-    });
+        vWindow->show(); });
 
     connect(Level3, &MapLoader::levelCleared, this, [this]()
             {
@@ -113,8 +112,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
             connect(sWindow, &QDialog::accepted, this, &GameView::switchToInterior);
             sWindow->show();
         });
-        vWindow->show();
-    });
+        vWindow->show(); });
 
     QTimer::singleShot(0, this, [this]()
                        {
@@ -139,11 +137,12 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
             if (_flickerPhase > 1000.0) { _flickerPhase = 0.0; } 
             qreal slowWave = std::sin(_flickerPhase); 
             qreal fastWave = std::sin(_flickerPhase * 2.7) * 0.5;
-            _currentLightRadius = 120 + ((slowWave + fastWave) * 5.0);
+            _currentLightRadius = _baseLightRadius + ((slowWave + fastWave) * 5.0);
             viewport()->update(); 
         } });
     _flickerTimer->start(30);
-    connect(player, &Player::playerDied, [this](){
+    connect(player, &Player::playerDied, [this]()
+            {
         DeathWindow deathScreen(this);
         if (deathScreen.exec() == QDialog::Accepted) {
             if (_player->getLevelsCompleted()+1 == 1) switchToOverworld();
@@ -154,8 +153,7 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
             _player->setMana(100 +_player->getLevelsCompleted()*20);
             _player->setStamina(100 +_player->getLevelsCompleted()*20);
             _player->setAnimationState((PlayerState::Idle));
-        }
-    });
+        } });
 }
 
 void GameView::keyPressEvent(QKeyEvent *event)
@@ -209,8 +207,15 @@ void GameView::keyPressEvent(QKeyEvent *event)
     {
         if (scene() != _interior)
         {
-            MapLoader* Thismap = dynamic_cast<MapLoader*>(scene());
+            MapLoader *Thismap = dynamic_cast<MapLoader *>(scene());
             Thismap->levelCleared();
+        }
+    }
+    else if (event->key() == Qt::Key_0)
+    {
+        if (scene() == Level2)
+        {
+            _baseLightRadius += 10.0; // Increase the radius by 10 each press
         }
     }
     else
@@ -256,7 +261,8 @@ void GameView::switchToInterior()
 void GameView::switchToOverworld()
 {
     int tileSize = _overworld->tileSize();
-    if (scene() == _overworld){
+    if (scene() == _overworld)
+    {
         _player->setPos(8.3 * tileSize, 14.5 * tileSize);
         centerOn(_player);
         return;
@@ -265,7 +271,6 @@ void GameView::switchToOverworld()
     _interior->removeItem(interactPrompt);
     _interior->removeItem(textStart);
     _interior->removeItem(textEnd);
-
 
     setScene(_overworld);
     emit isoverworld(true);
@@ -318,7 +323,8 @@ void GameView::switchtoLevel2()
     }
     int tileSize = Level2->tileSize();
 
-    if (scene() == Level2){
+    if (scene() == Level2)
+    {
         _player->setPos(10 * tileSize, 3 * tileSize);
         centerOn(_player);
         return;
@@ -328,7 +334,6 @@ void GameView::switchtoLevel2()
     _interior->removeItem(interactPrompt);
     _interior->removeItem(textStart);
     _interior->removeItem(textEnd);
-
 
     setScene(Level2);
     emit isoverworld(true);
@@ -357,7 +362,8 @@ void GameView::switchtoLevel3()
     }
     int tileSize = Level3->tileSize();
 
-    if (scene() == Level3){
+    if (scene() == Level3)
+    {
         _player->setPos(18.5 * tileSize, 31 * tileSize);
         centerOn(_player);
         return;
@@ -394,8 +400,9 @@ void GameView::bindProgress(MapLoader *map)
 
 void GameView::saveCurrentState()
 {
-    int lvl = _player->getLevelsCompleted()+1;
-    if (lvl == 0) return;
+    int lvl = _player->getLevelsCompleted() + 1;
+    if (lvl == 0)
+        return;
 
     MapLoader *currentMap = static_cast<MapLoader *>(scene());
     LevelSelectWindow::saveContinueState(
@@ -406,30 +413,42 @@ void GameView::saveCurrentState()
         static_cast<float>(_player->x()),
         static_cast<float>(_player->y()),
         currentMap->getCurrentEnemyCount(),
-        _player->getcharacternum()
-    );
+        _player->getcharacternum());
 
     qApp->quit();
 }
 
 void GameView::restoreContinueState()
 {
-    if (!LevelSelectWindow::hasContinueState()) return;
+    if (!LevelSelectWindow::hasContinueState())
+        return;
 
-    int   lvl     = LevelSelectWindow::getContinueLevel();
-    int   health  = LevelSelectWindow::getContinueHealth();
-    int   mana    = LevelSelectWindow::getContinueMana();
-    int   stamina = LevelSelectWindow::getContinueStamina();
-    float posX    = LevelSelectWindow::getContinuePosX();
-    float posY    = LevelSelectWindow::getContinuePosY();
-    int   charNum = LevelSelectWindow::getContinueCharacterNum();
+    int lvl = LevelSelectWindow::getContinueLevel();
+    int health = LevelSelectWindow::getContinueHealth();
+    int mana = LevelSelectWindow::getContinueMana();
+    int stamina = LevelSelectWindow::getContinueStamina();
+    float posX = LevelSelectWindow::getContinuePosX();
+    float posY = LevelSelectWindow::getContinuePosY();
+    int charNum = LevelSelectWindow::getContinueCharacterNum();
 
     MapLoader *targetMap = nullptr;
-    if (lvl == 1)      { switchToOverworld();  targetMap = _overworld; }
-    else if (lvl == 2) { switchtoLevel2();     targetMap = Level2; }
-    else if (lvl == 3) { switchtoLevel3();     targetMap = Level3; }
+    if (lvl == 1)
+    {
+        switchToOverworld();
+        targetMap = _overworld;
+    }
+    else if (lvl == 2)
+    {
+        switchtoLevel2();
+        targetMap = Level2;
+    }
+    else if (lvl == 3)
+    {
+        switchtoLevel3();
+        targetMap = Level3;
+    }
 
-    _player->setLevelsCompleted(lvl-1);
+    _player->setLevelsCompleted(lvl - 1);
     _player->swtichto(charNum);
     _player->applyLevelProgress(lvl - 1, false);
     _player->setHealth(static_cast<float>(health));
@@ -453,35 +472,34 @@ void GameView::openLevelSelect()
     lsw->setAttribute(Qt::WA_DeleteOnClose);
     _player->resetInputState();
 
-    connect(lsw, &LevelSelectWindow::levelSelected, this, [this, lsw](int level) {
+    connect(lsw, &LevelSelectWindow::levelSelected, this, [this, lsw](int level)
+            {
         lsw->close();
         if (level == 1)
             switchToOverworld();
         else if (level == 2)
             switchtoLevel2();
         else if (level == 3)
-            switchtoLevel3();
-    });
+            switchtoLevel3(); });
 
     connect(lsw, &LevelSelectWindow::closeRequested, lsw, &LevelSelectWindow::close);
-    connect(lsw, &LevelSelectWindow::continueRequested, this, [this, lsw]() {
+    connect(lsw, &LevelSelectWindow::continueRequested, this, [this, lsw]()
+            {
         lsw->close();
-        restoreContinueState();
-    });
-    connect(lsw, &LevelSelectWindow::resetRequested, this, [this, lsw]() {
+        restoreContinueState(); });
+    connect(lsw, &LevelSelectWindow::resetRequested, this, [this, lsw]()
+            {
         lsw->close();
-        openLevelSelect();
-    });
-
+        openLevelSelect(); });
 
     // restore focus when the window closes without selecting a level
-    connect(lsw, &QObject::destroyed, this, [this]() {
+    connect(lsw, &QObject::destroyed, this, [this]()
+            {
         this->activateWindow();
         this->setFocus();
         if (this->scene())
             this->scene()->setFocusItem(_player);
-        _player->setFocus();
-    });
+        _player->setFocus(); });
 
     lsw->show();
 }
@@ -494,6 +512,7 @@ void GameView::checkInteractions()
     int col = static_cast<int>(_player->x() / tileSize);
 
     bool inZone = false;
+    int doorId = 0;
 
     if (scene() == _overworld)
     {
@@ -508,10 +527,18 @@ void GameView::checkInteractions()
         {
             inZone = true;
         }
-    }else if (scene()== Level2){
+    }
+    else if (scene() == Level2)
+    {
         if (row >= 17 && row <= 19 && col >= 14 && col <= 16)
         {
             inZone = true;
+            doorId = 1;
+        }
+        if (row >= 26 && row <= 30 && col >= 43 && col <= 46)
+        {
+            inZone = true;
+            doorId = 2;
         }
     }
 
@@ -525,13 +552,16 @@ void GameView::checkInteractions()
         {
             textEnd->setPlainText("to Select Level");
         }
-        else if (scene() == Level2 && _player->haskey())
+        else if (scene() == Level2 && doorId > 0)
         {
-            textEnd->setPlainText("Door Unlocked");
-        }
-        else if (scene() == Level2 && !_player->haskey())
-        {
-            textEnd->setPlainText("Key is needed to unlock the door");
+            if (_player->haskey(doorId))
+            {
+                textEnd->setPlainText("Door Unlocked");
+            }
+            else
+            {
+                textEnd->setPlainText("Key is needed to unlock the door");
+            }
         }
 
         float w1 = textStart->boundingRect().width();
@@ -542,9 +572,12 @@ void GameView::checkInteractions()
         float startX = _player->x() + (_player->boundingRect().width() / 2) - (totalWidth / 2);
 
         float baseY;
-        if (scene() == Level2) {
+        if (scene() == Level2)
+        {
             baseY = _player->y() - textStart->boundingRect().height() - 10;
-        } else {
+        }
+        else
+        {
             baseY = _player->y() + _player->boundingRect().height() + 10;
         }
 
@@ -557,10 +590,13 @@ void GameView::checkInteractions()
         interactPrompt->setPos(startX + w1, iconY);
         textEnd->setPos(startX + w1 + wIcon - 10, baseY);
 
-        if(scene() == Level2){
+        if (scene() == Level2)
+        {
             textStart->setVisible(false);
             interactPrompt->setVisible(false);
-        } else {
+        }
+        else
+        {
             textStart->setVisible(true);
             interactPrompt->setVisible(true);
         }
@@ -608,7 +644,7 @@ void GameView::loadinteractionPrompt()
     scene()->addItem(textEnd);
 }
 
-//this is the method to handle drawing effects
+// this is the method to handle drawing effects
 void GameView::drawForeground(QPainter *painter, const QRectF &rect)
 {
     QGraphicsView::drawForeground(painter, rect);

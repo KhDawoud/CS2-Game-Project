@@ -4,8 +4,8 @@
 #include <QGraphicsScene>
 #include <cmath>
 
-Key::Key(float x, float y, Player *p, QGraphicsItem *parent)
-    : QObject(), QGraphicsPixmapItem(parent), player(p)
+Key::Key(float x, float y, Player *p, int keyId, QGraphicsItem *parent)
+    : QObject(), QGraphicsPixmapItem(parent), player(p), keyId(keyId)
 {
 
     spriteSheet.load(":resources/dungeon-assets/Key.png");
@@ -17,7 +17,7 @@ Key::Key(float x, float y, Player *p, QGraphicsItem *parent)
     this->setPixmap(spriteSheet);
     this->setPos(x, y);
 
-    shadow->setPos(x-15, y + 30);
+    shadow->setPos(x - 15, y + 30);
 
     this->setZValue(50);
     shadow->setZValue(49);
@@ -50,11 +50,10 @@ void Key::updateTick()
 
     if (keyBox.intersects(playerBox))
     {
-        player->pickupkey();
+        player->pickupkey(keyId);
         despawn();
     }
 }
-
 
 void Key::despawn()
 {
@@ -75,4 +74,3 @@ void Key::despawn()
     }
     this->deleteLater();
 }
-
