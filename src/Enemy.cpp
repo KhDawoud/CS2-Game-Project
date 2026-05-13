@@ -4,12 +4,121 @@
 #include <QTransform>
 #include <QRandomGenerator>
 #include <QGraphicsScene>
+#include <QPoint>
+#include <QPointF>
 #include <string>
+#include <cmath>
+#include <queue>
+#include <vector>
 #include "player.hpp"
 #include "AudioManager.hpp"
 #include "Heart.hpp"
+#include "maploader.hpp"
 
 using namespace std;
+
+namespace
+{
+QPointF tileCenter(int row, int col, int tileSize)
+{
+    return QPointF((col + 0.5f) * tileSize, (row + 0.5f) * tileSize);
+}
+
+bool pathTileBlocked(MapLoader *map, int row, int col)
+{
+    if (map->isTileCollidable(row, col))
+        return true;
+
+    QRectF tileRect(col * map->tileSize(), row * map->tileSize(), map->tileSize(), map->tileSize());
+    for (const auto &obj : map->getActiveCollidables())
+    {
+        if (tileRect.intersects(obj.worldHitbox))
+            return true;
+    }
+
+    return false;
+}
+
+bool nextPathPoint(MapLoader *map, const QPointF &from, const QPointF &to, QPointF &nextPoint)
+{
+    const int rows = map->mapRows();
+    const int cols = map->mapCols();
+    const int tileSize = map->tileSize();
+
+    int startRow = static_cast<int>(std::floor(from.y() / tileSize));
+    int startCol = static_cast<int>(std::floor(from.x() / tileSize));
+    int goalRow = static_cast<int>(std::floor(to.y() / tileSize));
+    int goalCol = static_cast<int>(std::floor(to.x() / tileSize));
+
+    if (startRow < 0 || startRow >= rows || startCol < 0 || startCol >= cols ||
+        goalRow < 0 || goalRow >= rows || goalCol < 0 || goalCol >= cols)
+    {
+        return false;
+    }
+
+    if (startRow == goalRow && startCol == goalCol)
+        return false;
+
+    std::vector<std::vector<bool>> visited(rows, std::vector<bool>(cols, false));
+    std::vector<std::vector<QPoint>> parent(rows, std::vector<QPoint>(cols, QPoint(-1, -1)));
+    std::queue<QPoint> open;
+
+    visited[startRow][startCol] = true;
+    open.push(QPoint(startCol, startRow));
+
+    const QPoint dirs[] = {
+        QPoint(1, 0),
+        QPoint(-1, 0),
+        QPoint(0, 1),
+        QPoint(0, -1),
+    };
+
+    bool found = false;
+    while (!open.empty() && !found)
+    {
+        QPoint current = open.front();
+        open.pop();
+
+        if (current.x() == goalCol && current.y() == goalRow)
+        {
+            found = true;
+            break;
+        }
+
+        for (const QPoint &dir : dirs)
+        {
+            int nextCol = current.x() + dir.x();
+            int nextRow = current.y() + dir.y();
+
+            if (nextRow < 0 || nextRow >= rows || nextCol < 0 || nextCol >= cols)
+                continue;
+            if (visited[nextRow][nextCol])
+                continue;
+            if ((nextRow != goalRow || nextCol != goalCol) && pathTileBlocked(map, nextRow, nextCol))
+                continue;
+
+            visited[nextRow][nextCol] = true;
+            parent[nextRow][nextCol] = current;
+            open.push(QPoint(nextCol, nextRow));
+        }
+    }
+
+    if (!found)
+        return false;
+
+    QPoint step(goalCol, goalRow);
+    QPoint previous = parent[step.y()][step.x()];
+
+    while (previous != QPoint(-1, -1) && previous != QPoint(startCol, startRow))
+    {
+        step = previous;
+        previous = parent[step.y()][step.x()];
+    }
+
+    nextPoint = tileCenter(step.y(), step.x(), tileSize);
+    return true;
+}
+}
 
 BaseEnemy::BaseEnemy(int hp, int atk, int def, float spd, float range, std::string damagePath)
 { // here is the constructor for each enemy
@@ -36,22 +145,33 @@ void BaseEnemy::setPlayer(Player *p)
 void BaseEnemy::detectandmove(Player *player)
 { // finding the difference in distance between player and
     // enemy so if less than attack sets movement direction
-    float diffX = player->x() - this->x();
-    float diffY = player->y() - this->y();
+    float diffX = player->sceneBoundingRect().center().x() - this->collisionHitbox().center().x();
+    float diffY = player->sceneBoundingRect().center().y() - this->collisionHitbox().center().y();
 
     float distance = sqrt(diffX * diffX + diffY * diffY);
 
-    if (distance < 100)
+    if (distance < 150)
     {
-        if (diffX > 0)
-            Dir.x = 1; // Player is to the right
-        else if (diffX < 0)
-            Dir.x = -1; // Player is to the left
+        QPointF targetPoint;
+        MapLoader *map = dynamic_cast<MapLoader *>(scene());
 
-        if (diffY > 0)
-            Dir.y = 1; // Player is below
-        else if (diffY < 0)
-            Dir.y = -1;
+        if (map && nextPathPoint(map, collisionHitbox().center(), player->sceneBoundingRect().center(), targetPoint))
+        {
+            diffX = targetPoint.x() - collisionHitbox().center().x();
+            diffY = targetPoint.y() - collisionHitbox().center().y();
+            distance = sqrt(diffX * diffX + diffY * diffY);
+        }
+
+        if (distance > 0)
+        {
+            Dir.x = diffX / distance;
+            Dir.y = diffY / distance;
+        }
+        else
+        {
+            Dir.x = 0;
+            Dir.y = 0;
+        }
     }
     else
     {
@@ -147,23 +267,66 @@ void BaseEnemy::updateAnimation()
 }
 
 void BaseEnemy::moveEnemy()
-{ // move enemy logic and here we just make sure when moves diagonally it is not faster
+{ // move enemy logic
     float currentSpeed = speed;
-
-    if (Dir.x != 0 && Dir.y != 0)
-    {
-        currentSpeed = speed * 0.707f;
-    }
 
     float newX = this->x() + (Dir.x * currentSpeed);
     float newY = this->y() + (Dir.y * currentSpeed);
 
-    this->setPos(newX, newY);
+    MapLoader *map = dynamic_cast<MapLoader *>(scene());
+    if (map)
+    {
+        int tileSize = map->tileSize();
+        int fw = this->pixmap().width();
+        int fh = this->pixmap().height();
+
+        // check X movement
+        QRectF hitboxX(newX, this->y() + fh * 0.6f, fw, fh * 0.4f);
+        int lCol = (int)std::floor(hitboxX.left()   / tileSize);
+        int rCol = (int)std::floor(hitboxX.right()  / tileSize);
+        int tRow = (int)std::floor(hitboxX.top()    / tileSize);
+        int bRow = (int)std::floor(hitboxX.bottom() / tileSize);
+        const auto &objects = map->getActiveCollidables();
+
+        bool blockedX = false;
+        for (int r = tRow; r <= bRow && !blockedX; r++)
+            for (int c = lCol; c <= rCol && !blockedX; c++)
+                if (map->isTileCollidable(r, c)) blockedX = true;
+        if (!blockedX)
+            for (const auto &obj : objects)
+                if (hitboxX.intersects(obj.worldHitbox)) { blockedX = true; break; }
+        if (!blockedX) this->setX(newX);
+
+        // check Y movement
+        QRectF hitboxY(this->x(), newY + fh * 0.6f, fw, fh * 0.4f);
+        lCol = (int)std::floor(hitboxY.left()   / tileSize);
+        rCol = (int)std::floor(hitboxY.right()  / tileSize);
+        tRow = (int)std::floor(hitboxY.top()    / tileSize);
+        bRow = (int)std::floor(hitboxY.bottom() / tileSize);
+        bool blockedY = false;
+        for (int r = tRow; r <= bRow && !blockedY; r++)
+            for (int c = lCol; c <= rCol && !blockedY; c++)
+                if (map->isTileCollidable(r, c)) blockedY = true;
+        if (!blockedY)
+            for (const auto &obj : objects)
+                if (hitboxY.intersects(obj.worldHitbox)) { blockedY = true; break; }
+        if (!blockedY) this->setY(newY);
+    }
+    else
+    {
+        this->setPos(newX, newY);
+    }
+
+    this->setZValue(this->y() + this->pixmap().height());
 }
 
 QRectF BaseEnemy::collisionHitbox() const
 {
-    return QRectF();
+    QRectF body = sceneBoundingRect();
+    return QRectF(body.left(),
+                  body.top() + body.height() * 0.60,
+                  body.width(),
+                  body.height() * 0.40);
 }
 
 void BaseEnemy::update()
