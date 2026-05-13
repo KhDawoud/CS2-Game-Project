@@ -200,7 +200,7 @@ void GameView::keyPressEvent(QKeyEvent *event)
     {
         switchtoLevel2();
     }
-    else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
+    else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_3)
     {
         int targetChar = event->key() - Qt::Key_1 + 1;
         if (_player->getcharacternum() == targetChar)

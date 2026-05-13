@@ -5,7 +5,7 @@ Characters::Characters(int num): Player(num){
         loadSwordsman();
     }else if(num==2){
         loadWizard();
-    }else if(num==4){
+    }else if(num==3){
         loadSkeleton();
     }
 }
