@@ -49,7 +49,11 @@ public:
     int mapRows() const { return MAP_ROWS; }
     int mapCols() const { return MAP_COLS; }
 
-    int getCurrentEnemyCount();
+    int getCurrentEnemyCount() const { return currentEnemyCount; }
+    int getTotalEnemyCount()   const { return _totalEnemyCount; }
+
+    // call this on continue-restore so levelCleared fires at the right moment
+    void setCurrentEnemyCount(int count) { currentEnemyCount = count; }
 
 signals:
     void requestBarUpdate(int remaining);
@@ -68,6 +72,7 @@ private:
 
     Player *player = nullptr;
     int currentEnemyCount = 0;
+    int _totalEnemyCount  = 0;
 
     QHash<int, QPixmap> baseTileRegistry;
     std::vector<QPixmap> decoPool;
@@ -93,5 +98,6 @@ private:
 
     void placeCollidable(float row, float col, const QString &templateId);
     void placeNonCollidable(float row, float col, const QString &assetId, qreal zValue);
+    void placeInteractive(float row, float col, const QString &templateId, const QString &openTemplateId, qreal zValue);
     void addCampfire(float row, float col);
 };

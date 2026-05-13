@@ -49,6 +49,7 @@ class Player : public QObject, public QGraphicsPixmapItem
 public:
     Player(int);
     float getHealth() { return health; };
+    void setHealth(float newHealth) { health = newHealth; emit statsChanged(); };
     float getStamina() { return stamina; };
     float getMana() { return mana; };
     void setMap(Map *m) { gameMap = m; }

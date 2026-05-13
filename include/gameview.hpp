@@ -7,6 +7,9 @@
 #include "maploader.hpp"
 #include "characters.hpp"
 
+class QGraphicsTextItem;
+class QGraphicsPixmapItem;
+
 class GameView : public QGraphicsView
 {
     Q_OBJECT
@@ -14,6 +17,7 @@ class GameView : public QGraphicsView
 public:
     GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player);
     void checkInteractions();
+    bool restoreContinueState();
     QProgressBar *_bossHealthBar;
     QLabel *_bossLabel;
     QProgressBar *_progressBar;
@@ -23,6 +27,7 @@ signals:
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
     void drawForeground(QPainter *painter, const QRectF &rect) override;
 
 private:
@@ -31,6 +36,10 @@ private:
     void switchToOverworld();
     void switchtoLevel2();
     void switchtoLevel3();
+    void openLevelSelect();
+    int  currentLevelNumber() const;
+    MapLoader *sceneForLevel(int level) const;
+    void changeScene(MapLoader *target, qreal posX, qreal posY, qreal playerScale, qreal viewScale);
 
     // these handle the torch effect
     qreal _currentLightRadius = 120.0;

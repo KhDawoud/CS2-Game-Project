@@ -13,11 +13,13 @@ CharacterStats::CharacterStats()
     spriteSheet.load(":/resources/ui-elements/character_panel.png");
     setScale(1.3);
 }
+
 void CharacterStats::setPlayer(Player *player)
 {
     this->player = player;
     updateBars();
 }
+
 void CharacterStats::updateValues()
 {
     if (!player)
@@ -27,13 +29,14 @@ void CharacterStats::updateValues()
     this->mana = player->getMana();
     this->stamina = player->getStamina();
 }
+
 void CharacterStats::updateBars()
 {
     updateValues();
     if (!player || spriteSheet.isNull())
         return;
 
-    // we get each element we need from the sprite sheet seperately
+    // we get each element we need from the sprite sheet separately
     QRect basePanelRect(0, 0, 90, 32);
     QRect healthBarFullRect(14, 138, 52, 2); // Red
     QRect manaBarFullRect(16, 143, 42, 2);   // Blue
@@ -52,9 +55,14 @@ void CharacterStats::updateBars()
     // draw panel
     painter.drawPixmap(0, 0, spriteSheet.copy(basePanelRect));
 
-    float healthPercent = std::max(0.0f, this->health / 100.0f);
-    float manaPercent = std::max(0.0f, this->mana / 100.0f);
-    float staminaPercent = std::max(0.0f, this->stamina / 100.0f);
+    // use actual max so bars don't overflow after level-clear stat boosts
+    float maxHealth  = std::max(100.0f, health);
+    float maxMana    = std::max(100.0f, mana);
+    float maxStamina = std::max(100.0f, stamina);
+
+    float healthPercent  = std::max(0.0f, health  / maxHealth);
+    float manaPercent    = std::max(0.0f, mana    / maxMana);
+    float staminaPercent = std::max(0.0f, stamina / maxStamina);
 
     // scale healthbar by current health and draw it
     int currentHealthWidth = static_cast<int>(healthBarFullRect.width() * healthPercent);
@@ -81,6 +89,5 @@ void CharacterStats::updateBars()
     }
 
     painter.end();
-
     setPixmap(finalImage);
 }

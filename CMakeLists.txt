@@ -24,6 +24,7 @@ qt_add_executable(QtTest
     src/slime.cpp
     src/characterstats.cpp
     src/gameview.cpp
+    src/levelselectwindow.cpp
     src/pausewindow.cpp
     src/deathwindow.cpp
     src/campfire.cpp
@@ -169,6 +170,7 @@ qt_add_resources(QtTest "images"
         "resources/heart/heal_heart2.png"
         "resources/heart/heart_shadow.png"
         "resources/ui-elements/character_panel.png"
+        "resources/ui-elements/Levels.png"
         "resources/map-assets/Tree_Emerald_2.png"
         "resources/map-assets/TreeBasic1.png"
         "resources/map-assets/TreeBasic2.png"

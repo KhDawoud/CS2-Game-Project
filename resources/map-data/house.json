@@ -323,10 +323,11 @@
             "zValue": 1.0
         },
         {
-            "type": "nonCollidable",
-            "row": 6,
-            "col": 2,
-            "assetId": "wall_no_door",
+            "type": "interactive",
+            "row": 5.4,
+            "col": 12.2,
+            "templateId": "window",
+            "openTemplateId": "",
             "zValue": 240
         },
         {

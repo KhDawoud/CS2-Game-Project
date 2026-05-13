@@ -1,6 +1,7 @@
 #include "gameview.hpp"
 #include <QGraphicsColorizeEffect>
 #include <QKeyEvent>
+#include <QResizeEvent>
 #include <QRandomGenerator>
 #include <QTimer>
 #include "pausewindow.hpp"
@@ -8,6 +9,8 @@
 #include "levelintro.hpp"
 #include "statsupgrade.hpp"
 #include "characterselectscreen.hpp"
+#include "levelselectwindow.hpp"
+#include <QApplication>
 
 GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2, MapLoader *level3, Characters *player)
     : QGraphicsView(player->scene()
@@ -42,7 +45,8 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
     centerOn(_player);
 
     _progressBar = new QProgressBar(this);
-    _progressBar->setGeometry((_overworld->width() - 400) / 2, 20, 400, 25);
+    // geometry is set properly in resizeEvent once the window has an actual pixel size
+    _progressBar->setGeometry(0, 20, 400, 25);
     _progressBar->setStyleSheet(
         "QProgressBar { background-color: rgba(50,50,50,150); border: 3px solid #333; border-radius: 10px; color: white; text-align: center; }"
         "QProgressBar::chunk { background-color: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #c0392b, stop:1 #e74c3c); border-radius: 7px; }");
@@ -78,19 +82,36 @@ GameView::GameView(MapLoader *overworld, MapLoader *interior, MapLoader *level2,
 
     bindProgress(_overworld);
 
-    // visible in overwold
+    // visible in overworld
     connect(this, &GameView::isoverworld, _progressBar, &QProgressBar::setVisible);
 
-    connect(_overworld, &MapLoader::levelCleared, this, [this]()
-            {
+    auto showLevelClearedWindow = [this]() {
         auto* vWindow = new LevelCleared(this, _player->getLevelsCompleted());
 
         connect(vWindow, &QDialog::accepted, this, [this]() {
+            // Single read-modify-write: mark completed AND clear continue in one pass.
+            int level = currentLevelNumber();
+            QJsonObject save = LevelSelectWindow::readSave();
+            if (level > save.value("completedLevels").toInt(0))
+                save["completedLevels"] = level;
+            int nextUnlock = qMin(level + 1, 3);
+            if (nextUnlock > save.value("unlockedLevel").toInt(1))
+                save["unlockedLevel"] = nextUnlock;
+            QJsonObject cont = save.value("continue").toObject();
+            cont["exists"] = false;
+            save["continue"] = cont;
+            LevelSelectWindow::writeSave(save);
+
             auto* sWindow = new Statsupgrade(this, _player->getStats(), _player->getLevelsCompleted());
             connect(sWindow, &QDialog::accepted, this, &GameView::switchToInterior);
             sWindow->show();
         });
-        vWindow->show(); });
+        vWindow->show();
+    };
+
+    connect(_overworld, &MapLoader::levelCleared, this, showLevelClearedWindow);
+    connect(Level2,   &MapLoader::levelCleared, this, showLevelClearedWindow);
+    connect(Level3,   &MapLoader::levelCleared, this, showLevelClearedWindow);
 
     QTimer::singleShot(0, this, [this]()
                        {
@@ -130,9 +151,26 @@ void GameView::keyPressEvent(QKeyEvent *event)
         dim->setStrength(0.7);
         this->setGraphicsEffect(dim);
 
-        pausewindow window(this);
+        bool inLevel = scene() != _interior;
+        pausewindow window(this, inLevel);
         window.exec();
         this->setGraphicsEffect(nullptr);
+
+        if (window.savedAndQuit)
+        {
+            int currentLevel = currentLevelNumber();
+            int health = static_cast<int>(_player->getHealth());
+            int enemiesKilled = _progressBar->maximum() - _progressBar->value();
+
+            LevelSelectWindow::saveContinueState(currentLevel,
+                                                 health,
+                                                 _player->x(),
+                                                 _player->y(),
+                                                 enemiesKilled,
+                                                 _player->getcharacternum());
+            qApp->quit();
+            return;
+        }
     }
     else if (event->key() == Qt::Key_E)
     {
@@ -152,6 +190,10 @@ void GameView::keyPressEvent(QKeyEvent *event)
     else if (event->key() == Qt::Key_7)
     {
         switchToCharacterSelectScreen();
+    }
+    else if (event->key() == Qt::Key_L)
+    {
+        openLevelSelect();
     }
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
     {
@@ -192,61 +234,174 @@ void GameView::keyPressEvent(QKeyEvent *event)
 void GameView::switchToInterior()
 {
     int tileSize = _interior->tileSize();
-    bool wasinOverworld = false;
-    scene()->removeItem(_player);
-    if (scene() == _overworld)
-    {
-        scene()->removeItem(interactPrompt);
-        scene()->removeItem(textStart);
-        scene()->removeItem(textEnd);
-        wasinOverworld = true;
-    }
-
-    setScene(_interior);
-    emit isoverworld(false);
-    currentscale = 1.2;
-
-    _interior->addItem(_player);
-    _player->setFocus();
-    _player->setPos(10.83 * tileSize, 7.25 * tileSize);
-    _player->setScale(currentscale);
-
-    setBackgroundBrush(Qt::black);
-    resetTransform();
-    scale(4.5, 4.5);
-    centerOn(_player);
-    if (wasinOverworld)
-    {
-        _interior->addItem(interactPrompt);
-        _interior->addItem(textStart);
-        _interior->addItem(textEnd);
-    }
+    changeScene(_interior, 10.83 * tileSize, 7.25 * tileSize, 1.2, 4.5);
 }
 
 void GameView::switchToOverworld()
 {
     int tileSize = _overworld->tileSize();
-    _interior->removeItem(_player);
-    _interior->removeItem(interactPrompt);
-    _interior->removeItem(textStart);
-    _interior->removeItem(textEnd);
+    changeScene(_overworld, 8.3 * tileSize, 14.5 * tileSize, 1.2, 3.0);
+}
 
-    setScene(_overworld);
-    emit isoverworld(true);
-    currentscale = 1.2;
+void GameView::switchtoLevel2()
+{
+    if (!Level2 || !_player)
+    {
+        return;
+    }
+    int tileSize = Level2->tileSize();
+    changeScene(Level2, 10 * tileSize, 3 * tileSize, 1.4, 3.5);
+    _progressBar->setRange(0, Level2->getTotalEnemyCount());
+    _progressBar->setValue(Level2->getCurrentEnemyCount());
+    connect(Level2, &MapLoader::requestBarUpdate,
+            _progressBar, &QProgressBar::setValue,
+            Qt::UniqueConnection);
+}
 
-    _overworld->addItem(_player);
+void GameView::switchtoLevel3()
+{
+    if (!Level3 || !_player)
+        return;
+    int tileSize = Level3->tileSize();
+    changeScene(Level3, 18.5 * tileSize, 31 * tileSize, 1.2, 3.5);
+    _bossHealthBar->setMaximum(300);
+    _bossHealthBar->setValue(300);
+    _bossHealthBar->setVisible(true);
+    _bossLabel->setVisible(true);
+    _progressBar->setRange(0, Level3->getTotalEnemyCount());
+    _progressBar->setValue(Level3->getCurrentEnemyCount());
+    connect(Level3, &MapLoader::requestBarUpdate,
+            _progressBar, &QProgressBar::setValue,
+            Qt::UniqueConnection);
+}
+
+void GameView::changeScene(MapLoader *target, qreal posX, qreal posY, qreal playerScale, qreal viewScale)
+{
+    if (!target || !_player)
+        return;
+
+    MapLoader *currentScene = qobject_cast<MapLoader *>(scene());
+    if (currentScene)
+    {
+        currentScene->removeItem(_player);
+        if (currentScene == _overworld || currentScene == _interior)
+        {
+            currentScene->removeItem(interactPrompt);
+            currentScene->removeItem(textStart);
+            currentScene->removeItem(textEnd);
+        }
+    }
+
+    setScene(target);
+    emit isoverworld(target != _interior);
+    currentscale = playerScale;
+
+    target->addItem(_player);
     _player->setFocus();
-    _player->setPos(8.3 * tileSize, 14.5 * tileSize);
+    _player->setPos(posX, posY);
     _player->setScale(currentscale);
 
-    setBackgroundBrush(Qt::NoBrush);
+    setBackgroundBrush(target == _interior ? QBrush(Qt::black) : QBrush(Qt::NoBrush));
     resetTransform();
-    scale(3.0, 3.0);
+    scale(viewScale, viewScale);
     centerOn(_player);
-    _overworld->addItem(interactPrompt);
-    scene()->addItem(textStart);
-    scene()->addItem(textEnd);
+
+    if (target == _interior || target == _overworld)
+    {
+        target->addItem(interactPrompt);
+        target->addItem(textStart);
+        target->addItem(textEnd);
+    }
+}
+
+int GameView::currentLevelNumber() const
+{
+    if (scene() == Level3)
+        return 3;
+    if (scene() == Level2)
+        return 2;
+    if (scene() == _overworld)
+        return 1;
+    return 0;
+}
+
+MapLoader *GameView::sceneForLevel(int level) const
+{
+    switch (level)
+    {
+    case 1: return _overworld;
+    case 2: return Level2;
+    case 3: return Level3;
+    default: return nullptr;
+    }
+}
+
+void GameView::openLevelSelect()
+{
+    auto *window = new LevelSelectWindow(this);
+    // continueMode starts false — doors show normal state until the player clicks Continue
+
+    connect(window, &LevelSelectWindow::levelSelected, this, [this, window](int level) {
+        window->close();
+        // Starting a fresh level — discard any stale mid-game save so the
+        // Continue button doesn't reappear with outdated state next time.
+        LevelSelectWindow::clearContinueState();
+        MapLoader *target = sceneForLevel(level);
+        if (target)
+        {
+            if (level == 1)
+                switchToOverworld();
+            else if (level == 2)
+                switchtoLevel2();
+            else if (level == 3)
+                switchtoLevel3();
+        }
+    });
+    connect(window, &LevelSelectWindow::continueRequested, this, [this, window]() {
+        window->close();
+
+        // Read the save file once and extract everything from that one object.
+        QJsonObject cont = LevelSelectWindow::readSave().value("continue").toObject();
+        if (!cont.value("exists").toBool(false))
+            return;
+
+        int continueLevel  = cont.value("level").toInt(1);
+        int characterNum   = cont.value("characterNum").toInt(1);
+        float posX         = static_cast<float>(cont.value("posX").toDouble(0));
+        float posY         = static_cast<float>(cont.value("posY").toDouble(0));
+        int health         = cont.value("health").toInt(3);
+        int enemiesKilled  = cont.value("enemiesKilled").toInt(0);
+
+        if (characterNum >= 1 && characterNum <= 4)
+            _player->swtichto(characterNum);
+
+        MapLoader *target = sceneForLevel(continueLevel);
+        if (!target)
+            target = _overworld;
+
+        if (target == _overworld)
+            changeScene(_overworld, posX, posY, 1.2, 3.0);
+        else if (target == Level2)
+            changeScene(Level2, posX, posY, 1.4, 3.5);
+        else if (target == Level3)
+            changeScene(Level3, posX, posY, 1.2, 3.5);
+
+        if (health > 0)
+            _player->setHealth(static_cast<float>(health));
+
+        int maxValue = target->getTotalEnemyCount();
+        int remaining = qBound(0, maxValue - enemiesKilled, maxValue);
+        target->setCurrentEnemyCount(remaining);
+        _progressBar->setRange(0, maxValue);
+        _progressBar->setValue(remaining);
+        // Reconnect progress bar so it tracks kills on this scene going forward.
+        connect(target, &MapLoader::requestBarUpdate,
+                _progressBar, &QProgressBar::setValue,
+                Qt::UniqueConnection);
+    });
+    connect(window, &LevelSelectWindow::closeRequested, window, &QWidget::close);
+
+    window->show();
 }
 
 void GameView::switchToCharacterSelectScreen()
@@ -272,56 +427,49 @@ void GameView::switchToCharacterSelectScreen()
     screen->setFocus();
 }
 
-void GameView::switchtoLevel2()
+bool GameView::restoreContinueState()
 {
-    if (!Level2 || !_player)
-    {
-        return;
-    }
-    int tileSize = Level2->tileSize();
-    _interior->removeItem(_player);
+    // Single file read — extract everything from one QJsonObject.
+    QJsonObject cont = LevelSelectWindow::readSave().value("continue").toObject();
+    if (!cont.value("exists").toBool(false))
+        return false;
 
-    setScene(Level2);
-    emit isoverworld(true);
-    currentscale = 1.4;
+    int continueLevel  = cont.value("level").toInt(1);
+    int characterNum   = cont.value("characterNum").toInt(1);
+    float posX         = static_cast<float>(cont.value("posX").toDouble(0));
+    float posY         = static_cast<float>(cont.value("posY").toDouble(0));
+    int health         = cont.value("health").toInt(3);
+    int enemiesKilled  = cont.value("enemiesKilled").toInt(0);
 
-    Level2->addItem(_player);
-    _player->setFocus();
-    _player->setPos(10 * tileSize, 3 * tileSize);
-    _player->setScale(currentscale);
+    if (characterNum >= 1 && characterNum <= 4)
+        _player->swtichto(characterNum);
 
-    setBackgroundBrush(Qt::NoBrush);
-    resetTransform();
-    scale(3.5, 3.5);
-    centerOn(_player);
+    MapLoader *target = sceneForLevel(continueLevel);
+    if (!target)
+        target = _overworld;
+
+    if (target == _overworld)
+        changeScene(_overworld, posX, posY, 1.2, 3.0);
+    else if (target == Level2)
+        changeScene(Level2, posX, posY, 1.4, 3.5);
+    else if (target == Level3)
+        changeScene(Level3, posX, posY, 1.2, 3.5);
+
+    if (health > 0)
+        _player->setHealth(static_cast<float>(health));
+
+    int maxValue = target->getTotalEnemyCount();
+    int remaining = qBound(0, maxValue - enemiesKilled, maxValue);
+    target->setCurrentEnemyCount(remaining);
+    _progressBar->setRange(0, maxValue);
+    _progressBar->setValue(remaining);
+    connect(target, &MapLoader::requestBarUpdate,
+            _progressBar, &QProgressBar::setValue,
+            Qt::UniqueConnection);
+
+    return true;
 }
 
-void GameView::switchtoLevel3()
-{
-    if (!Level3 || !_player)
-    {
-        return;
-    }
-    int tileSize = Level3->tileSize();
-    _interior->removeItem(_player);
-
-    setScene(Level3);
-    emit isoverworld(true);
-    currentscale = 1.2;
-
-    Level3->addItem(_player);
-    _player->setFocus();
-    _player->setPos(18.5 * tileSize, 31 * tileSize);
-    _player->setScale(currentscale);
-
-    setBackgroundBrush(Qt::NoBrush);
-    resetTransform();
-    scale(3.5, 3.5);
-    centerOn(_player);
-    _bossHealthBar->setMaximum(300);
-    _bossHealthBar->setValue(300);
-    _bossHealthBar->setVisible(true);
-}
 void GameView::checkInteractions()
 {
     int tileSize = static_cast<MapLoader *>(scene())->tileSize();
@@ -336,6 +484,9 @@ void GameView::checkInteractions()
         if (row >= 13 && row <= 14 && col >= 8 && col <= 9)
         {
             inZone = true;
+            textStart->setPlainText("Press");
+            interactPrompt->setVisible(true);
+            textEnd->setPlainText("to Enter");
         }
     }
     else if (scene() == _interior)
@@ -343,22 +494,16 @@ void GameView::checkInteractions()
         if (row >= 7 && row <= 8 && col >= 10 && col <= 11)
         {
             inZone = true;
+            textStart->setPlainText("Press");
+            interactPrompt->setVisible(true);
+            textEnd->setPlainText("to Exit");
         }
     }
 
     if (inZone)
     {
-        if (scene() == _overworld)
-        {
-            textEnd->setPlainText("to Enter");
-        }
-        else if (scene() == _interior)
-        {
-            textEnd->setPlainText("to Exit");
-        }
-
         float w1 = textStart->boundingRect().width();
-        float wIcon = interactPrompt->pixmap().width();
+        float wIcon = interactPrompt->isVisible() ? interactPrompt->pixmap().width() : 0;
         float w2 = textEnd->boundingRect().width();
 
         float totalWidth = w1 + wIcon + w2;
@@ -370,15 +515,16 @@ void GameView::checkInteractions()
 
         float yoffset = 4.0f;
 
-        float iconY = baseY + (textStart->boundingRect().height() / 2) -
-                      (interactPrompt->pixmap().height() / 2) + yoffset;
-
-        interactPrompt->setPos(startX + w1, iconY);
+        if (interactPrompt->isVisible())
+        {
+            float iconY = baseY + (textStart->boundingRect().height() / 2) -
+                          (interactPrompt->pixmap().height() / 2) + yoffset;
+            interactPrompt->setPos(startX + w1, iconY);
+        }
 
         textEnd->setPos(startX + w1 + wIcon - 10, baseY);
 
         textStart->setVisible(true);
-        interactPrompt->setVisible(true);
         textEnd->setVisible(true);
     }
     else
@@ -427,6 +573,9 @@ void GameView::loadinteractionPrompt()
     scene()->addItem(textStart);
     scene()->addItem(textEnd);
 }
+
+
+
 
 // this is the method to handle drawing effects
 void GameView::drawForeground(QPainter *painter, const QRectF &rect)
