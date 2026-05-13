@@ -670,7 +670,7 @@ void MapLoader::spawnSpecificEnemies(const QJsonArray &enemies)
         }
         else if (classType == "Vampire")
         {
-            enemy = new Vampire(variant);
+            enemy = new Vampire(variant);   
         }
         else
         {

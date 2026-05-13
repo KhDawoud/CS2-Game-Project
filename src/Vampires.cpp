@@ -9,10 +9,10 @@ Vampire::Vampire()
 
 Vampire::Vampire(int num)
     : BaseEnemy(
-          (num == 1 ? 40  : (num == 2 ? 60 : 80)),
-          (num == 1 ? 15  : (num == 2 ? 22  : 30)),
+          (num == 1 ? 80  : (num == 2 ? 90 : 110)),
+          (num == 1 ? 20  : (num == 2 ? 25  : 35)),
           (num == 1 ? 5   : (num == 2 ? 8   : 12)),
-          (num == 1 ? 2.5f : (num == 2 ? 3.0f : 3.5f)),
+          (num == 1 ? 5.0f : (num == 2 ? 6.0f : 7.0f)),
           (num == 1 ? 30.0f : (num == 2 ? 32.0f : 35.0f)),
           "SlimeDamage"),
       vampirenumber(num)
@@ -26,7 +26,6 @@ void Vampire::loadAnimations()
     QString path = ":/resources/vampires/vampire " + n + "/Vampires" + n;
 
     idleSheet.load(path   + "_Idle_with_shadow.png");
-    qDebug() << "[Vampire] loading variant" << vampirenumber << "| idle null?" << idleSheet.isNull() << "| path:" << path + "_Idle_with_shadow.png";
     walkSheet.load(path   + "_Run_with_shadow.png");
     attackSheet.load(path + "_Attack_with_shadow.png");
     hurtSheet.load(path   + "_Hurt_with_shadow.png");
@@ -59,6 +58,8 @@ void Vampire::loadAnimations()
     deadData.frameCount   = 11;
     deadData.frameWidth   = deadSheet.width()   / 11;
     deadData.frameHeight  = deadSheet.height()  / 4;
+
+    setScale(1.2);
 
     setPixmap(idleSheet.copy(0, 0, idleData.frameWidth, idleData.frameHeight));
 }
