@@ -1,17 +1,24 @@
+#include "characterselectscreen.hpp"
 #include <QDialog>
-#include <QPixmap>
+#include <QFontDatabase>
+#include <QGraphicsOpacityEffect>
 #include <QLabel>
-#include <QTimer>
+#include <QPainter>
+#include <QPixmap>
 #include <QPushButton>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QFontDatabase>
-#include <vector>
-#include <QPainter>
-#include <QGraphicsOpacityEffect>
-#include "characterselectscreen.hpp"
 #include "characters.hpp"
+#include <vector>
 
+
+//Provides the suer the abilityt o switch between  characters, as well as know the stats of
+//specific characters like health, speed and attack. It utilizes a vector of structs which contain
+//data specific to each character including their stats as well as info related to animation
+//such as frame width and count, so that the character current be displayed is shown in idle movement.
+//The display is strctured using QVBoxLayout to strcture widgets vertically, and within this layer exists a
+//QHBoxLayout to display the characters.
 class StatsPanel : public QWidget
 {
     friend class CharacterSelectScreen;
@@ -26,23 +33,29 @@ protected:
     QPixmap fullBoot, emptyBoot;
 
 public:
-    StatsPanel(QWidget *parent = nullptr) : QWidget(parent)
+    StatsPanel(QWidget *parent = nullptr)
+        : QWidget(parent)
     {
-
         setAttribute(Qt::WA_TranslucentBackground);
 
         int heartSize = 32;
         int swordSize = 40;
         int speedSize = 40;
 
-        fullHeart = QPixmap(":resources/MenuStatsIcons/heart.png").scaled(heartSize, heartSize, Qt::KeepAspectRatio, Qt::FastTransformation);
-        emptyHeart = QPixmap(":resources/MenuStatsIcons/empty_heart.png").scaled(heartSize, heartSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+        fullHeart = QPixmap(":resources/MenuStatsIcons/heart.png")
+                        .scaled(heartSize, heartSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+        emptyHeart = QPixmap(":resources/MenuStatsIcons/empty_heart.png")
+                         .scaled(heartSize, heartSize, Qt::KeepAspectRatio, Qt::FastTransformation);
 
-        fullSword = QPixmap(":resources/MenuStatsIcons/sword.png").scaled(swordSize, swordSize, Qt::KeepAspectRatio, Qt::FastTransformation);
-        emptySword = QPixmap(":resources/MenuStatsIcons/empty_sword.png").scaled(swordSize, swordSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+        fullSword = QPixmap(":resources/MenuStatsIcons/sword.png")
+                        .scaled(swordSize, swordSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+        emptySword = QPixmap(":resources/MenuStatsIcons/empty_sword.png")
+                         .scaled(swordSize, swordSize, Qt::KeepAspectRatio, Qt::FastTransformation);
 
-        fullBoot = QPixmap(":resources/MenuStatsIcons/boot.png").scaled(speedSize, speedSize, Qt::KeepAspectRatio, Qt::FastTransformation);
-        emptyBoot = QPixmap(":resources/MenuStatsIcons/empty_boot.png").scaled(speedSize, speedSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+        fullBoot = QPixmap(":resources/MenuStatsIcons/boot.png")
+                       .scaled(speedSize, speedSize, Qt::KeepAspectRatio, Qt::FastTransformation);
+        emptyBoot = QPixmap(":resources/MenuStatsIcons/empty_boot.png")
+                        .scaled(speedSize, speedSize, Qt::KeepAspectRatio, Qt::FastTransformation);
 
         QVBoxLayout *mainLayout = new QVBoxLayout(this);
         mainLayout->setContentsMargins(30, 30, 30, 30); // Padding inside the parchment
@@ -61,15 +74,15 @@ public:
         blockLayout->setSpacing(5);
 
         QLabel *title = new QLabel(titleText, this);
-        title->setStyleSheet("background-color: transparent; color: #4a2c11; font-weight: bold; font-size: 24px;");
+        title->setStyleSheet(
+            "background-color: transparent; color: #4a2c11; font-weight: bold; font-size: 24px;");
         title->setAlignment(Qt::AlignLeft);
         blockLayout->addWidget(title);
 
         QHBoxLayout *iconRow = new QHBoxLayout();
         iconRow->setSpacing(5);
 
-        for (int i = 0; i < 5; ++i)
-        {
+        for (int i = 0; i < 5; ++i) {
             iconArray[i] = new QLabel(this);
             iconArray[i]->setStyleSheet("background-color: transparent;");
             iconRow->addWidget(iconArray[i]);
@@ -91,8 +104,7 @@ public:
         else if (speedStr == "Slow")
             speedOut5 = 2;
 
-        for (int i = 0; i < 5; ++i)
-        {
+        for (int i = 0; i < 5; ++i) {
             healthIcons[i]->setPixmap(i < healthOut5 ? fullHeart : emptyHeart);
             attackIcons[i]->setPixmap(i < attackOut5 ? fullSword : emptySword);
             speedIcons[i]->setPixmap(i < speedOut5 ? fullBoot : emptyBoot);
@@ -108,15 +120,14 @@ protected:
     }
 };
 
-CharacterSelectScreen::CharacterSelectScreen(int currentCharIndex, QWidget *parent) : QWidget(parent), currentIndex(currentCharIndex - 1)
+CharacterSelectScreen::CharacterSelectScreen(int currentCharIndex, QWidget *parent)
+    : QWidget(parent)
+    , currentIndex(currentCharIndex - 1)
 {
-    if (parent)
-    {
+    if (parent) {
         setFixedSize(parent->width(), parent->height());
         move(0, 0);
-    }
-    else
-    {
+    } else {
         setFixedSize(1600, 900);
     }
 
@@ -127,9 +138,27 @@ CharacterSelectScreen::CharacterSelectScreen(int currentCharIndex, QWidget *pare
 
     setFocusPolicy(Qt::StrongFocus);
 
-    characterData swordsman(1, "Swordsman", ":resources/player/idling/swordsman_1_idling.png", 12, 100, 10, "Medium");
-    characterData wizard(2, "Wizard", ":resources/player/idling/Wizard-idle-spritesheet.png", 12, 100, 20, "Medium");
-    characterData skeleton(3, "Skeleton", ":resources/player/idling/skeleton-idlesheet.png", 6, 100, 30, "Medium");
+    characterData swordsman(1,
+                            "Swordsman",
+                            ":resources/player/idling/swordsman_1_idling.png",
+                            12,
+                            100,
+                            10,
+                            "Medium");
+    characterData wizard(2,
+                         "Wizard",
+                         ":resources/player/idling/Wizard-idle-spritesheet.png",
+                         12,
+                         100,
+                         20,
+                         "Medium");
+    characterData skeleton(3,
+                           "Skeleton",
+                           ":resources/player/idling/skeleton-idlesheet.png",
+                           6,
+                           100,
+                           30,
+                           "Medium");
     characters = {swordsman, wizard, skeleton};
 
     leftCharLabel = new QLabel(this);
@@ -228,9 +257,12 @@ CharacterSelectScreen::CharacterSelectScreen(int currentCharIndex, QWidget *pare
     nextButton->setFont(buttonFont);
     confirmButton->setFont(buttonFont);
 
-    prevButton->setStyleSheet("background-color: transparent; color: white; border-radius: 0px; font-size: 50px;");
-    nextButton->setStyleSheet("background-color: transparent; color: white; border-radius: 0px; font-size: 50px;");
-    confirmButton->setStyleSheet("background-color: transparent; color: white; border-radius: 0px; font-size: 50px;");
+    prevButton->setStyleSheet(
+        "background-color: transparent; color: white; border-radius: 0px; font-size: 50px;");
+    nextButton->setStyleSheet(
+        "background-color: transparent; color: white; border-radius: 0px; font-size: 50px;");
+    confirmButton->setStyleSheet(
+        "background-color: transparent; color: white; border-radius: 0px; font-size: 50px;");
 
     prevButton->setMinimumHeight(80);
     nextButton->setMinimumHeight(80);
@@ -260,10 +292,9 @@ void CharacterSelectScreen::setCharacterData()
 
     centerCharLabel->setPixmap(getScaledFrame(characters[currentIndex], currentFrame, 550));
 
-    statsPanel->setStats(
-        characters[currentIndex].health,
-        characters[currentIndex].attack,
-        characters[currentIndex].speed);
+    statsPanel->setStats(characters[currentIndex].health,
+                         characters[currentIndex].attack,
+                         characters[currentIndex].speed);
 
     nameLabel->setText(characters[currentIndex].name);
 }
@@ -272,14 +303,11 @@ void CharacterSelectScreen::updateDisplay()
 {
     currentFrame = 0;
 
-    if (sender() == prevButton)
-    {
+    if (sender() == prevButton) {
         rightIndex = currentIndex;
         currentIndex = leftIndex;
         leftIndex = (currentIndex - 1 + characters.size()) % characters.size();
-    }
-    else if (sender() == nextButton)
-    {
+    } else if (sender() == nextButton) {
         leftIndex = currentIndex;
         currentIndex = rightIndex;
         rightIndex = (currentIndex + 1) % characters.size();
@@ -293,8 +321,7 @@ void CharacterSelectScreen::updateAnimation()
     centerCharLabel->setPixmap(getScaledFrame(characters[currentIndex], currentFrame, 550));
 
     currentFrame++;
-    if (currentFrame >= characters[currentIndex].frameCount)
-    {
+    if (currentFrame >= characters[currentIndex].frameCount) {
         currentFrame = 0;
     }
 }
@@ -306,18 +333,16 @@ void CharacterSelectScreen::characterSelected()
     deleteLater();
 }
 
-QPixmap CharacterSelectScreen::getScaledFrame(const characterData &data, int frameIndex, int targetSize)
+QPixmap CharacterSelectScreen::getScaledFrame(const characterData &data,
+                                              int frameIndex,
+                                              int targetSize)
 {
-    double exactWidth = (double)data.idleSheet.width() / data.frameCount;
+    double exactWidth = (double) data.idleSheet.width() / data.frameCount;
     int startX = qRound(frameIndex * exactWidth);
     int endX = qRound((frameIndex + 1) * exactWidth);
     int w = endX - startX;
 
-    QPixmap cropped = data.idleSheet.copy(
-        startX,
-        0,
-        w,
-        data.frameHeight);
+    QPixmap cropped = data.idleSheet.copy(startX, 0, w, data.frameHeight);
 
     return cropped.scaled(targetSize, targetSize, Qt::KeepAspectRatio, Qt::FastTransformation);
 }

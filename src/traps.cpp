@@ -2,39 +2,42 @@
 #include "player.hpp"
 
 #include <QGraphicsScene>
-#include <QtGlobal>
-#include <QTransform>
 #include <QTimer>
+#include <QTransform>
+#include <QtGlobal>
+
+//Contains the implementation of all the traps that are utilized in level 2. This includes
+//animation, creating the damage area and checking for overlap between traps and the player.
 
 static QRectF playerDamageBox(Player *player)
 {
     QRectF box = player->sceneBoundingRect();
 
-    // here i shrink the player box a bit so tiny sprite touches do not feel unfair
-    box.adjust(box.width() * 0.25,
-               box.height() * 0.25,
-               -box.width() * 0.25,
-               -box.height() * 0.10);
+    box.adjust(box.width() * 0.25, box.height() * 0.25, -box.width() * 0.25, -box.height() * 0.10);
 
     return box;
 }
 
+// ===========================================================================
+// SpikeTrap
+// ===========================================================================
 
 SpikeTrap::SpikeTrap(QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
-    frameWidth(0),
-    frameHeight(0),
-    currentFrame(0),
-    displayedFrame(0),
-    damage(15.0f),
-    canDamage(true),
-    animationTimer(new QTimer(this)),
-    damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this)),
-    pauseTimer(new QTimer(this)),
-    isPaused(false)
+    : QGraphicsPixmapItem(parent)
+    , frameWidth(0)
+    , frameHeight(0)
+    , currentFrame(0)
+    , displayedFrame(0)
+    , damage(15.0f)
+    , canDamage(true)
+    , animationTimer(new QTimer(this))
+    , damageTimer(new QTimer(this))
+    , cooldownTimer(new QTimer(this))
+    , pauseTimer(new QTimer(this))
+    , isPaused(false)
 {
     framesheet.load(":resources/traps/trap1.png");
+    qDebug() << "SpikeTrap framesheet loaded:" << !framesheet.isNull();
 
     frameWidth = framesheet.width();
     frameHeight = framesheet.height() / frameCount;
@@ -47,11 +50,9 @@ SpikeTrap::SpikeTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &SpikeTrap::UpdateAnimation);
     animationTimer->start(150);
 
-    // here i check damage more often than the animation so hits feel responsive
     connect(damageTimer, &QTimer::timeout, this, &SpikeTrap::CheckDamage);
     damageTimer->start(60);
 
-    // here i add a cooldown so one trap cycle does not hit the player too many times
     cooldownTimer->setSingleShot(true);
     cooldownTimer->setInterval(800);
 
@@ -79,9 +80,7 @@ void SpikeTrap::UpdateAnimation()
     int y = displayedFrame * frameHeight;
     setPixmap(framesheet.copy(0, y, frameWidth, frameHeight));
 
-    if (currentFrame >= frameCount - 1)
-    {
-        // here the spikes finished extending, so i pause them before the next cycle
+    if (currentFrame >= frameCount - 1) {
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -102,33 +101,41 @@ void SpikeTrap::CheckDamage()
 
     QRectF area = damageArea();
 
-    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape))
-    {
+    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape)) {
         Player *player = dynamic_cast<Player *>(item);
 
-        if (player && area.intersects(playerDamageBox(player)))
-        {
+        if (player && area.intersects(playerDamageBox(player))) {
             applyDamageTo(player);
             return;
         }
     }
 }
-
+/*
 QRectF SpikeTrap::damageArea() const
 {
     QRectF area = sceneBoundingRect();
 
-    area.adjust(area.width() * 0.20,
+    area.adjust(area.width() * 0.50,
                 area.height() * 0.35,
-                -area.width() * 0.20,
+                -area.width() * 0.50,
                 -area.height() * 0.05);
 
     return area;
+}*/
+
+QRectF SpikeTrap::damageArea() const
+{
+    QPointF origin = scenePos();
+    return QRectF(
+        origin.x() + 48,   // offset from left
+        origin.y() + 48,   // offset from top
+        32,                 // width
+        16                  // height
+        );
 }
 
 bool SpikeTrap::isExtended() const
 {
-    // here i only allow damage when the spikes are actually out on screen
     return displayedFrame >= frameCount - 2;
 }
 
@@ -159,21 +166,24 @@ void SpikeTrap::setDamageCooldown(int milliseconds)
     cooldownTimer->setInterval(milliseconds);
 }
 
+// ===========================================================================
+// SlidingSpikeTrap
+// ===========================================================================
 
 SlidingSpikeTrap::SlidingSpikeTrap(QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
-    frameWidth(0),
-    frameHeight(0),
-    currentFrame(0),
-    displayedFrame(0),
-    direction(1),
-    damage(12.0f),
-    canDamage(true),
-    animationTimer(new QTimer(this)),
-    damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this)),
-    pauseTimer(new QTimer(this)),
-    isPaused(false)
+    : QGraphicsPixmapItem(parent)
+    , frameWidth(0)
+    , frameHeight(0)
+    , currentFrame(0)
+    , displayedFrame(0)
+    , direction(1)
+    , damage(12.0f)
+    , canDamage(true)
+    , animationTimer(new QTimer(this))
+    , damageTimer(new QTimer(this))
+    , cooldownTimer(new QTimer(this))
+    , pauseTimer(new QTimer(this))
+    , isPaused(false)
 {
     framesheet.load(":resources/traps/trap2.png");
 
@@ -188,7 +198,6 @@ SlidingSpikeTrap::SlidingSpikeTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &SlidingSpikeTrap::UpdateAnimation);
     animationTimer->start(220);
 
-    // here this trap moves slower, but still checks damage smoothly
     connect(damageTimer, &QTimer::timeout, this, &SlidingSpikeTrap::CheckDamage);
     damageTimer->start(60);
 
@@ -222,14 +231,10 @@ void SlidingSpikeTrap::UpdateAnimation()
 
     currentFrame += direction;
 
-    if (currentFrame >= frameCount - 1)
-    {
-        // here the spike reached the far side, so i reverse it back
+    if (currentFrame >= frameCount - 1) {
         currentFrame = frameCount - 1;
         direction = -1;
-    }
-    else if (currentFrame <= 0 && direction == -1)
-    {
+    } else if (currentFrame <= 0 && direction == -1) {
         currentFrame = 0;
         direction = 1;
         displayedFrame = 0;
@@ -249,12 +254,10 @@ void SlidingSpikeTrap::CheckDamage()
 
     QRectF area = damageArea();
 
-    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape))
-    {
+    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape)) {
         Player *player = dynamic_cast<Player *>(item);
 
-        if (player && area.intersects(playerDamageBox(player)))
-        {
+        if (player && area.intersects(playerDamageBox(player))) {
             applyDamageTo(player);
             return;
         }
@@ -263,14 +266,10 @@ void SlidingSpikeTrap::CheckDamage()
 
 QRectF SlidingSpikeTrap::spikeLocalRect() const
 {
-    // here i track just the sliding spike head, not the full trap sprite
     qreal headW = frameWidth / qreal(frameCount);
     qreal x = (frameWidth - headW) * (displayedFrame / qreal(frameCount - 1));
 
-    return QRectF(x + headW * 0.20,
-                  frameHeight * 0.30,
-                  headW * 0.60,
-                  frameHeight * 0.45);
+    return QRectF(x + headW * 0.20, frameHeight * 0.30, headW * 0.60, frameHeight * 0.45);
 }
 
 QRectF SlidingSpikeTrap::damageArea() const
@@ -305,20 +304,23 @@ void SlidingSpikeTrap::setDamageCooldown(int milliseconds)
     cooldownTimer->setInterval(milliseconds);
 }
 
+// ===========================================================================
+// SawBladeTrap
+// ===========================================================================
 
 SawBladeTrap::SawBladeTrap(QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
-    frameWidth(0),
-    frameHeight(0),
-    currentFrame(0),
-    displayedFrame(0),
-    damage(20.0f),
-    canDamage(true),
-    animationTimer(new QTimer(this)),
-    damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this)),
-    pauseTimer(new QTimer(this)),
-    isPaused(false)
+    : QGraphicsPixmapItem(parent)
+    , frameWidth(0)
+    , frameHeight(0)
+    , currentFrame(0)
+    , displayedFrame(0)
+    , damage(20.0f)
+    , canDamage(true)
+    , animationTimer(new QTimer(this))
+    , damageTimer(new QTimer(this))
+    , cooldownTimer(new QTimer(this))
+    , pauseTimer(new QTimer(this))
+    , isPaused(false)
 {
     framesheet.load(":resources/traps/trap3.png");
 
@@ -333,7 +335,6 @@ SawBladeTrap::SawBladeTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &SawBladeTrap::UpdateAnimation);
     animationTimer->start(70);
 
-    // here the saw checks damage quickly because its animation is fast
     connect(damageTimer, &QTimer::timeout, this, &SawBladeTrap::CheckDamage);
     damageTimer->start(50);
 
@@ -364,9 +365,7 @@ void SawBladeTrap::UpdateAnimation()
     int x = qRound(displayedFrame * (framesheet.width() / qreal(frameCount)));
     setPixmap(framesheet.copy(x, 0, frameWidth, frameHeight));
 
-    if (currentFrame >= frameCount - 1)
-    {
-        // here i pause the saw for a moment so it is not always dangerous
+    if (currentFrame >= frameCount - 1) {
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -386,19 +385,16 @@ void SawBladeTrap::CheckDamage()
         return;
 
     QRectF area = damageArea();
-
-    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape))
-    {
+    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape)) {
         Player *player = dynamic_cast<Player *>(item);
 
-        if (player && area.intersects(playerDamageBox(player)))
-        {
+        if (player && area.intersects(playerDamageBox(player))) {
             applyDamageTo(player);
             return;
         }
     }
 }
-
+/*
 QRectF SawBladeTrap::damageArea() const
 {
     QRectF area = sceneBoundingRect();
@@ -409,6 +405,17 @@ QRectF SawBladeTrap::damageArea() const
                 -area.height() * 0.25);
 
     return area;
+}*/
+
+QRectF SawBladeTrap::damageArea() const
+{
+    QPointF origin = scenePos();
+    return QRectF(
+        origin.x() + 20,   // offset from left
+        origin.y() + 24,   // offset from top
+        36,                 // width
+        30                  // height
+        );
 }
 
 void SawBladeTrap::applyDamageTo(Player *p)
@@ -438,20 +445,23 @@ void SawBladeTrap::setDamageCooldown(int milliseconds)
     cooldownTimer->setInterval(milliseconds);
 }
 
+// ===========================================================================
+// FireTrap - shoots LEFT
+// ===========================================================================
 
 FireTrap::FireTrap(QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
-    frameWidth(0),
-    frameHeight(0),
-    currentFrame(0),
-    displayedFrame(0),
-    sparkDamage(3.0f),
-    canDamage(true),
-    animationTimer(new QTimer(this)),
-    damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this)),
-    pauseTimer(new QTimer(this)),
-    isPaused(false)
+    : QGraphicsPixmapItem(parent)
+    , frameWidth(0)
+    , frameHeight(0)
+    , currentFrame(0)
+    , displayedFrame(0)
+    , sparkDamage(3.0f)
+    , canDamage(true)
+    , animationTimer(new QTimer(this))
+    , damageTimer(new QTimer(this))
+    , cooldownTimer(new QTimer(this))
+    , pauseTimer(new QTimer(this))
+    , isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap1.png");
 
@@ -466,7 +476,6 @@ FireTrap::FireTrap(QGraphicsItem *parent)
     connect(animationTimer, &QTimer::timeout, this, &FireTrap::UpdateAnimation);
     animationTimer->start(100);
 
-    // here fire damage follows the active frames instead of the whole sprite cycle
     connect(damageTimer, &QTimer::timeout, this, &FireTrap::CheckDamage);
     damageTimer->start(60);
 
@@ -494,13 +503,9 @@ void FireTrap::UpdateAnimation()
 
     displayedFrame = currentFrame;
 
-    setPixmap(framesheet.copy(currentFrame * frameWidth,
-                              0,
-                              frameWidth,
-                              frameHeight));
+    setPixmap(framesheet.copy(currentFrame * frameWidth, 0, frameWidth, frameHeight));
 
-    if (currentFrame >= frameCount - 1)
-    {
+    if (currentFrame >= frameCount - 1) {
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -516,13 +521,11 @@ void FireTrap::UpdateAnimation()
 
 bool FireTrap::isSparkFrame() const
 {
-    // here the first frames are just sparks, so they work like a warning
     return displayedFrame >= 1 && displayedFrame <= 3;
 }
 
 bool FireTrap::isFireFrame() const
 {
-    // here the later frames are the actual fire burst
     return displayedFrame >= 4;
 }
 
@@ -536,12 +539,10 @@ void FireTrap::CheckDamage()
 
     QRectF area = damageArea();
 
-    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape))
-    {
+    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape)) {
         Player *player = dynamic_cast<Player *>(item);
 
-        if (player && area.intersects(playerDamageBox(player)))
-        {
+        if (player && area.intersects(playerDamageBox(player))) {
             applyDamageTo(player);
             return;
         }
@@ -550,14 +551,10 @@ void FireTrap::CheckDamage()
 
 void FireTrap::applyDamageTo(Player *player)
 {
-    if (isFireFrame())
-    {
-        // here i use percent damage so fire still matters when health gets upgraded
+    if (isFireFrame()) {
         player->takeDamage(player->getHealth() * 0.25f);
         cooldownTimer->setInterval(600);
-    }
-    else
-    {
+    } else {
         player->takeDamage(sparkDamage);
         cooldownTimer->setInterval(200);
     }
@@ -571,19 +568,14 @@ QRectF FireTrap::damageArea() const
     if (!isSparkFrame() && !isFireFrame())
         return QRectF();
 
-    // here the spark hitbox is small, then the real fire hitbox gets wider
     QRectF area = sceneBoundingRect();
 
-    qreal h = area.height() * 0.30;
+    qreal h = area.height() * 0.25;
     qreal y = area.center().y() - h / 2;
 
-    qreal w = isSparkFrame() ? area.width() * 0.22
-                             : area.width() * 0.70;
+    qreal w = isSparkFrame() ? area.width() * 0.22 : area.width() * 0.40;
 
-    return QRectF(area.right() - w - area.width() * 0.12,
-                  y,
-                  w,
-                  h);
+    return QRectF(area.right() - w - area.width() * 0.12, y, w, h);
 }
 
 int FireTrap::getwidth() const
@@ -596,20 +588,23 @@ int FireTrap::getheight() const
     return int(frameHeight * scale());
 }
 
+// ===========================================================================
+// FireTrap2 - shoots RIGHT
+// ===========================================================================
 
 FireTrap2::FireTrap2(QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
-    frameWidth(0),
-    frameHeight(0),
-    currentFrame(0),
-    displayedFrame(0),
-    sparkDamage(3.0f),
-    canDamage(true),
-    animationTimer(new QTimer(this)),
-    damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this)),
-    pauseTimer(new QTimer(this)),
-    isPaused(false)
+    : QGraphicsPixmapItem(parent)
+    , frameWidth(0)
+    , frameHeight(0)
+    , currentFrame(0)
+    , displayedFrame(0)
+    , sparkDamage(3.0f)
+    , canDamage(true)
+    , animationTimer(new QTimer(this))
+    , damageTimer(new QTimer(this))
+    , cooldownTimer(new QTimer(this))
+    , pauseTimer(new QTimer(this))
+    , isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap1.png");
 
@@ -649,18 +644,13 @@ void FireTrap2::UpdateAnimation()
     if (isPaused)
         return;
 
-    // here i mirror the same fire sheet so this trap shoots from the other side
     displayedFrame = currentFrame;
 
-    QPixmap frame = framesheet.copy(currentFrame * frameWidth,
-                                    0,
-                                    frameWidth,
-                                    frameHeight);
+    QPixmap frame = framesheet.copy(currentFrame * frameWidth, 0, frameWidth, frameHeight);
 
     setPixmap(frame.transformed(QTransform().scale(-1, 1)));
 
-    if (currentFrame >= frameCount - 1)
-    {
+    if (currentFrame >= frameCount - 1) {
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -695,12 +685,11 @@ void FireTrap2::CheckDamage()
 
     QRectF area = damageArea();
 
-    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape))
-    {
+
+    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape)) {
         Player *player = dynamic_cast<Player *>(item);
 
-        if (player && area.intersects(playerDamageBox(player)))
-        {
+        if (player && area.intersects(playerDamageBox(player))) {
             applyDamageTo(player);
             return;
         }
@@ -709,13 +698,10 @@ void FireTrap2::CheckDamage()
 
 void FireTrap2::applyDamageTo(Player *player)
 {
-    if (isFireFrame())
-    {
+    if (isFireFrame()) {
         player->takeDamage(player->getHealth() * 0.25f);
         cooldownTimer->setInterval(600);
-    }
-    else
-    {
+    } else {
         player->takeDamage(sparkDamage);
         cooldownTimer->setInterval(200);
     }
@@ -731,16 +717,11 @@ QRectF FireTrap2::damageArea() const
 
     QRectF area = sceneBoundingRect();
 
-    qreal h = area.height() * 0.30;
+    qreal h = area.height() * 0.25;
     qreal y = area.center().y() - h / 2;
+    qreal w = isSparkFrame() ? area.width() * 0.22 : area.width() * 0.40;
 
-    qreal w = isSparkFrame() ? area.width() * 0.22
-                             : area.width() * 0.70;
-
-    return QRectF(area.left() + area.width() * 0.12,
-                  y,
-                  w,
-                  h);
+    return QRectF(area.left() + area.width() * 0.12, y, w, h);
 }
 
 int FireTrap2::getwidth() const
@@ -753,20 +734,23 @@ int FireTrap2::getheight() const
     return int(frameHeight * scale());
 }
 
+// ===========================================================================
+// FireTrap3 - shoots UP
+// ===========================================================================
 
 FireTrap3::FireTrap3(QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
-    frameWidth(0),
-    frameHeight(0),
-    currentFrame(0),
-    displayedFrame(0),
-    sparkDamage(3.0f),
-    canDamage(true),
-    animationTimer(new QTimer(this)),
-    damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this)),
-    pauseTimer(new QTimer(this)),
-    isPaused(false)
+    : QGraphicsPixmapItem(parent)
+    , frameWidth(0)
+    , frameHeight(0)
+    , currentFrame(0)
+    , displayedFrame(0)
+    , sparkDamage(3.0f)
+    , canDamage(true)
+    , animationTimer(new QTimer(this))
+    , damageTimer(new QTimer(this))
+    , cooldownTimer(new QTimer(this))
+    , pauseTimer(new QTimer(this))
+    , isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap3.png");
 
@@ -808,13 +792,9 @@ void FireTrap3::UpdateAnimation()
 
     displayedFrame = currentFrame;
 
-    setPixmap(framesheet.copy(currentFrame * frameWidth,
-                              0,
-                              frameWidth,
-                              frameHeight));
+    setPixmap(framesheet.copy(currentFrame * frameWidth, 0, frameWidth, frameHeight));
 
-    if (currentFrame >= frameCount - 1)
-    {
+    if (currentFrame >= frameCount - 1) {
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -848,12 +828,10 @@ void FireTrap3::CheckDamage()
 
     QRectF area = damageArea();
 
-    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape))
-    {
+    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape)) {
         Player *player = dynamic_cast<Player *>(item);
 
-        if (player && area.intersects(playerDamageBox(player)))
-        {
+        if (player && area.intersects(playerDamageBox(player))) {
             applyDamageTo(player);
             return;
         }
@@ -862,13 +840,10 @@ void FireTrap3::CheckDamage()
 
 void FireTrap3::applyDamageTo(Player *player)
 {
-    if (isFireFrame())
-    {
+    if (isFireFrame()) {
         player->takeDamage(player->getHealth() * 0.25f);
         cooldownTimer->setInterval(600);
-    }
-    else
-    {
+    } else {
         player->takeDamage(sparkDamage);
         cooldownTimer->setInterval(200);
     }
@@ -879,22 +854,15 @@ void FireTrap3::applyDamageTo(Player *player)
 
 QRectF FireTrap3::damageArea() const
 {
-    if (!isSparkFrame() && !isFireFrame())
-        return QRectF();
-
-    // here the vertical flame grows taller after the warning sparks
-    QRectF area = sceneBoundingRect();
-
-    qreal w = area.width() * 0.22;
-    qreal x = area.center().x() - w / 2;
-
-    qreal h = isSparkFrame() ? area.height() * 0.25
-                             : area.height() * 0.65;
-
-    return QRectF(x,
-                  area.bottom() - h - area.height() * 0.15,
-                  w,
-                  h);
+    QPointF origin = mapToScene(QPointF(0, 0));
+    qreal w = 24;
+    qreal h = isSparkFrame() ? 32 : 80;
+    return QRectF(
+        origin.x() + 6*32 + 6,
+        origin.y() - h + 32*3,
+        w,
+        h
+        );
 }
 
 int FireTrap3::getwidth() const
@@ -907,20 +875,23 @@ int FireTrap3::getheight() const
     return int(frameHeight * scale());
 }
 
+// ===========================================================================
+// FireTrap4 - shoots DOWN
+// ===========================================================================
 
 FireTrap4::FireTrap4(QGraphicsItem *parent)
-    : QGraphicsPixmapItem(parent),
-    frameWidth(0),
-    frameHeight(0),
-    currentFrame(0),
-    displayedFrame(0),
-    sparkDamage(3.0f),
-    canDamage(true),
-    animationTimer(new QTimer(this)),
-    damageTimer(new QTimer(this)),
-    cooldownTimer(new QTimer(this)),
-    pauseTimer(new QTimer(this)),
-    isPaused(false)
+    : QGraphicsPixmapItem(parent)
+    , frameWidth(0)
+    , frameHeight(0)
+    , currentFrame(0)
+    , displayedFrame(0)
+    , sparkDamage(3.0f)
+    , canDamage(true)
+    , animationTimer(new QTimer(this))
+    , damageTimer(new QTimer(this))
+    , cooldownTimer(new QTimer(this))
+    , pauseTimer(new QTimer(this))
+    , isPaused(false)
 {
     framesheet.load(":resources/traps/fire_trap3.png");
 
@@ -960,18 +931,13 @@ void FireTrap4::UpdateAnimation()
     if (isPaused)
         return;
 
-    // here i flip the vertical fire so it shoots from the opposite side
     displayedFrame = currentFrame;
 
-    QPixmap frame = framesheet.copy(currentFrame * frameWidth,
-                                    0,
-                                    frameWidth,
-                                    frameHeight);
+    QPixmap frame = framesheet.copy(currentFrame * frameWidth, 0, frameWidth, frameHeight);
 
     setPixmap(frame.transformed(QTransform().scale(1, -1)));
 
-    if (currentFrame >= frameCount - 1)
-    {
+    if (currentFrame >= frameCount - 1) {
         isPaused = true;
         canDamage = false;
         currentFrame = 0;
@@ -1006,12 +972,11 @@ void FireTrap4::CheckDamage()
 
     QRectF area = damageArea();
 
-    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape))
-    {
+
+    for (QGraphicsItem *item : scene()->items(area, Qt::IntersectsItemShape)) {
         Player *player = dynamic_cast<Player *>(item);
 
-        if (player && area.intersects(playerDamageBox(player)))
-        {
+        if (player && area.intersects(playerDamageBox(player))) {
             applyDamageTo(player);
             return;
         }
@@ -1020,13 +985,10 @@ void FireTrap4::CheckDamage()
 
 void FireTrap4::applyDamageTo(Player *player)
 {
-    if (isFireFrame())
-    {
+    if (isFireFrame()) {
         player->takeDamage(player->getHealth() * 0.25f);
         cooldownTimer->setInterval(600);
-    }
-    else
-    {
+    } else {
         player->takeDamage(sparkDamage);
         cooldownTimer->setInterval(200);
     }
@@ -1037,21 +999,15 @@ void FireTrap4::applyDamageTo(Player *player)
 
 QRectF FireTrap4::damageArea() const
 {
-    if (!isSparkFrame() && !isFireFrame())
-        return QRectF();
-
-    QRectF area = sceneBoundingRect();
-
-    qreal w = area.width() * 0.22;
-    qreal x = area.center().x() - w / 2;
-
-    qreal h = isSparkFrame() ? area.height() * 0.25
-                             : area.height() * 0.65;
-
-    return QRectF(x,
-                  area.top() + area.height() * 0.15,
-                  w,
-                  h);
+    QPointF origin = scenePos();
+    qreal w = 24;
+    qreal h = isSparkFrame() ? 32 : 80;
+    return QRectF(
+        origin.x() + 6*32 + 6,
+        origin.y() + 32,
+        w,
+        h
+        );
 }
 
 int FireTrap4::getwidth() const

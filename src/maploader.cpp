@@ -1,35 +1,37 @@
 #include "maploader.hpp"
-#include "slime.hpp"
+#include "AudioManager.hpp"
+#include "Vampires.hpp"
 #include "boss.hpp"
 #include "campfire.hpp"
-#include "AudioManager.hpp"
-#include "player.hpp"
 #include "key.hpp"
-#include "Vampires.hpp"
+#include "player.hpp"
+#include "slime.hpp"
 
+#include <QDebug>
 #include <QFile>
-#include <QTextStream>
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QRandomGenerator>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsSimpleTextItem>
-#include <QDebug>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QRandomGenerator>
+#include <QTextStream>
 #include <cmath>
 
+
+#include "traps.hpp"
 
 // we moved from our old tilemap system to using json files to store all our map data,
 // we created our own format for the json files that allows us to store all the data we need for the maps
 // It also handles loading all our assets for the maps and storing them in a hashmap so we can reuse them across maps without reloading
-
 
 // this hashmap stores all our assets for all maps and we load them only once
 QHash<QString, CollidableTemplate> MapLoader::templateRegistry;
 bool MapLoader::assetsLoaded = false;
 
 MapLoader::MapLoader(const QString &jsonPath, Player *player, QObject *parent)
-    : QGraphicsScene(parent), player(player)
+    : QGraphicsScene(parent)
+    , player(player)
 {
     loadAssets();
     loadFromJson(jsonPath);
@@ -39,8 +41,7 @@ MapLoader::MapLoader(const QString &jsonPath, Player *player, QObject *parent)
 void MapLoader::loadFromJson(const QString &path)
 {
     QFile file(path);
-    if (!file.open(QIODevice::ReadOnly))
-    {
+    if (!file.open(QIODevice::ReadOnly)) {
         qWarning() << "MapLoader: cannot open" << path;
         return;
     }
@@ -54,14 +55,12 @@ void MapLoader::loadFromJson(const QString &path)
 
     // solid tiles are our unwalkable tiles (zay el black space fel house)
     QJsonArray solidArr = meta["solidTiles"].toArray();
-    for (const QJsonValue &val : solidArr)
-    {
+    for (const QJsonValue &val : solidArr) {
         solidTileIDs.insert(val.toInt());
     }
 
     QJsonArray overheadArr = meta["overheadTiles"].toArray();
-    for (const QJsonValue &v : overheadArr)
-    {
+    for (const QJsonValue &v : overheadArr) {
         overheadTiles.insert(v.toInt());
     }
 
@@ -70,15 +69,13 @@ void MapLoader::loadFromJson(const QString &path)
     hasFieldDecorations = meta["hasFieldDecorations"].toBool(false);
 
     QJsonObject tilesObj = meta["tiles"].toObject();
-    for (auto it = tilesObj.begin(); it != tilesObj.end(); ++it)
-    {
+    for (auto it = tilesObj.begin(); it != tilesObj.end(); ++it) {
         int id = it.key().toInt();
         baseTileRegistry[id] = QPixmap(it.value().toString());
     }
 
     QJsonArray decoArr = meta["decorationPool"].toArray();
-    for (const QJsonValue &v : decoArr)
-    {
+    for (const QJsonValue &v : decoArr) {
         decoPool.push_back(QPixmap(v.toString()));
     }
 
@@ -90,18 +87,15 @@ void MapLoader::loadFromJson(const QString &path)
     collisionMap.assign(MAP_ROWS, std::vector<int>(MAP_COLS, 0));
 
     // get map vector from json
-    for (int r = 0; r < rows.size(); ++r)
-    {
+    for (int r = 0; r < rows.size(); ++r) {
         QJsonArray row = rows[r].toArray();
         std::vector<int> rowVec;
 
-        for (int c = 0; c < row.size(); ++c)
-        {
+        for (int c = 0; c < row.size(); ++c) {
             int id = row[c].toInt();
             rowVec.push_back(id);
 
-            if (solidTileIDs.contains(id))
-            {
+            if (solidTileIDs.contains(id)) {
                 collisionMap[r][c] = 1;
             }
         }
@@ -115,30 +109,25 @@ void MapLoader::loadFromJson(const QString &path)
     drawFieldDecorations();
 
     // place our random collidables
-    if (root.contains("randomCollidables") && !root["randomCollidables"].isNull())
-    {
+    if (root.contains("randomCollidables") && !root["randomCollidables"].isNull()) {
         distributeRandomCollidables(root["randomCollidables"].toObject());
     }
 
     currentEnemyCount = 0;
 
-    if (root.contains("enemySpawns") && !root["enemySpawns"].isNull())
-    {
+    if (root.contains("enemySpawns") && !root["enemySpawns"].isNull()) {
         spawnEnemies(root["enemySpawns"].toObject());
     }
-    if (root.contains("specificEnemies") && !root["specificEnemies"].isNull())
-    {
+    if (root.contains("specificEnemies") && !root["specificEnemies"].isNull()) {
         spawnSpecificEnemies(root["specificEnemies"].toArray());
     }
     initialEnemyCount = currentEnemyCount;
 
     // spawn player when u load in specified spot (scene is still null)
-    if (player && player->scene() == nullptr)
-    {
+    if (player && player->scene() == nullptr) {
         QJsonObject spawn = meta["playerSpawn"].toObject();
 
-        if (!spawn.isEmpty())
-        {
+        if (!spawn.isEmpty()) {
             float row = spawn["row"].toDouble();
             float col = spawn["col"].toDouble();
 
@@ -147,8 +136,7 @@ void MapLoader::loadFromJson(const QString &path)
     }
     QJsonObject key = meta["keySpawn"].toObject();
 
-    if (!key.isEmpty())
-    {
+    if (!key.isEmpty()) {
         float row = key["row"].toDouble();
         float col = key["col"].toDouble();
         Key *key1 = new Key(col * TILE_SIZE, row * TILE_SIZE, player, 1);
@@ -163,8 +151,7 @@ void MapLoader::loadAssets()
     if (assetsLoaded)
         return;
 
-    auto reg = [&](const QString &id, const QString &path, QRectF hitbox)
-    {
+    auto reg = [&](const QString &id, const QString &path, QRectF hitbox) {
         templateRegistry[id] = {id, QPixmap(path), hitbox};
     };
 
@@ -214,7 +201,9 @@ void MapLoader::loadAssets()
     reg("stairs", ":resources/house_interior/Using-Deco/stairs.png", {0, 0, 0, 0});
     reg("window", ":resources/house_interior/Using-Deco/window.png", {0, 0, 0, 0});
 
-    reg("purple_carpet", ":resources/house_interior/Using-Deco/purple_carpet_circle.png", {0, 0, 0, 0});
+    reg("purple_carpet",
+        ":resources/house_interior/Using-Deco/purple_carpet_circle.png",
+        {0, 0, 0, 0});
     reg("red_carpet_rect", ":resources/house_interior/Using-Deco/red_carpet_rect.png", {0, 0, 0, 0});
 
     reg("sidewallr1", ":resources/map-assets/Tile2_17.png", {6, 0, 10, 32});
@@ -247,9 +236,13 @@ void MapLoader::loadAssets()
     reg("remains1", ":resources/map-assets/remains1.png", {1, 15, 19, 13});
     reg("remains2", ":resources/map-assets/remains2.png", {11, 12, 11, 17});
     reg("remains3", ":resources/map-assets/remains3.png", {8, 9, 14, 11});
-    reg("couch_side", ":resources/house_interior/Using-Deco/couch_side_profile.png", {10, 22, 24, 16});
+    reg("couch_side",
+        ":resources/house_interior/Using-Deco/couch_side_profile.png",
+        {10, 22, 24, 16});
     reg("cupboard_full", ":resources/house_interior/Using-Deco/cupboard_full.png", {0, 16, 50, 32});
-    reg("cupboard_empty", ":resources/house_interior/Using-Deco/cupboard_empty.png", {0, 16, 42, 32});
+    reg("cupboard_empty",
+        ":resources/house_interior/Using-Deco/cupboard_empty.png",
+        {0, 16, 42, 32});
     reg("wooden_crates", ":resources/house_interior/Using-Deco/wooden_crates.png", {9, 10, 10, 10});
     reg("round_table", ":resources/house_interior/Using-Deco/round_table.png", {4, 12, 34, 20});
     reg("sword_holder", ":resources/house_interior/Using-Deco/sword_holder.png", {0, 8, 60, 24});
@@ -263,8 +256,12 @@ void MapLoader::loadAssets()
     reg("side_wall", ":resources/house_interior/Using/side_of_wall.png", {32, 0, 1, 130});
     reg("side_wall_2", ":resources/house_interior/Using/side_of_wall_2.png", {32, 20, 1, 96});
 
-    reg("red_carpet_oval", ":resources/house_interior/Using-Deco/red_carpet_oval_2.png", {0, 0, 0, 0});
-    reg("red_carpet_rect_2", ":resources/house_interior/Using-Deco/red_carpet_rectangle_2.png", {0, 0, 0, 0});
+    reg("red_carpet_oval",
+        ":resources/house_interior/Using-Deco/red_carpet_oval_2.png",
+        {0, 0, 0, 0});
+    reg("red_carpet_rect_2",
+        ":resources/house_interior/Using-Deco/red_carpet_rectangle_2.png",
+        {0, 0, 0, 0});
     reg("entrance_mat", ":resources/house_interior/Using/entrance.png", {0, 0, 0, 0});
     reg("wall_no_door", ":resources/house_interior/Using/wall_no_door.png", {0, 0, 0, 0});
     reg("banana", ":resources/house_interior/Using-Deco/banana.png", {0, 0, 0, 0});
@@ -282,15 +279,25 @@ void MapLoader::loadAssets()
     reg("treasuremon", ":resources/map-assets/map2 objects/treasuremon.png", {2, 2, 26, 23});
     reg("twoboxes", ":resources/map-assets/map2 objects/twoboxes.png", {2, 2, 22, 27});
     reg("twoboxes1", ":resources/map-assets/map2 objects/twoboxes1.png", {2, 2, 21, 25});
-    reg("dungeon_stone_slab", ":resources/map-assets/map2 objects/dungeon_stone_slab.png", {2, 2, 28, 20});
+    reg("dungeon_stone_slab",
+        ":resources/map-assets/map2 objects/dungeon_stone_slab.png",
+        {2, 2, 28, 20});
     reg("dungeon_coins", ":resources/map-assets/map2 objects/dungeon_coins.png", {2, 2, 24, 13});
     reg("dungeon_coins2", ":resources/map-assets/map2 objects/dungeon_coins2.png", {2, 2, 24, 13});
-    reg("dungeon_gems_blue", ":resources/map-assets/map2 objects/dungeon_gems_blue.png", {2, 2, 24, 15});
-    reg("dungeon_coins_flat", ":resources/map-assets/map2 objects/dungeon_coins_flat.png", {2, 2, 24, 6});
+    reg("dungeon_gems_blue",
+        ":resources/map-assets/map2 objects/dungeon_gems_blue.png",
+        {2, 2, 24, 15});
+    reg("dungeon_coins_flat",
+        ":resources/map-assets/map2 objects/dungeon_coins_flat.png",
+        {2, 2, 24, 6});
     reg("dungeon_gold_sm", ":resources/map-assets/map2 objects/dungeon_gold_sm.png", {2, 2, 12, 8});
-    reg("dungeon_gem_blue", ":resources/map-assets/map2 objects/dungeon_gem_blue.png", {2, 2, 12, 8});
+    reg("dungeon_gem_blue",
+        ":resources/map-assets/map2 objects/dungeon_gem_blue.png",
+        {2, 2, 12, 8});
     reg("dungeon_coin", ":resources/map-assets/map2 objects/dungeon_coin.png", {2, 2, 10, 3});
-    reg("dungeon_stone_sm", ":resources/map-assets/map2 objects/dungeon_stone_sm.png", {2, 2, 10, 15});
+    reg("dungeon_stone_sm",
+        ":resources/map-assets/map2 objects/dungeon_stone_sm.png",
+        {2, 2, 10, 15});
     reg("dungeon_barrel", ":resources/map-assets/map2 objects/dungeon_barrel.png", {2, 2, 24, 26});
     reg("dungeon_rubble", ":resources/map-assets/map2 objects/dungeon_rubble.png", {2, 2, 24, 12});
     reg("dungeon_stairs", ":resources/map-assets/map2 objects/dungeon_stairs.png", {2, 2, 31, 48});
@@ -299,7 +306,9 @@ void MapLoader::loadAssets()
     reg("dungeon_pot", ":resources/map-assets/map2 objects/dungeon_pot.png", {2, 2, 17, 22});
     reg("dungeon_vase_sm", ":resources/map-assets/map2 objects/dungeon_vase_sm.png", {2, 2, 10, 22});
     reg("dungeon_vase", ":resources/map-assets/map2 objects/dungeon_vase.png", {2, 2, 12, 22});
-    reg("dungeon_barrel_blue", ":resources/map-assets/map2 objects/dungeon_barrel_blue.png", {2, 2, 26, 22});
+    reg("dungeon_barrel_blue",
+        ":resources/map-assets/map2 objects/dungeon_barrel_blue.png",
+        {2, 2, 26, 22});
     reg("dungeon_ladder2", ":resources/map-assets/map2 objects/dungeon_ladder2.png", {2, 2, 8, 53});
 
     // map3 objects
@@ -311,34 +320,27 @@ void MapLoader::loadAssets()
 
 void MapLoader::drawBaseTiles()
 {
-    const QPixmap &bgPx = baseTileRegistry.value(backgroundTileId); // get the "base" tile for this map
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
+    const QPixmap &bgPx = baseTileRegistry.value(
+        backgroundTileId); // get the "base" tile for this map
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
             auto *base = new QGraphicsPixmapItem(bgPx);
-            scalefactor = (qreal)TILE_SIZE / bgPx.width();
+            scalefactor = (qreal) TILE_SIZE / bgPx.width();
             base->setScale(scalefactor);
             base->setPos(j * TILE_SIZE, i * TILE_SIZE);
             base->setZValue(-100.0);
             addItem(base);
 
             int id = mapData[i][j];
-            if (id != 0 && baseTileRegistry.contains(id))
-            {
+            if (id != 0 && baseTileRegistry.contains(id)) {
                 auto *tile = new QGraphicsPixmapItem(baseTileRegistry[id]);
-                tile->setScale((qreal)TILE_SIZE / baseTileRegistry[id].width());
+                tile->setScale((qreal) TILE_SIZE / baseTileRegistry[id].width());
                 tile->setPos(j * TILE_SIZE, i * TILE_SIZE);
-                if (overheadTiles.contains(id))
-                {
+                if (overheadTiles.contains(id)) {
                     tile->setZValue((i * TILE_SIZE) + (TILE_SIZE * 3));
-                }
-                else if (solidTileIDs.contains(id))
-                {
+                } else if (solidTileIDs.contains(id)) {
                     tile->setZValue(-50.0);
-                }
-                else
-                {
+                } else {
                     tile->setZValue(-100.0);
                 }
                 addItem(tile);
@@ -349,20 +351,16 @@ void MapLoader::drawBaseTiles()
 
 void MapLoader::drawFieldDecorations()
 {
-    if (!hasFieldDecorations || decoPool.empty())
-    {
+    if (!hasFieldDecorations || decoPool.empty()) {
         return;
     }
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
+    for (int i = 0; i < MAP_ROWS; i++) {
+        for (int j = 0; j < MAP_COLS; j++) {
             if (mapData[i][j] != 0 && mapData[i][j] != 99)
                 continue;
 
-            if (QRandomGenerator::global()->bounded(100) < 30)
-            {
-                int idx = QRandomGenerator::global()->bounded((int)decoPool.size());
+            if (QRandomGenerator::global()->bounded(100) < 30) {
+                int idx = QRandomGenerator::global()->bounded((int) decoPool.size());
                 auto *deco = new QGraphicsPixmapItem(decoPool[idx]);
                 deco->setPos(j * TILE_SIZE, i * TILE_SIZE);
                 deco->setZValue(-50.0);
@@ -374,31 +372,27 @@ void MapLoader::drawFieldDecorations()
 
 void MapLoader::placeStaticObjects(const QJsonArray &objects)
 {
-    for (const QJsonValue &val : objects)
-    {
+    for (const QJsonValue &val : objects) {
         QJsonObject obj = val.toObject();
         QString type = obj["type"].toString();
-        float row = (float)obj["row"].toDouble();
-        float col = (float)obj["col"].toDouble();
+        float row = (float) obj["row"].toDouble();
+        float col = (float) obj["col"].toDouble();
 
-        if (type == "collidable")
-        {
+        if (type == "collidable") {
             placeCollidable(row, col, obj["templateId"].toString());
-        }
-        else if (type == "nonCollidable")
-        {
+        } else if (type == "nonCollidable") {
             placeNonCollidable(row, col, obj["assetId"].toString(), obj["zValue"].toDouble(1000.0));
-        }
-        else if (type == "campfire")
-        {
+        } else if (type == "campfire") {
             addCampfire(row, col);
+        }
+        else if (type == "trap") {
+            addTrap(row, col, obj["trapType"].toString());
         }
     }
 }
 
 void MapLoader::placeCollidable(float row, float col, const QString &templateId)
 {
-
     if (!templateRegistry.contains(templateId))
         return;
     const CollidableTemplate &tmpl = templateRegistry[templateId];
@@ -413,18 +407,16 @@ void MapLoader::placeCollidable(float row, float col, const QString &templateId)
 
     item->setTransformationMode(Qt::FastTransformation);
 
-    QRectF scaledHitbox(
-        tmpl.hitbox.x() * scalefactor,
-        tmpl.hitbox.y() * scalefactor,
-        tmpl.hitbox.width() * scalefactor,
-        tmpl.hitbox.height() * scalefactor);
+    QRectF scaledHitbox(tmpl.hitbox.x() * scalefactor,
+                        tmpl.hitbox.y() * scalefactor,
+                        tmpl.hitbox.width() * scalefactor,
+                        tmpl.hitbox.height() * scalefactor);
 
     QRectF worldHitbox = scaledHitbox.translated(worldPos);
     item->setZValue(worldHitbox.bottom());
 
     addItem(item);
-    if (worldHitbox.width() > 0)
-    {
+    if (worldHitbox.width() > 0) {
         activeCollidables.push_back({worldHitbox});
     }
 }
@@ -443,10 +435,10 @@ void MapLoader::placeNonCollidable(float row, float col, const QString &assetId,
     addItem(item);
 
     // 99 means dont place anything else here
-    int wTiles = std::ceil((double)px.width() / TILE_SIZE);
-    int hTiles = std::ceil((double)px.height() / TILE_SIZE);
-    for (int i = (int)row; i < (int)row + hTiles; i++)
-        for (int j = (int)col; j < (int)col + wTiles; j++)
+    int wTiles = std::ceil((double) px.width() / TILE_SIZE);
+    int hTiles = std::ceil((double) px.height() / TILE_SIZE);
+    for (int i = (int) row; i < (int) row + hTiles; i++)
+        for (int j = (int) col; j < (int) col + wTiles; j++)
             if (i >= 0 && i < MAP_ROWS && j >= 0 && j < MAP_COLS)
                 mapData[i][j] = 99;
 }
@@ -465,8 +457,7 @@ void MapLoader::spawnPlayer(Player *p, float row, float col)
 {
     this->player = p;
     // remove from old scene if necessary
-    if (player->scene())
-    {
+    if (player->scene()) {
         player->scene()->removeItem(player);
     }
     addItem(player);
@@ -488,8 +479,7 @@ void MapLoader::distributeRandomCollidables(const QJsonObject &cfg)
     int maxAttempts = count * 30;
     int placed = 0, attempts = 0;
 
-    while (placed < count && attempts < maxAttempts)
-    {
+    while (placed < count && attempts < maxAttempts) {
         attempts++;
         int randomRow = QRandomGenerator::global()->bounded(MAP_ROWS);
         int randomCol = QRandomGenerator::global()->bounded(MAP_COLS);
@@ -499,8 +489,8 @@ void MapLoader::distributeRandomCollidables(const QJsonObject &cfg)
             continue;
 
         const CollidableTemplate &tmpl = templateRegistry[id];
-        int wTiles = std::ceil((double)tmpl.texture.width() / TILE_SIZE);
-        int hTiles = std::ceil((double)tmpl.texture.height() / TILE_SIZE);
+        int wTiles = std::ceil((double) tmpl.texture.width() / TILE_SIZE);
+        int hTiles = std::ceil((double) tmpl.texture.height() / TILE_SIZE);
 
         if (randomRow + hTiles > MAP_ROWS || randomCol + wTiles > MAP_COLS)
             continue;
@@ -519,21 +509,18 @@ void MapLoader::distributeRandomCollidables(const QJsonObject &cfg)
         if (!canPlace)
             continue;
 
-        QRectF spacingRect(
-            (randomCol - spacing) * TILE_SIZE,
-            (randomRow - spacing) * TILE_SIZE,
-            (wTiles + 2 * spacing) * TILE_SIZE,
-            (hTiles + 2 * spacing) * TILE_SIZE);
+        QRectF spacingRect((randomCol - spacing) * TILE_SIZE,
+                           (randomRow - spacing) * TILE_SIZE,
+                           (wTiles + 2 * spacing) * TILE_SIZE,
+                           (hTiles + 2 * spacing) * TILE_SIZE);
 
         for (QGraphicsItem *item : items(spacingRect))
-            if (item->zValue() > -50.0)
-            {
+            if (item->zValue() > -50.0) {
                 canPlace = false;
                 break;
             }
 
-        if (canPlace)
-        {
+        if (canPlace) {
             placeCollidable(randomRow, randomCol, id);
             placed++;
         }
@@ -561,8 +548,7 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
     std::vector<EnemyType> types;
     int totalWeight = 0;
 
-    for (const QJsonValue &t : typeArray)
-    {
+    for (const QJsonValue &t : typeArray) {
         QJsonObject to = t.toObject();
         EnemyType et;
         et.classType = to["class"].toString("Slime");
@@ -575,8 +561,7 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
         return;
 
     int placed = 0, attempts = 0, maxAttempts = count * 100;
-    while (placed < count && attempts < maxAttempts)
-    {
+    while (placed < count && attempts < maxAttempts) {
         attempts++;
         int r = QRandomGenerator::global()->bounded(rowMin, rowMax);
         int c = QRandomGenerator::global()->bounded(colMin, colMax);
@@ -587,10 +572,8 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
         QRectF spawnRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE / 3, TILE_SIZE / 3);
         bool blocked = false;
 
-        for (const auto &obj : activeCollidables)
-        {
-            if (spawnRect.intersects(obj.worldHitbox))
-            {
+        for (const auto &obj : activeCollidables) {
+            if (spawnRect.intersects(obj.worldHitbox)) {
                 blocked = true;
                 break;
             }
@@ -601,11 +584,9 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
         int roll = QRandomGenerator::global()->bounded(totalWeight);
         int cumulative = 0;
         const EnemyType *chosen = &types.back();
-        for (const auto &t : types)
-        {
+        for (const auto &t : types) {
             cumulative += t.weight;
-            if (roll < cumulative)
-            {
+            if (roll < cumulative) {
                 chosen = &t;
                 break;
             }
@@ -613,27 +594,19 @@ void MapLoader::spawnEnemies(const QJsonObject &cfg)
 
         BaseEnemy *enemy = nullptr;
 
-        if (chosen->classType == "Skeleton")
-        {
+        if (chosen->classType == "Skeleton") {
             // enemy = new Skeleton(chosen->variant);
             int i = 5;
-        }
-        else if (chosen->classType == "Boss")
-        {
+        } else if (chosen->classType == "Boss") {
             // enemy = new Boss(chosen->variant);
             int i = 5;
-        }
-        else if (chosen->classType == "Vampire")
-        {
+        } else if (chosen->classType == "Vampire") {
             enemy = new Vampire(chosen->variant);
-        }
-        else
-        {
+        } else {
             enemy = new Slime(chosen->variant);
         }
 
-        if (enemy)
-        {
+        if (enemy) {
             enemy->setPos(c * TILE_SIZE, r * TILE_SIZE);
             enemy->setZValue(r * TILE_SIZE + TILE_SIZE * 4);
             enemy->setPlayer(player);
@@ -651,8 +624,7 @@ void MapLoader::spawnSpecificEnemies(const QJsonArray &enemies)
 {
     int placed = 0;
 
-    for (const QJsonValue &val : enemies)
-    {
+    for (const QJsonValue &val : enemies) {
         QJsonObject e = val.toObject();
         float r = e["row"].toDouble();
         float c = e["col"].toDouble();
@@ -660,39 +632,29 @@ void MapLoader::spawnSpecificEnemies(const QJsonArray &enemies)
         QString classType = e["class"].toString("Slime");
         BaseEnemy *enemy = nullptr;
 
-        if (classType == "Skeleton")
-        {
+        if (classType == "Skeleton") {
             // enemy = new Skeleton(variant);
-        }
-        else if (classType == "Boss")
-        {
+        } else if (classType == "Boss") {
             enemy = new Boss(variant);
-        }
-        else if (classType == "Vampire")
-        {
-            enemy = new Vampire(variant);   
-        }
-        else
-        {
+        } else if (classType == "Vampire") {
+            enemy = new Vampire(variant);
+        } else {
             enemy = new Slime(variant);
         }
 
-        if (enemy)
-        {
+        if (enemy) {
             enemy->setPos(c * TILE_SIZE, r * TILE_SIZE);
             enemy->setZValue(r * TILE_SIZE + TILE_SIZE * 4);
             enemy->setPlayer(player);
             addItem(enemy);
             connect(enemy, &BaseEnemy::enemyDied, this, &MapLoader::onEnemyDied);
-            if (dynamic_cast<Boss *>(enemy))
-            {
+            if (dynamic_cast<Boss *>(enemy)) {
                 connect(enemy, &BaseEnemy::healthChanged, this, &MapLoader::bossHealthChanged);
             }
 
             int intRow = static_cast<int>(r);
             int intCol = static_cast<int>(c);
-            if (intRow >= 0 && intRow < MAP_ROWS && intCol >= 0 && intCol < MAP_COLS)
-            {
+            if (intRow >= 0 && intRow < MAP_ROWS && intCol >= 0 && intCol < MAP_COLS) {
                 mapData[intRow][intCol] = 98;
             }
             placed++;
@@ -706,8 +668,7 @@ void MapLoader::onEnemyDied()
 {
     currentEnemyCount--;
     emit requestBarUpdate(currentEnemyCount);
-    if (currentEnemyCount <= 0)
-    {
+    if (currentEnemyCount <= 0) {
         AudioManager::instance().playSound("LevelCleared");
         emit levelCleared();
     }
@@ -720,14 +681,12 @@ bool MapLoader::isTileCollidable(int row, int col) const
 
     int tileValue = collisionMap[row][col];
 
-    if (tileValue == 1)
-    {
-        if (row >= 17 && row <= 19 && col >= 14 && col <= 16 && player->haskey(1))
-        { // this is where the door is
+    if (tileValue == 1) {
+        if (row >= 17 && row <= 19 && col >= 14 && col <= 16
+            && player->haskey(1)) { // this is where the door is
             return false;
         }
-        if (row >= 28 && row <= 30 && col >= 45 && col <= 46 && player->haskey(2))
-        {
+        if (row >= 28 && row <= 30 && col >= 45 && col <= 46 && player->haskey(2)) {
             return false; // second door
         }
         return true;
@@ -740,3 +699,61 @@ int MapLoader::getCurrentEnemyCount()
 {
     return currentEnemyCount;
 }
+
+void MapLoader::addTrap(float row, float col, QString trapType){
+
+    QGraphicsItem *trap = nullptr;
+    if(trapType == "spike"){
+        trap = new SpikeTrap();
+    }
+    else if(trapType == "slider"){
+        trap = new SlidingSpikeTrap();
+    }
+    else if(trapType == "saw"){
+        trap = new SawBladeTrap();
+    }
+    else if (trapType == "fire_right"){
+        trap = new FireTrap();
+    }
+    else if (trapType == "fire_left"){
+        trap = new FireTrap2();
+    }
+    else if (trapType == "fire_up"){
+        trap = new FireTrap3();
+    }
+    else if (trapType == "fire_down"){
+        trap = new FireTrap4();
+    }
+
+    if (trap) {
+        trap->setPos(col * TILE_SIZE, row * TILE_SIZE);
+        if (trapType == "fire_right" || trapType == "fire_left" ||
+            trapType == "fire_up"    || trapType == "fire_down") {
+            trap->setZValue(row * TILE_SIZE + TILE_SIZE);
+        }
+        else {
+            trap->setZValue(row * TILE_SIZE + TILE_SIZE*2);
+            if (trapType == "spike") {
+                QRectF worldHitbox(
+                    col * TILE_SIZE + 48,   // offset right by 32px to centre horizontally
+                    row * TILE_SIZE + 48,   // offset down by 32px to hit the lower half
+                    32,                      // 64px wide
+                    16                       // 32px tall
+                    );
+                activeCollidables.push_back({worldHitbox});
+                QGraphicsRectItem *debugBox = new QGraphicsRectItem(worldHitbox);
+            }
+            else if (trapType == "saw") {
+                QRectF worldHitbox(
+                    col * TILE_SIZE + 20,
+                    row * TILE_SIZE + 24,
+                    36,
+                    30
+                    );
+                activeCollidables.push_back({worldHitbox});
+            }
+        }
+        addItem(trap);
+    }
+}
+

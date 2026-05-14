@@ -100,4 +100,5 @@ private:
     void placeCollidable(float row, float col, const QString &templateId);
     void placeNonCollidable(float row, float col, const QString &assetId, qreal zValue);
     void addCampfire(float row, float col);
+    void addTrap(float row, float col, QString trapType);
 };

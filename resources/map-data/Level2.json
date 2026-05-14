@@ -3943,7 +3943,245 @@
             "row": 37.688,
             "col": 25.0,
             "templateId": "threeboxes"
-        }
+        },
+        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 8,
+                            "col": 6
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 8,
+                            "col": 9
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 12,
+                            "col": 14
+                        },
+
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 34,
+                            "col": 20
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 37,
+                            "col": 19
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 36,
+                            "col": 21
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 38,
+                            "col": 20
+                        },
+
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 40,
+                            "col": 19
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_right",
+                            "row": 42,
+                            "col": 25.2
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 42,
+                            "col": 25
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 42,
+                            "col": 28
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_left",
+                            "row": 41,
+                            "col": 17.8
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_left",
+                            "row": 22,
+                            "col": 24.8
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_down",
+                            "row": 39,
+                            "col": 18
+                        },
+
+                        {
+                            "type": "trap",
+                            "trapType": "fire_right",
+                            "row": 29,
+                            "col": 25.8
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 30,
+                            "col": 26
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_right",
+                            "row": 32,
+                            "col": 25.8
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_left",
+                            "row": 34,
+                            "col": 24.8
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 36,
+                            "col": 27
+                        },
+
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 19,
+                            "col": 26
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_down",
+                            "row": 19,
+                            "col": 27
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 20,
+                            "col": 30
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 22,
+                            "col": 33
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 22,
+                            "col": 27
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 15,
+                            "col": 21
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "spike",
+                            "row": 9,
+                            "col": 22
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_left",
+                            "row": 12,
+                            "col": 19.8
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_left",
+                            "row": 17,
+                            "col": 19.8
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_right",
+                            "row": 14,
+                            "col": 17.2
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_down",
+                            "row": 6,
+                            "col": 21
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_down",
+                            "row": 6,
+                            "col": 26
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_down",
+                            "row": 6,
+                            "col": 29
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_down",
+                            "row": 6,
+                            "col":34
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_down",
+                            "row": 6,
+                            "col": 37
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_up",
+                            "row": 7,
+                            "col": 30
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 9,
+                            "col": 27
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 10,
+                            "col": 32
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "saw",
+                            "row": 7,
+                            "col": 34
+                        },
+                        {
+                            "type": "trap",
+                            "trapType": "fire_up",
+                            "row": 7,
+                            "col": 31
+                        }
     ],
     "specificEnemies": [
         {
